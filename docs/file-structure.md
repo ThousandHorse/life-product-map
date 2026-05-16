@@ -95,7 +95,7 @@ Next.js App Router の規約に従ったディレクトリ。**ページ定義�
 | `NavPane.tsx` | Pane 1 | 年目標一覧（最大5件）・目標モード↔勤怠モードの切替 |
 | `TaskListPane.tsx` | Pane 2（目標） | 月マイルストーン + 週タスクの展開表示・進捗バッジ |
 | `AttendancePane.tsx` | Pane 2（勤怠） | 出退勤打刻ボタン・今日の稼働時間・目標稼働時間設定 |
-| `DetailPane.tsx` | Pane 3（目標） | 今日のタスク一覧（デフォルト）またはタスク詳細 |
+| `DetailPane.tsx` | Pane 3（目標） | 今日のタスク一覧（常時表示）・タスク詳細・日報入力と AI フィードバック |
 | `CalendarPane.tsx` | Pane 3（勤怠） | 月次カレンダー・各日の打刻データ表示 |
 | `AiChatPane.tsx` | Pane 4 | AI 壁打ちチャット（Phase 1 はモック、Phase 3 で Claude API 接続） |
 

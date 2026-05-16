@@ -4,10 +4,11 @@
  * 月マイルストーンの進捗ステータスを自動計算する純粋関数。
  * UI に依存しないロジックを分離することで、テストしやすい状態を保つ。
  *
- * ステータスの判定基準:
- *   ok      : 達成率 > 70% または 残日数 > 14日
- *   caution : 達成率 40〜70% かつ 残日数 7〜14日
+ * ステータスの判定基準（上から順に評価し、最初に一致したものを採用する）:
+ *   danger  : 達成率 < 40% かつ 残日数 < 7日（最優先）
  *   danger  : 達成率 < 40% または 残日数 < 7日
+ *   caution : 達成率 40〜70% かつ 残日数 7〜14日
+ *   ok      : 上記以外
  *
  * 注意事項:
  *   - progressStatus は MonthMilestone に保存されるが、表示前に再計算して上書きする。
@@ -48,14 +49,15 @@ export function computeProgressStatus(
   const doneCount = tasks.filter((t) => t.status === "done").length;
   const achievementRate = doneCount / tasks.length;
 
-  // 達成率が高い、または余裕がある場合は順調
-  if (achievementRate > 0.7 || remainingDays > 14) return "ok";
+  // danger を最優先で評価する。達成率が低い、または残日数が少ない場合は危険
+  // 例: 達成率80%でも残日数3日なら danger になる
+  if (achievementRate < 0.4 || remainingDays < 7) return "danger";
 
   // 達成率が中程度かつ残日数が7〜14日は注意
-  if (achievementRate >= 0.4 && remainingDays >= 7) return "caution";
+  if (achievementRate < 0.7 && remainingDays <= 14) return "caution";
 
-  // 達成率が低い、または残日数が少ない場合は危険
-  return "danger";
+  // 上記以外（達成率 > 70% かつ 残日数 > 14日）は順調
+  return "ok";
 }
 
 /**
