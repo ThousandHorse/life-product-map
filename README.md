@@ -1,36 +1,69 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# LifeProductMap
 
-## Getting Started
+目標管理と勤怠管理を一体化した個人生産性アプリ。
 
-First, run the development server:
+年目標 → 月マイルストーン → 週タスク → 今日のタスクへと細分化し、進捗を可視化する。
+AI 壁打ちチャット・出退勤打刻・xlsx エクスポートを備えた 4 ペイン構成のワークスペース。
+
+## 技術スタック
+
+| 技術 | バージョン | 役割 |
+|---|---|---|
+| Next.js | 16 | フレームワーク（App Router） |
+| React | 19 | UI ライブラリ |
+| TypeScript | 5 | 型安全性 |
+| Tailwind CSS | v4 | スタイリング |
+| shadcn/ui | base-nova | UI コンポーネント |
+| Zod | 4 | スキーマ定義・バリデーション |
+
+## 開発環境のセットアップ
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+[http://localhost:3000](http://localhost:3000) をブラウザで開いてください。
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## コマンド
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+npm run dev       # 開発サーバー起動
+npm run build     # 本番ビルド
+npm run lint      # ESLint 実行
+```
 
-## Learn More
+## ブランチ運用
 
-To learn more about Next.js, take a look at the following resources:
+```
+main        ← リリースブランチ（直接 push 禁止）
+  └─ develop  ← 開発統合ブランチ（直接 push 禁止）
+       └─ feature/step-XX-description  ← 作業ブランチ
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- 作業は必ず `develop` ベースで `feature/` ブランチを切る
+- PR は `develop` ベースで作成する
+- `develop` → `main` のマージは定期的にリリースタイミングで行う
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## フェーズ構成
 
-## Deploy on Vercel
+| Phase | 内容 |
+|---|---|
+| 1 | Next.js セットアップ + localStorage 永続化 + 目標管理 UI |
+| 2 | Supabase 移行（マルチデバイス同期） |
+| 3 | Claude API (claude-haiku-4-5) AI 壁打ち機能 |
+| 4 | モバイル対応 |
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## 開発ガイド
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+実装ルール・コメントポリシー・PR テンプレートは以下を参照:
+
+```
+~/.claude/skills/dob-development/
+├── SKILL.md                  # 技術スタック・規約・ワークフロー
+└── reference/
+    ├── steps.md              # 各 Step の完了条件
+    ├── workflow.md           # PR 作成手順
+    ├── pr-template.md        # PR テンプレート
+    └── comment-policy.md    # コメントポリシー
+```
