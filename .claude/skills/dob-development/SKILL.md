@@ -73,13 +73,3 @@ Pane 4 (AiChatPane)
 
 **更新したスキルファイルは必ずコミット対象に含めること。**
 スキルファイルはコードと同じくバージョン管理するため、実装コミットと同じ feature ブランチにまとめてコミットする。
-
-**プロジェクト内と `~/.claude/skills/` の両方を常に同じ内容に保つこと。**
-片方を変更したら、必ずもう片方にも同じ変更を加える（同期漏れ禁止）。
-
-対象ファイル（両方を必ず同時に更新する）：
-- `.claude/skills/dob-development/SKILL.md`
-- `.claude/skills/dob-development/reference/steps.md`
-- `.claude/skills/dob-development/reference/workflow.md`
-- `.claude/skills/dob-development/reference/pr-template.md`
-- `.claude/skills/dob-development/reference/comment-policy.md`
