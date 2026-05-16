@@ -49,14 +49,15 @@ export function computeProgressStatus(
   const doneCount = tasks.filter((t) => t.status === "done").length;
   const achievementRate = doneCount / tasks.length;
 
-  // 達成率が高い、または余裕がある場合は順調
-  if (achievementRate > 0.7 || remainingDays > 14) return "ok";
+  // danger を最優先で評価する。達成率が低い、または残日数が少ない場合は危険
+  // 例: 達成率80%でも残日数3日なら danger になる
+  if (achievementRate < 0.4 || remainingDays < 7) return "danger";
 
   // 達成率が中程度かつ残日数が7〜14日は注意
-  if (achievementRate >= 0.4 && remainingDays >= 7) return "caution";
+  if (achievementRate < 0.7 && remainingDays <= 14) return "caution";
 
-  // 達成率が低い、または残日数が少ない場合は危険
-  return "danger";
+  // 上記以外（達成率 > 70% かつ 残日数 > 14日）は順調
+  return "ok";
 }
 
 /**
