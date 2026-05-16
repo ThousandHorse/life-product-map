@@ -45,6 +45,18 @@ export const LABELS = {
     },
   },
 
+  dailyReport: {
+    button: "日報を書く",
+    reflection: "今日の振り返り",
+    learned: "学んだこと",
+    submit: "提出する",
+    aiFeedback: "AI フィードバック",
+    placeholder: {
+      reflection: "今日の出来事や気づきを書いてください...",
+      learned: "今日身についたことを書いてください...",
+    },
+  },
+
   attendance: {
     clockIn: "出勤",
     clockOut: "退勤",

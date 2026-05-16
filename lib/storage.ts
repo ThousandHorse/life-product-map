@@ -51,6 +51,7 @@ export const STORAGE_KEYS = {
   goals: "lpm_goals",
   milestones: "lpm_milestones",
   tasks: "lpm_tasks",
+  dailyReports: "lpm_daily_reports",
   attendanceRecords: "lpm_attendance_records",
   attendanceSettings: "lpm_attendance_settings",
 } as const;

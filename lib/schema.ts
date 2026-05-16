@@ -55,6 +55,17 @@ export const attendanceRecordSchema = z.object({
   clockOut: z.string().datetime().optional(),
 });
 
+// 日報（1日1件）
+// date をキーとして1日1件に制限する。複数件の保存は storage.ts 側で防ぐ
+export const dailyReportSchema = z.object({
+  id: z.string(),
+  date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "YYYY-MM-DD 形式で入力してください"),
+  reflection: z.string(), // 今日の振り返り
+  learned: z.string(),    // 学んだこと
+  // Phase 3 で Claude API から取得したフィードバックを保存する。Phase 1 はダミーテキスト
+  aiComment: z.string().optional(),
+});
+
 // 勤怠設定
 // xlsxTemplate と columnMapping は Phase 2 でテンプレートアップロード機能を実装する際に使う
 export const attendanceSettingsSchema = z.object({
@@ -70,6 +81,7 @@ export const attendanceSettingsSchema = z.object({
 export type YearGoal = z.infer<typeof yearGoalSchema>;
 export type MonthMilestone = z.infer<typeof monthMilestoneSchema>;
 export type WeekTask = z.infer<typeof weekTaskSchema>;
+export type DailyReport = z.infer<typeof dailyReportSchema>;
 export type AttendanceRecord = z.infer<typeof attendanceRecordSchema>;
 export type AttendanceSettings = z.infer<typeof attendanceSettingsSchema>;
 
