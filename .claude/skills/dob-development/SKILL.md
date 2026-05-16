@@ -36,112 +36,6 @@ Pane 4 (AiChatPane)
 | AI (Phase 3) | claude-haiku-4-5 | コスト最小（約0.01-0.02円/コール） |
 | スタイリング | Tailwind CSS v4 + @theme | CSS 変数でデザイントークンを一元管理。色番号直書き禁止 |
 
-各 Step の実装詳細: [reference/steps.md](reference/steps.md)
-
-## コード規約
-
-### コメントポリシー
-
-**「なぜこう実装したか」を書く。「何をしているか」は書かない。**
-
-新人エンジニアが疑問を持ちそうな技術的判断・ライブラリ制約・将来フェーズへの備えを明記する。
-変数名・関数名で分かる処理の説明（WHAT）は書かない。
-
-詳細と記述例: [reference/comment-policy.md](reference/comment-policy.md)
-
-### ファイル先頭コメント（必須）
-
-```tsx
-/**
- * ComponentName.tsx
- *
- * このコンポーネントの役割を1〜2文で説明する。
- *
- * Props:
- *   propName: 型 — 説明
- *
- * 注意事項（設計上の制約・将来フェーズへの備えなど、ある場合のみ）:
- */
-```
-
-### レイアウト
-
-```tsx
-// ✅ 子要素の間隔は親の flex gap で管理する
-<div className="flex flex-col gap-4">
-  <Item />
-  <Item />
-</div>
-
-// ❌ space-y-* は使わない（先頭要素にも margin が付くため）
-```
-
-### 色・トークン
-
-```tsx
-// ✅ 役割名のトークンを使う（globals.css の @theme で定義）
-<div className="bg-primary text-primary-foreground" />
-
-// ❌ 色番号直書き禁止
-<div className="bg-blue-500" />
-```
-
-### shadcn (base-nova)
-
-```tsx
-// ✅ base-nova では render prop を使う
-<Dialog.Trigger render={<Button>開く</Button>} />
-
-// ❌ asChild は @base-ui/react では動作しない
-<Dialog.Trigger asChild><Button /></Dialog.Trigger>
-```
-
-### 状態管理
-
-- **派生 state を useEffect で複製しない**（レンダー中に計算する）
-- **localStorage への read は useEffect 内**（SSR で window が存在しないため）
-- **localStorage への write は state 変更後の useEffect 内**で自動保存
-
-## 実装ワークフロー
-
-```
-Step 1: reference/steps.md で対象 Step の仕様確認
-Step 2: 実装（完了条件を全て満たす）
-Step 3: コードレビュー（reference/workflow.md の観点で自己確認）
-Step 4: git push origin feature/step-XX-description → gh pr create --base develop
-Step 5: ユーザーのマージを待つ ← 次の Step はマージ確認後に開始
-```
-
-- **1 Step ずつ進める**（複数 Step を一度に実装しない）
-- **PR マージはユーザーが手動**（`gh pr merge` は使わない）
-- **main / develop への直接 push 禁止**（必ず feature ブランチ経由）
-- **PR のベースは develop**（`gh pr create --base develop` を必ず指定）
-
-サブエージェントの詳細: [reference/workflow.md](reference/workflow.md)
-
-## Git 運用
-
-```bash
-# develop を最新化してから feature ブランチを切る
-git checkout develop && git pull origin develop
-git checkout -b feature/step-XX-description
-
-# PR 作成前にリモートへ push
-git push origin feature/step-XX-description
-
-# PR 作成（必ず --base develop を指定）
-gh pr create --base develop --title "Step-XX: タイトル"
-
-# マージ確認後に develop を最新化して次の feature ブランチへ
-git checkout develop && git pull origin develop
-```
-
-⛔ 禁止事項:
-- `git push origin main` / `git push origin develop`（直接 push 禁止）
-- `gh pr merge`（CLI でのマージ操作禁止。GitHub 上でユーザーが手動マージ）
-
-PR 概要の書き方: [reference/pr-template.md](reference/pr-template.md)
-
 ## Phase 1 実装 Step 一覧
 
 | Step | PR タイトル | 主な作業 |
@@ -157,16 +51,25 @@ PR 概要の書き方: [reference/pr-template.md](reference/pr-template.md)
 | 9 | `feat: 勤怠モード - xlsx エクスポート` | lib/xlsx-export.ts（月次データ xlsx ダウンロード） |
 | 10 | `feat: シードデータと E2E 動作確認` | data/seed.ts・全シナリオ手動確認 |
 
+## 参照ドキュメント
+
+| ファイル | 用途 |
+|---|---|
+| [reference/steps.md](reference/steps.md) | 各 Step の完了条件・作成ファイル・スキーマ定義。実装前に必ず読む |
+| [reference/workflow.md](reference/workflow.md) | 実装→PR→レビュー対応→マージ待ちの詳細手順。コード規約・サブエージェントの使い方も記載 |
+| [reference/pr-template.md](reference/pr-template.md) | PR 概要の書き方・Step 別記載ポイント |
+| [reference/comment-policy.md](reference/comment-policy.md) | コメントの書き方（WHY を書く・WHAT は書かない）の詳細と記述例 |
+
 ## スキルの更新ルール
 
-仕様・運用方法に変更があった場合は、以下のファイルを必ず更新すること。
+仕様・運用方法に変更があった場合は、以下の対応表に従って必ず更新すること。
 
 | 変更内容 | 更新するファイル |
 |---|---|
 | データモデルの追加・変更 | `reference/steps.md`（スキーマ定義・Workspace state）、`SKILL.md`（アーキテクチャ） |
 | Pane の仕様変更 | `reference/steps.md`（該当 Step の表示状態・完了条件）、`SKILL.md`（アーキテクチャ）、`docs/file-structure.md` |
 | Step の追加・分割 | `reference/steps.md`、`SKILL.md`（Phase 1 実装 Step 一覧）、`reference/pr-template.md` |
-| Git・PR 運用ルールの変更 | `reference/workflow.md`、`SKILL.md`（実装ワークフロー） |
+| Git・PR 運用ルールの変更 | `reference/workflow.md` |
 
 **更新したスキルファイルは必ずコミット対象に含めること。**
 スキルファイルはコードと同じくバージョン管理するため、実装コミットと同じ feature ブランチにまとめてコミットする。
