@@ -25,7 +25,9 @@ export const yearGoalSchema = z.object({
 export const monthMilestoneSchema = z.object({
   id: z.string(),
   goalId: z.string(),
-  yearMonth: z.string(), // "2026-05" 形式
+  // regex で形式を強制する。computeProgressStatus が split("-") で分解するため、
+  // 不正な文字列が渡ると NaN になりステータス計算が silent に失敗する
+  yearMonth: z.string().regex(/^\d{4}-\d{2}$/, "YYYY-MM 形式で入力してください"),
   title: z.string(),
   progressStatus: z.enum(["ok", "caution", "danger"]),
 });
@@ -36,7 +38,7 @@ export const weekTaskSchema = z.object({
   milestoneId: z.string(),
   weekLabel: z.enum(["W1", "W2", "W3", "W4"]),
   title: z.string(),
-  dueDate: z.string(), // ISO date "2026-05-16"
+  dueDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "YYYY-MM-DD 形式で入力してください"),
   status: z.enum(["todo", "inProgress", "done"]),
   priority: z.enum(["high", "medium", "low"]),
   memo: z.string().optional(),
@@ -47,15 +49,18 @@ export const weekTaskSchema = z.object({
 // 勤怠打刻
 export const attendanceRecordSchema = z.object({
   id: z.string(),
-  date: z.string(), // ISO date "2026-05-16"
-  clockIn: z.string().optional(),  // ISO datetime
-  clockOut: z.string().optional(), // ISO datetime
+  date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "YYYY-MM-DD 形式で入力してください"),
+  // .datetime() で ISO 8601 形式（例: "2026-05-16T09:00:00.000Z"）を強制する
+  clockIn: z.string().datetime().optional(),
+  clockOut: z.string().datetime().optional(),
 });
 
 // 勤怠設定
 // xlsxTemplate と columnMapping は Phase 2 でテンプレートアップロード機能を実装する際に使う
 export const attendanceSettingsSchema = z.object({
-  targetHoursPerDay: z.number(),
+  // プルダウンの選択肢は 4〜8h だが、スキーマは 0〜24 の範囲で受け入れる
+  // UI 側で選択肢を制限しているため、実際に 0〜3 や 9〜24 が入ることはない
+  targetHoursPerDay: z.number().min(0).max(24),
   xlsxTemplate: z.string().optional(),
   columnMapping: z.record(z.string(), z.string()).optional(),
 });
@@ -69,7 +74,9 @@ export type AttendanceRecord = z.infer<typeof attendanceRecordSchema>;
 export type AttendanceSettings = z.infer<typeof attendanceSettingsSchema>;
 
 // 各エンティティの配列スキーマ（localStorage の保存形式のバリデーションに使う）
-export const yearGoalsSchema = z.array(yearGoalSchema);
+// .max(5) でスキーマレベルから「最大5件」の制約を強制する
+// NavPane の UI でも 5 件制限をするが、storage からの復元時にも検証が効く
+export const yearGoalsSchema = z.array(yearGoalSchema).max(5);
 export const monthMilestonesSchema = z.array(monthMilestoneSchema);
 export const weekTasksSchema = z.array(weekTaskSchema);
 export const attendanceRecordsSchema = z.array(attendanceRecordSchema);

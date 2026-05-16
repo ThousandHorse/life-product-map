@@ -33,10 +33,16 @@ export function load<T>(key: string, schema: z.ZodType<T>): T | null {
 
 /**
  * localStorage にデータを保存する。
+ * QuotaExceededError（ストレージ容量不足）や private mode での書き込み制限など、
+ * setItem が例外をスローするケースがあるため try-catch で保護する
  */
 export function save<T>(key: string, data: T): void {
   if (typeof window === "undefined") return;
-  localStorage.setItem(key, JSON.stringify(data));
+  try {
+    localStorage.setItem(key, JSON.stringify(data));
+  } catch (error) {
+    console.error(`Failed to save to localStorage (key: ${key}):`, error);
+  }
 }
 
 // localStorage のキー名を一元管理
