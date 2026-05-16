@@ -83,7 +83,7 @@ PR に bot（gemini-code-assist / chatgpt-codex など）や reviewer からレ�
 ### 5-1. 指摘内容の確認
 
 ```bash
-gh api repos/ThousandHorse/life-product-map/pulls/{PR番号}/comments \
+gh api repos/$(gh repo view --json nameWithOwner -q .nameWithOwner)/pulls/{PR番号}/comments \
   --jq '.[] | {id: .id, author: .user.login, path: .path, body: .body}'
 ```
 
@@ -94,10 +94,10 @@ gh api repos/ThousandHorse/life-product-map/pulls/{PR番号}/comments \
 ### 5-3. 対応済みスレッドにリプライ
 
 ```bash
-gh api repos/ThousandHorse/life-product-map/pulls/{PR番号}/comments/{comment_id}/replies \
+gh api repos/$(gh repo view --json nameWithOwner -q .nameWithOwner)/pulls/{PR番号}/comments/{comment_id}/replies \
   -X POST --input - << 'EOF'
 {
-  "body": "対応しました。\n\n〇〇を修正しました（[commit_hash](https://github.com/ThousandHorse/life-product-map/commit/commit_hash)）。\n\n---\n*Comment by Claude*"
+  "body": "対応しました。\n\n〇〇を修正しました（[commit_hash](https://github.com/$(gh repo view --json nameWithOwner -q .nameWithOwner)/commit/commit_hash)）。\n\n---\n*Comment by Claude*"
 }
 EOF
 ```
@@ -107,7 +107,7 @@ EOF
 対応しました。
 
 - 修正内容: 〇〇を〇〇に変更
-- 対応 commit: [abc1234](https://github.com/ThousandHorse/life-product-map/commit/abc1234)
+- 対応 commit: [abc1234](https://github.com/$(gh repo view --json nameWithOwner -q .nameWithOwner)/commit/abc1234)
 
 ---
 *Comment by Claude*
