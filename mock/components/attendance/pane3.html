@@ -7,10 +7,10 @@
 
   <!-- ヘッダー行: タイトル・月切替・エクスポート -->
   <div class="att-header-bar">
-    <span class="att-header-title">2026年5月</span>
+    <span class="att-header-title" id="att-month-title"></span>
     <div class="att-header-controls">
-      <button class="cal-nav-btn">‹</button>
-      <button class="cal-nav-btn">›</button>
+      <button class="cal-nav-btn" onclick="attNavMonth(-1)">‹</button>
+      <button class="cal-nav-btn" onclick="attNavMonth(+1)">›</button>
       <button class="export-btn">エクスポート</button>
     </div>
   </div>
@@ -26,320 +26,8 @@
     <span class="att-col att-col-work">作業内容</span>
   </div>
 
-  <!-- Attendance rows: 5/1〜5/31 古い日付順（昇順） -->
-  <div class="att-list">
-
-    <div class="att-row-item no-record">
-      <span class="att-col att-col-date">5/1（金）</span>
-      <span class="att-col att-col-time att-empty">—</span>
-      <span class="att-col att-col-time att-empty">—</span>
-      <span class="att-col att-col-break-time att-empty">—</span>
-      <span class="att-col att-col-break-time att-empty">—</span>
-      <span class="att-col att-col-dur att-empty">—</span>
-      <span class="att-col att-col-work att-empty">—</span>
-    </div>
-
-    <div class="att-row-item no-record">
-      <span class="att-col att-col-date">5/2（土）</span>
-      <span class="att-col att-col-time att-empty">—</span>
-      <span class="att-col att-col-time att-empty">—</span>
-      <span class="att-col att-col-break-time att-empty">—</span>
-      <span class="att-col att-col-break-time att-empty">—</span>
-      <span class="att-col att-col-dur att-empty">—</span>
-      <span class="att-col att-col-work att-empty">—</span>
-    </div>
-
-    <div class="att-row-item no-record">
-      <span class="att-col att-col-date">5/3（日）</span>
-      <span class="att-col att-col-time att-empty">—</span>
-      <span class="att-col att-col-time att-empty">—</span>
-      <span class="att-col att-col-break-time att-empty">—</span>
-      <span class="att-col att-col-break-time att-empty">—</span>
-      <span class="att-col att-col-dur att-empty">—</span>
-      <span class="att-col att-col-work att-empty">—</span>
-    </div>
-
-    <div class="att-row-item no-record">
-      <span class="att-col att-col-date">5/4（月）</span>
-      <span class="att-col att-col-time att-empty">—</span>
-      <span class="att-col att-col-time att-empty">—</span>
-      <span class="att-col att-col-break-time att-empty">—</span>
-      <span class="att-col att-col-break-time att-empty">—</span>
-      <span class="att-col att-col-dur att-empty">—</span>
-      <span class="att-col att-col-work att-empty">—</span>
-    </div>
-
-    <div class="att-row-item no-record">
-      <span class="att-col att-col-date">5/5（火）</span>
-      <span class="att-col att-col-time att-empty">—</span>
-      <span class="att-col att-col-time att-empty">—</span>
-      <span class="att-col att-col-break-time att-empty">—</span>
-      <span class="att-col att-col-break-time att-empty">—</span>
-      <span class="att-col att-col-dur att-empty">—</span>
-      <span class="att-col att-col-work att-empty">—</span>
-    </div>
-
-    <div class="att-row-item no-record">
-      <span class="att-col att-col-date">5/6（水）</span>
-      <span class="att-col att-col-time att-empty">—</span>
-      <span class="att-col att-col-time att-empty">—</span>
-      <span class="att-col att-col-break-time att-empty">—</span>
-      <span class="att-col att-col-break-time att-empty">—</span>
-      <span class="att-col att-col-dur att-empty">—</span>
-      <span class="att-col att-col-work att-empty">—</span>
-    </div>
-
-    <div class="att-row-item no-record">
-      <span class="att-col att-col-date">5/7（木）</span>
-      <span class="att-col att-col-time att-empty">—</span>
-      <span class="att-col att-col-time att-empty">—</span>
-      <span class="att-col att-col-break-time att-empty">—</span>
-      <span class="att-col att-col-break-time att-empty">—</span>
-      <span class="att-col att-col-dur att-empty">—</span>
-      <span class="att-col att-col-work att-empty">—</span>
-    </div>
-
-    <div class="att-row-item no-record">
-      <span class="att-col att-col-date">5/8（金）</span>
-      <span class="att-col att-col-time att-empty">—</span>
-      <span class="att-col att-col-time att-empty">—</span>
-      <span class="att-col att-col-break-time att-empty">—</span>
-      <span class="att-col att-col-break-time att-empty">—</span>
-      <span class="att-col att-col-dur att-empty">—</span>
-      <span class="att-col att-col-work att-empty">—</span>
-    </div>
-
-    <div class="att-row-item has-record">
-      <span class="att-col att-col-date">5/9（金）</span>
-      <input class="att-col att-col-time att-time-input" type="time" value="09:00" />
-      <input class="att-col att-col-time att-time-input" type="time" value="18:05" />
-      <input class="att-col att-col-break-time att-time-input" type="time" value="13:00" />
-      <input class="att-col att-col-break-time att-time-input" type="time" value="14:00" />
-      <span class="att-col att-col-dur">8h 05m</span>
-      <span class="att-col att-col-work">機能設計・ドキュメント整理</span>
-    </div>
-
-    <div class="att-row-item no-record">
-      <span class="att-col att-col-date">5/10（土）</span>
-      <span class="att-col att-col-time att-empty">—</span>
-      <span class="att-col att-col-time att-empty">—</span>
-      <span class="att-col att-col-break-time att-empty">—</span>
-      <span class="att-col att-col-break-time att-empty">—</span>
-      <span class="att-col att-col-dur att-empty">—</span>
-      <span class="att-col att-col-work att-empty">—</span>
-    </div>
-
-    <div class="att-row-item no-record">
-      <span class="att-col att-col-date">5/11（日）</span>
-      <span class="att-col att-col-time att-empty">—</span>
-      <span class="att-col att-col-time att-empty">—</span>
-      <span class="att-col att-col-break-time att-empty">—</span>
-      <span class="att-col att-col-break-time att-empty">—</span>
-      <span class="att-col att-col-dur att-empty">—</span>
-      <span class="att-col att-col-work att-empty">—</span>
-    </div>
-
-    <div class="att-row-item has-record">
-      <span class="att-col att-col-date">5/12（月）</span>
-      <input class="att-col att-col-time att-time-input" type="time" value="09:15" />
-      <input class="att-col att-col-time att-time-input" type="time" value="17:30" />
-      <input class="att-col att-col-break-time att-time-input" type="time" value="13:00" />
-      <input class="att-col att-col-break-time att-time-input" type="time" value="14:00" />
-      <span class="att-col att-col-dur">7h 15m</span>
-      <span class="att-col att-col-work">DB設計レビュー・実装</span>
-    </div>
-
-    <div class="att-row-item has-record">
-      <span class="att-col att-col-date">5/13（火）</span>
-      <input class="att-col att-col-time att-time-input" type="time" value="09:01" />
-      <input class="att-col att-col-time att-time-input" type="time" value="18:00" />
-      <input class="att-col att-col-break-time att-time-input" type="time" value="13:00" />
-      <input class="att-col att-col-break-time att-time-input" type="time" value="14:00" />
-      <span class="att-col att-col-dur">7h 59m</span>
-      <span class="att-col att-col-work">APIエンドポイント実装</span>
-    </div>
-
-    <div class="att-row-item has-record">
-      <span class="att-col att-col-date">5/14（水）</span>
-      <input class="att-col att-col-time att-time-input" type="time" value="09:20" />
-      <input class="att-col att-col-time att-time-input" type="time" value="17:45" />
-      <input class="att-col att-col-break-time att-time-input" type="time" value="13:00" />
-      <input class="att-col att-col-break-time att-time-input" type="time" value="13:45" />
-      <span class="att-col att-col-dur">7h 40m</span>
-      <span class="att-col att-col-work">コードレビュー・バグ修正</span>
-    </div>
-
-    <div class="att-row-item has-record">
-      <span class="att-col att-col-date">5/15（木）</span>
-      <input class="att-col att-col-time att-time-input" type="time" value="08:58" />
-      <input class="att-col att-col-time att-time-input" type="time" value="19:30" />
-      <input class="att-col att-col-break-time att-time-input" type="time" value="13:00" />
-      <input class="att-col att-col-break-time att-time-input" type="time" value="14:00" />
-      <span class="att-col att-col-dur">9h 32m</span>
-      <span class="att-col att-col-work">リリース作業・障害対応</span>
-    </div>
-
-    <div class="att-row-item has-record">
-      <span class="att-col att-col-date">5/16（金）</span>
-      <input class="att-col att-col-time att-time-input" type="time" value="09:05" />
-      <input class="att-col att-col-time att-time-input" type="time" value="18:12" />
-      <input class="att-col att-col-break-time att-time-input" type="time" value="13:00" />
-      <input class="att-col att-col-break-time att-time-input" type="time" value="14:00" />
-      <span class="att-col att-col-dur">8h 07m</span>
-      <span class="att-col att-col-work">振り返り・ドキュメント更新</span>
-    </div>
-
-    <div class="att-row-item no-record">
-      <span class="att-col att-col-date">5/17（土）</span>
-      <span class="att-col att-col-time att-empty">—</span>
-      <span class="att-col att-col-time att-empty">—</span>
-      <span class="att-col att-col-break-time att-empty">—</span>
-      <span class="att-col att-col-break-time att-empty">—</span>
-      <span class="att-col att-col-dur att-empty">—</span>
-      <span class="att-col att-col-work att-empty">—</span>
-    </div>
-
-    <div class="att-row-item no-record">
-      <span class="att-col att-col-date">5/18（日）</span>
-      <span class="att-col att-col-time att-empty">—</span>
-      <span class="att-col att-col-time att-empty">—</span>
-      <span class="att-col att-col-break-time att-empty">—</span>
-      <span class="att-col att-col-break-time att-empty">—</span>
-      <span class="att-col att-col-dur att-empty">—</span>
-      <span class="att-col att-col-work att-empty">—</span>
-    </div>
-
-    <div class="att-row-item no-record">
-      <span class="att-col att-col-date">5/19（月）</span>
-      <span class="att-col att-col-time att-empty">—</span>
-      <span class="att-col att-col-time att-empty">—</span>
-      <span class="att-col att-col-break-time att-empty">—</span>
-      <span class="att-col att-col-break-time att-empty">—</span>
-      <span class="att-col att-col-dur att-empty">—</span>
-      <span class="att-col att-col-work att-empty">—</span>
-    </div>
-
-    <div class="att-row-item no-record">
-      <span class="att-col att-col-date">5/20（火）</span>
-      <span class="att-col att-col-time att-empty">—</span>
-      <span class="att-col att-col-time att-empty">—</span>
-      <span class="att-col att-col-break-time att-empty">—</span>
-      <span class="att-col att-col-break-time att-empty">—</span>
-      <span class="att-col att-col-dur att-empty">—</span>
-      <span class="att-col att-col-work att-empty">—</span>
-    </div>
-
-    <div class="att-row-item no-record">
-      <span class="att-col att-col-date">5/21（水）</span>
-      <span class="att-col att-col-time att-empty">—</span>
-      <span class="att-col att-col-time att-empty">—</span>
-      <span class="att-col att-col-break-time att-empty">—</span>
-      <span class="att-col att-col-break-time att-empty">—</span>
-      <span class="att-col att-col-dur att-empty">—</span>
-      <span class="att-col att-col-work att-empty">—</span>
-    </div>
-
-    <div class="att-row-item no-record">
-      <span class="att-col att-col-date">5/22（木）</span>
-      <span class="att-col att-col-time att-empty">—</span>
-      <span class="att-col att-col-time att-empty">—</span>
-      <span class="att-col att-col-break-time att-empty">—</span>
-      <span class="att-col att-col-break-time att-empty">—</span>
-      <span class="att-col att-col-dur att-empty">—</span>
-      <span class="att-col att-col-work att-empty">—</span>
-    </div>
-
-    <div class="att-row-item no-record">
-      <span class="att-col att-col-date">5/23（金）</span>
-      <span class="att-col att-col-time att-empty">—</span>
-      <span class="att-col att-col-time att-empty">—</span>
-      <span class="att-col att-col-break-time att-empty">—</span>
-      <span class="att-col att-col-break-time att-empty">—</span>
-      <span class="att-col att-col-dur att-empty">—</span>
-      <span class="att-col att-col-work att-empty">—</span>
-    </div>
-
-    <div class="att-row-item no-record">
-      <span class="att-col att-col-date">5/24（土）</span>
-      <span class="att-col att-col-time att-empty">—</span>
-      <span class="att-col att-col-time att-empty">—</span>
-      <span class="att-col att-col-break-time att-empty">—</span>
-      <span class="att-col att-col-break-time att-empty">—</span>
-      <span class="att-col att-col-dur att-empty">—</span>
-      <span class="att-col att-col-work att-empty">—</span>
-    </div>
-
-    <div class="att-row-item no-record">
-      <span class="att-col att-col-date">5/25（日）</span>
-      <span class="att-col att-col-time att-empty">—</span>
-      <span class="att-col att-col-time att-empty">—</span>
-      <span class="att-col att-col-break-time att-empty">—</span>
-      <span class="att-col att-col-break-time att-empty">—</span>
-      <span class="att-col att-col-dur att-empty">—</span>
-      <span class="att-col att-col-work att-empty">—</span>
-    </div>
-
-    <div class="att-row-item no-record">
-      <span class="att-col att-col-date">5/26（月）</span>
-      <span class="att-col att-col-time att-empty">—</span>
-      <span class="att-col att-col-time att-empty">—</span>
-      <span class="att-col att-col-break-time att-empty">—</span>
-      <span class="att-col att-col-break-time att-empty">—</span>
-      <span class="att-col att-col-dur att-empty">—</span>
-      <span class="att-col att-col-work att-empty">—</span>
-    </div>
-
-    <div class="att-row-item no-record">
-      <span class="att-col att-col-date">5/27（火）</span>
-      <span class="att-col att-col-time att-empty">—</span>
-      <span class="att-col att-col-time att-empty">—</span>
-      <span class="att-col att-col-break-time att-empty">—</span>
-      <span class="att-col att-col-break-time att-empty">—</span>
-      <span class="att-col att-col-dur att-empty">—</span>
-      <span class="att-col att-col-work att-empty">—</span>
-    </div>
-
-    <div class="att-row-item no-record">
-      <span class="att-col att-col-date">5/28（水）</span>
-      <span class="att-col att-col-time att-empty">—</span>
-      <span class="att-col att-col-time att-empty">—</span>
-      <span class="att-col att-col-break-time att-empty">—</span>
-      <span class="att-col att-col-break-time att-empty">—</span>
-      <span class="att-col att-col-dur att-empty">—</span>
-      <span class="att-col att-col-work att-empty">—</span>
-    </div>
-
-    <div class="att-row-item no-record">
-      <span class="att-col att-col-date">5/29（木）</span>
-      <span class="att-col att-col-time att-empty">—</span>
-      <span class="att-col att-col-time att-empty">—</span>
-      <span class="att-col att-col-break-time att-empty">—</span>
-      <span class="att-col att-col-break-time att-empty">—</span>
-      <span class="att-col att-col-dur att-empty">—</span>
-      <span class="att-col att-col-work att-empty">—</span>
-    </div>
-
-    <div class="att-row-item no-record">
-      <span class="att-col att-col-date">5/30（金）</span>
-      <span class="att-col att-col-time att-empty">—</span>
-      <span class="att-col att-col-time att-empty">—</span>
-      <span class="att-col att-col-break-time att-empty">—</span>
-      <span class="att-col att-col-break-time att-empty">—</span>
-      <span class="att-col att-col-dur att-empty">—</span>
-      <span class="att-col att-col-work att-empty">—</span>
-    </div>
-
-    <div class="att-row-item no-record">
-      <span class="att-col att-col-date">5/31（土）</span>
-      <span class="att-col att-col-time att-empty">—</span>
-      <span class="att-col att-col-time att-empty">—</span>
-      <span class="att-col att-col-break-time att-empty">—</span>
-      <span class="att-col att-col-break-time att-empty">—</span>
-      <span class="att-col att-col-dur att-empty">—</span>
-      <span class="att-col att-col-work att-empty">—</span>
-    </div>
-
-  </div>
+  <!-- JS でループ生成 -->
+  <div class="att-list" id="att-list"></div>
 
 </div>
 
@@ -360,3 +48,116 @@
     </div>
   </div>
 </div>
+
+<script>
+// ── モックデータ ────────────────────────────────────────────────
+// React 移行時はここを API/localStorage 読み込みに置き換える
+const ATT_MOCK_RECORDS = {
+  '2026-05-09': { clockIn: '09:00', clockOut: '18:05', workLog: '機能設計・ドキュメント整理' },
+  '2026-05-12': { clockIn: '09:15', clockOut: '17:30', workLog: 'DB設計レビュー・実装' },
+  '2026-05-13': { clockIn: '09:01', clockOut: '18:00', workLog: 'APIエンドポイント実装' },
+  '2026-05-14': { clockIn: '09:20', clockOut: '17:45', breakEnd: '13:45', workLog: 'コードレビュー・バグ修正' },
+  '2026-05-15': { clockIn: '08:58', clockOut: '19:30', workLog: 'リリース作業・障害対応' },
+  '2026-05-16': { clockIn: '09:05', clockOut: '18:12', workLog: '振り返り・ドキュメント更新' },
+};
+
+const WEEKDAYS = ['日', '月', '火', '水', '木', '金', '土'];
+
+// 表示中の年月（初期値: 今月）
+let attYear  = new Date().getFullYear();
+let attMonth = new Date().getMonth() + 1; // 1-indexed
+
+/** HH:MM 文字列を分に変換 */
+function toMin(hhmm) {
+  const [h, m] = hhmm.split(':').map(Number);
+  return h * 60 + m;
+}
+
+/** 分を "Xh Ym" 形式に変換 */
+function formatDur(min) {
+  if (min <= 0) return '—';
+  const h = Math.floor(min / 60);
+  const m = min % 60;
+  return h > 0 ? `${h}h ${String(m).padStart(2, '0')}m` : `${m}m`;
+}
+
+/** input[type=time] の change イベントで稼働時間を再計算して表示する */
+function recalcDur(row) {
+  const inputs = row.querySelectorAll('input[type="time"]');
+  const [ci, co, bs, be] = [...inputs].map(i => i.value);
+  if (!ci || !co) { row.querySelector('.att-col-dur').textContent = '—'; return; }
+  const work = toMin(co) - toMin(ci) - (toMin(be || '14:00') - toMin(bs || '13:00'));
+  row.querySelector('.att-col-dur').textContent = formatDur(work);
+}
+
+/** 1行分の DOM を生成して返す */
+function buildRow(dateStr, record) {
+  const [y, m, d] = dateStr.split('-').map(Number);
+  const dt  = new Date(y, m - 1, d);
+  const label = `${m}/${d}（${WEEKDAYS[dt.getDay()]}）`;
+
+  const row = document.createElement('div');
+
+  if (record) {
+    const bs = record.breakStart || '13:00';
+    const be = record.breakEnd   || '14:00';
+    const durMin = toMin(record.clockOut) - toMin(record.clockIn) - (toMin(be) - toMin(bs));
+
+    row.className = 'att-row-item has-record';
+    row.innerHTML = `
+      <span class="att-col att-col-date">${label}</span>
+      <input class="att-col att-col-time att-time-input" type="time" value="${record.clockIn}" />
+      <input class="att-col att-col-time att-time-input" type="time" value="${record.clockOut}" />
+      <input class="att-col att-col-break-time att-time-input" type="time" value="${bs}" />
+      <input class="att-col att-col-break-time att-time-input" type="time" value="${be}" />
+      <span class="att-col att-col-dur">${formatDur(durMin)}</span>
+      <span class="att-col att-col-work">${record.workLog || ''}</span>
+    `;
+    row.querySelectorAll('input[type="time"]').forEach(inp => {
+      inp.addEventListener('change', () => recalcDur(row));
+    });
+  } else {
+    row.className = 'att-row-item no-record';
+    row.innerHTML = `
+      <span class="att-col att-col-date">${label}</span>
+      <span class="att-col att-col-time att-empty">—</span>
+      <span class="att-col att-col-time att-empty">—</span>
+      <span class="att-col att-col-break-time att-empty">—</span>
+      <span class="att-col att-col-break-time att-empty">—</span>
+      <span class="att-col att-col-dur att-empty">—</span>
+      <span class="att-col att-col-work att-empty">—</span>
+    `;
+  }
+
+  return row;
+}
+
+/** 指定年月のリストを描画する */
+function renderAttList(year, month) {
+  const title = document.getElementById('att-month-title');
+  const list  = document.getElementById('att-list');
+  if (!title || !list) return;
+
+  title.textContent = `${year}年${month}月`;
+  list.innerHTML = '';
+
+  const daysInMonth = new Date(year, month, 0).getDate();
+  for (let d = 1; d <= daysInMonth; d++) {
+    const dateStr = `${year}-${String(month).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+    const record  = ATT_MOCK_RECORDS[dateStr] || null;
+    list.appendChild(buildRow(dateStr, record));
+  }
+}
+
+/** 月ナビゲーション (delta: -1 or +1) */
+function attNavMonth(delta) {
+  attMonth += delta;
+  if (attMonth < 1)  { attMonth = 12; attYear--; }
+  if (attMonth > 12) { attMonth = 1;  attYear++; }
+  renderAttList(attYear, attMonth);
+}
+
+// コンポーネントが fetch で挿入された後に実行されるよう DOMContentLoaded ではなく即時実行
+// index.html が innerHTML で挿入するため、スクリプトは自動実行される
+renderAttList(attYear, attMonth);
+</script>
