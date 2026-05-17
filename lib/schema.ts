@@ -69,7 +69,7 @@ export const dailyReportSchema = z.object({
 // 勤怠設定
 // xlsxTemplate と columnMapping は Phase 2 でテンプレートアップロード機能を実装する際に使う
 export const attendanceSettingsSchema = z.object({
-  // プルダウンの選択肢は 40〜160h（月単位）だが、スキーマは 0〜744 の範囲で受け入れる
+  // プルダウンの選択肢は 40〜180h（月単位）だが、スキーマは 0〜744 の範囲で受け入れる
   // UI 側で選択肢を制限しているため、実際に範囲外の値が入ることはない
   targetHoursPerMonth: z.number().min(0).max(744),
   xlsxTemplate: z.string().optional(),

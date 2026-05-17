@@ -1,0 +1,80 @@
+/* ===== Pane 3: 勤怠モード styles ===== */
+
+/* -- Month navigation -- */
+.cal-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.cal-nav-title { font-size: 18px; font-weight: 700; }
+.cal-nav-btns  { display: flex; gap: 8px; }
+.cal-nav-btn {
+  width: 28px;
+  height: 28px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: white;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+/* -- Attendance list (Step 8: date-ordered list, not calendar) -- */
+.pane-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.pane-header-text {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+}
+
+.export-btn {
+  font-size: 12px;
+  padding: 4px 10px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: white;
+  cursor: pointer;
+  color: var(--foreground);
+}
+.export-btn:hover { background: var(--canvas); }
+
+.att-list-header {
+  display: flex;
+  padding: 0 8px 6px;
+  border-bottom: 1px solid var(--border);
+}
+
+.att-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.att-row-item {
+  display: flex;
+  align-items: center;
+  padding: 10px 8px;
+  border-bottom: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  transition: background 0.12s;
+}
+.att-row-item:hover { background: var(--canvas); }
+.att-row-item.no-record { opacity: 0.45; }
+
+.att-col { font-size: 13px; }
+.att-col-date { flex: 0 0 90px; font-weight: 600; }
+.att-col-time { flex: 0 0 60px; text-align: center; }
+.att-col-dur  { flex: 0 0 70px; text-align: right; color: var(--primary); font-weight: 600; }
+
+.att-list-header .att-col {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--muted);
+  letter-spacing: 0.04em;
+}
+
+.att-empty { color: var(--muted); }

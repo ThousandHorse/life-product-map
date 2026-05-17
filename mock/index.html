@@ -10,9 +10,15 @@
   <link rel="stylesheet" href="styles/layout.css" />
   <link rel="stylesheet" href="styles/components.css" />
   <link rel="stylesheet" href="styles/sidebar.css" />
-  <link rel="stylesheet" href="styles/pane2.css" />
-  <link rel="stylesheet" href="styles/pane3.css" />
-  <link rel="stylesheet" href="styles/pane4.css" />
+
+  <!-- Goal mode styles -->
+  <link rel="stylesheet" href="styles/goal/pane2.css" />
+  <link rel="stylesheet" href="styles/goal/pane3.css" />
+  <link rel="stylesheet" href="styles/goal/pane4.css" />
+
+  <!-- Attendance mode styles -->
+  <link rel="stylesheet" href="styles/attendance/pane2.css" />
+  <link rel="stylesheet" href="styles/attendance/pane3.css" />
 </head>
 
 <body>
@@ -55,12 +61,12 @@
   }
 
   Promise.all([
-    loadComponent('components/sidebar.html',          'slot-sidebar'),
-    loadComponent('components/pane2-goal.html',       'pane2-goal'),
-    loadComponent('components/pane2-attendance.html', 'pane2-attendance'),
-    loadComponent('components/pane3-goal.html',       'pane3-goal'),
-    loadComponent('components/pane3-attendance.html', 'pane3-attendance'),
-    loadComponent('components/pane4-chat.html',       'pane4'),
+    loadComponent('components/sidebar.html',              'slot-sidebar'),
+    loadComponent('components/goal/pane2.html',           'pane2-goal'),
+    loadComponent('components/goal/pane3.html',           'pane3-goal'),
+    loadComponent('components/goal/pane4.html',           'pane4'),
+    loadComponent('components/attendance/pane2.html',     'pane2-attendance'),
+    loadComponent('components/attendance/pane3.html',     'pane3-attendance'),
   ]).then(() => {
     // main.js の init（DOMContentLoaded は fetch 完了前に発火するため手動実行）
     if (typeof setMode === 'function') setMode('goal');
