@@ -16,9 +16,9 @@ Pane 1 (NavPane)
 Pane 2 (TaskListPane / AttendancePane)
   ← 月マイルストーン + 週タスク展開（目標モード）
   ← 出退勤打刻 + 稼働時間設定（勤怠モード）
-Pane 3 (DetailPane / CalendarPane)
+Pane 3 (DetailPane / AttendanceListPane)
   ← 今日のタスク一覧（常時）・タスク詳細・日報入力・AI フィードバック（目標モード）
-  ← 月次カレンダー（勤怠モード）
+  ← 月次打刻一覧（勤怠モード）
 Pane 4 (AiChatPane)
   ← AI 壁打ちチャット（目標モードのみ表示。勤怠モード時は非表示）
 ```
@@ -47,7 +47,7 @@ Pane 4 (AiChatPane)
 | 5 | `feat: 目標モード DetailPane` | DetailPane.tsx（今日のタスク一覧・タスク詳細・日報・AI フィードバック） |
 | 6 | `feat: AI チャットモック（AiChatPane）` | AiChatPane.tsx（Phase 3 接続前のモック UI） |
 | 7 | `feat: 勤怠モード - 打刻 UI` | AttendancePane.tsx（出退勤打刻・稼働時間設定） |
-| 8 | `feat: 勤怠モード - 月次カレンダー` | CalendarPane.tsx（月次カレンダー・打刻表示） |
+| 8 | `feat: 勤怠モード - 月次一覧` | AttendanceListPane.tsx（月次打刻一覧・打刻表示） |
 | 9 | `feat: 勤怠モード - xlsx エクスポート` | lib/xlsx-export.ts（月次データ xlsx ダウンロード） |
 | 10 | `feat: シードデータと E2E 動作確認` | data/seed.ts・全シナリオ手動確認 |
 
