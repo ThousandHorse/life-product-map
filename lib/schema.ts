@@ -54,8 +54,8 @@ export const attendanceRecordSchema = z.object({
   clockIn: z.string().datetime().optional(),
   clockOut: z.string().datetime().optional(),
   // 休憩開始・終了（HH:MM 形式）。デフォルト "13:00"〜"14:00"、ユーザーが行ごとに編集可能
-  breakStart: z.string().regex(/^\d{2}:\d{2}$/).optional(),
-  breakEnd:   z.string().regex(/^\d{2}:\d{2}$/).optional(),
+  breakStart: z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/).optional(),
+  breakEnd:   z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/).optional(),
   // 退勤ボタン押下時のダイアログで入力する作業内容メモ
   workLog: z.string().optional(),
 });

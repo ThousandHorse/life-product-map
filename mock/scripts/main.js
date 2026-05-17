@@ -78,10 +78,6 @@ function submitAddGoal() {
       <span class="goal-item-text sidebar-expanded-only">${escapeHtml(title)}</span>
       <span class="goal-item-menu sidebar-expanded-only">…</span>
     `;
-    // 折りたたみ中なら expanded-only を非表示に合わせる
-    if (document.getElementById('sidebar').classList.contains('collapsed')) {
-      item.querySelectorAll('.sidebar-expanded-only').forEach(el => el.style.display = 'none');
-    }
     goals.appendChild(item);
   }
 
