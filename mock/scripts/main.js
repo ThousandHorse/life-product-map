@@ -9,12 +9,15 @@ function setMode(mode) {
   currentMode = mode;
   const isGoal = mode === 'goal';
 
-  // sidebar active state
-  document.getElementById('nav-goal')
-    .querySelector('.nav-section-header')
-    .classList.toggle('active', isGoal);
-  document.getElementById('nav-att-header')
-    .classList.toggle('active', !isGoal);
+  // sidebar: モード行のアクティブ状態
+  const modeGoal = document.getElementById('mode-goal');
+  const modeAtt  = document.getElementById('mode-attendance');
+  if (modeGoal) modeGoal.classList.toggle('active', isGoal);
+  if (modeAtt)  modeAtt.classList.toggle('active', !isGoal);
+
+  // 年目標セクションは目標モード時のみ表示
+  const goalsSection = document.getElementById('goals-section');
+  if (goalsSection) goalsSection.style.display = isGoal ? 'block' : 'none';
 
   // pane2
   show('pane2-goal',       isGoal);

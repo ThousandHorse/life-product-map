@@ -13,25 +13,13 @@
   height: 48px;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  padding: 0 14px;
+  padding: 0 16px;
   border-bottom: 1px solid var(--border);
 }
 .app-title {
   font-size: 14px;
   font-weight: 700;
 }
-.collapse-btn {
-  width: 28px;
-  height: 28px;
-  border: none;
-  background: transparent;
-  border-radius: var(--radius-sm);
-  cursor: pointer;
-  color: var(--muted);
-  font-size: 12px;
-}
-.collapse-btn:hover { background: rgba(0,0,0,0.06); }
 
 /* -- Nav body -- */
 .sidebar-nav {
@@ -43,15 +31,28 @@
   overflow-y: auto;
 }
 
-/* -- Nav section (目標 / 勤怠) -- */
-.nav-section { display: flex; flex-direction: column; }
+/* -- Section label (「モード」「年目標」) -- */
+.nav-section-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--muted);
+  letter-spacing: 0.04em;
+  padding: 4px 10px 6px;
+}
 
-.nav-section-header {
+/* -- Mode list -- */
+.nav-mode-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.mode-item {
   height: 36px;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  padding: 0 10px;
+  gap: 10px;
+  padding: 0 12px;
   border-radius: var(--radius-md);
   cursor: pointer;
   font-size: 14px;
@@ -59,22 +60,26 @@
   transition: background 0.15s;
   user-select: none;
 }
-.nav-section-header:hover  { background: rgba(0,0,0,0.05); }
-.nav-section-header.active { background: var(--sidebar-accent); }
+.mode-item:hover  { background: rgba(0,0,0,0.05); }
+.mode-item.active { background: var(--sidebar-accent); }
 
-.nav-section-header-left {
+.mode-icon  { font-size: 15px; line-height: 1; }
+.mode-label { color: var(--sidebar-fg); }
+
+/* -- Divider between mode and goals -- */
+.nav-divider {
+  height: 1px;
+  background: var(--border);
+  margin: 8px 4px;
+}
+
+/* -- Goals section header -- */
+.nav-goals-header {
   display: flex;
   align-items: center;
-  gap: 8px;
+  justify-content: space-between;
+  padding: 4px 10px 6px;
 }
-
-/* chevron rotates when section is open */
-.nav-chevron {
-  font-size: 9px;
-  color: var(--muted);
-  transition: transform 0.2s;
-}
-.nav-section.open .nav-chevron { transform: rotate(90deg); }
 
 /* [+] button inside section header */
 .nav-add-btn {
@@ -115,6 +120,12 @@
 }
 .goal-item:hover  { background: rgba(0,0,0,0.05); }
 .goal-item.active { background: var(--sidebar-accent); font-weight: 600; }
+
+.goal-arrow {
+  font-size: 9px;
+  color: var(--muted);
+  flex-shrink: 0;
+}
 
 .goal-item-text {
   flex: 1;

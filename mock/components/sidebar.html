@@ -1,52 +1,57 @@
 <!-- Pane 1: NavPane
-     Props (data attributes on parent):
-       none – state is managed by main.js
+     仕様書準拠構造:
+       ヘッダー（アプリ名のみ）
+       ├─ モード切替セクション（目標 🎯 / 勤怠 🕐）
+       └─ 年目標セクション（目標モード時のみ、最大5件）
 -->
 <aside class="sidebar">
 
-  <!-- Header -->
+  <!-- Header: アプリ名のみ（折りたたみボタンなし） -->
   <div class="sidebar-header">
     <div class="app-title">LifeProductMap</div>
-    <button class="collapse-btn" onclick="toggleSidebar()" title="折りたたむ">◀</button>
   </div>
 
   <!-- Nav -->
   <nav class="sidebar-nav">
 
-    <!-- 目標セクション -->
-    <div class="nav-section open" id="nav-goal">
-      <div class="nav-section-header active" onclick="toggleSection('nav-goal')">
-        <div class="nav-section-header-left">
-          <span class="nav-chevron">▶</span>
-          <span>目標</span>
-        </div>
-        <button
-          class="nav-add-btn"
-          onclick="event.stopPropagation()"
-          title="年目標を追加（最大5件）"
-        >+</button>
+    <!-- モード切替セクション -->
+    <div class="nav-section-label">モード</div>
+    <div class="nav-mode-list">
+      <!-- 目標モード -->
+      <div class="mode-item active" id="mode-goal" onclick="setMode('goal')">
+        <span class="mode-icon">🎯</span>
+        <span class="mode-label">目標</span>
+      </div>
+      <!-- 勤怠モード -->
+      <div class="mode-item" id="mode-attendance" onclick="setMode('attendance')">
+        <span class="mode-icon">🕐</span>
+        <span class="mode-label">勤怠</span>
+      </div>
+    </div>
+
+    <div class="nav-divider"></div>
+
+    <!-- 年目標セクション（目標モード時のみ表示） -->
+    <div id="goals-section">
+      <div class="nav-goals-header">
+        <span class="nav-section-label" style="margin-bottom:0;">年目標</span>
+        <button class="nav-add-btn" onclick="event.stopPropagation()" title="年目標を追加（最大5件）">+</button>
       </div>
       <div class="nav-goals">
         <div class="goal-item active" onclick="selectGoal(this)">
+          <span class="goal-arrow">▶</span>
           <span class="goal-item-text">TOEIC 900点取得</span>
           <span class="goal-item-menu">…</span>
         </div>
         <div class="goal-item" onclick="selectGoal(this)">
+          <span class="goal-arrow">▶</span>
           <span class="goal-item-text">副業月収10万円</span>
           <span class="goal-item-menu">…</span>
         </div>
         <div class="goal-item" onclick="selectGoal(this)">
+          <span class="goal-arrow">▶</span>
           <span class="goal-item-text">体重65kg以下</span>
           <span class="goal-item-menu">…</span>
-        </div>
-      </div>
-    </div>
-
-    <!-- 勤怠セクション -->
-    <div class="nav-section" id="nav-attendance">
-      <div class="nav-section-header" id="nav-att-header" onclick="setMode('attendance')">
-        <div class="nav-section-header-left">
-          <span>勤怠</span>
         </div>
       </div>
     </div>
