@@ -29,6 +29,7 @@
   flex-direction: column;
   gap: 4px;
   overflow-y: auto;
+  background: var(--sidebar);
 }
 
 /* -- Section label (「モード」「年目標」) -- */
