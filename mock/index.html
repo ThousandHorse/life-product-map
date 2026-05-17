@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LifeProductMap Mockup</title>
+
+  <style>
+    :root {
+      --background: #f8f5ef;
+      --canvas: #f1ede6;
+      --sidebar: #e8e1d7;
+      --sidebar-foreground: #2f2f2f;
+      --sidebar-accent: #d9d3ca;
+      --primary: #1e3a5f;
+      --border: #ddd6cc;
+      --muted-foreground: #9a948c;
+      --destructive: #d04b4b;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family:
+        Inter,
+        "Noto Sans JP",
+        sans-serif;
+      background: var(--background);
+    }
+
+    .app {
+      display: flex;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    .sidebar {
+      width: 240px;
+      background: var(--sidebar);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .sidebar-header {
+      height: 48px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 14px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .app-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--sidebar-foreground);
+    }
+
+    .collapse-btn {
+      width: 28px;
+      height: 28px;
+      border: none;
+      background: transparent;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    .sidebar-section {
+      padding: 16px 10px 8px;
+    }
+
+    .section-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--muted-foreground);
+      margin-bottom: 10px;
+      padding: 0 8px;
+      letter-spacing: 0.04em;
+    }
+
+    .mode-item,
+    .goal-item {
+      height: 40px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      padding: 0 12px;
+      gap: 10px;
+      cursor: pointer;
+      color: var(--sidebar-foreground);
+      font-size: 14px;
+      transition: background 0.2s;
+    }
+
+    .mode-item:hover,
+    .goal-item:hover {
+      background: rgba(0,0,0,0.04);
+    }
+
+    .mode-item.active {
+      background: var(--sidebar-accent);
+      font-weight: 600;
+    }
+
+    .goal-section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+      padding: 0 8px;
+    }
+
+    .goal-title {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--muted-foreground);
+    }
+
+    .add-btn {
+      width: 22px;
+      height: 22px;
+      border-radius: 6px;
+      border: none;
+      background: var(--primary);
+      color: white;
+      cursor: pointer;
+    }
+
+    .goal-arrow {
+      font-size: 10px;
+      color: #777;
+    }
+
+    .goal-menu {
+      margin-left: auto;
+      opacity: 0;
+      transition: opacity 0.15s;
+      font-size: 18px;
+      color: #777;
+    }
+
+    .goal-item:hover .goal-menu {
+      opacity: 1;
+    }
+
+    .pane {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      color: var(--muted-foreground);
+      border-right: 1px solid var(--border);
+    }
+
+    .pane2 {
+      width: 280px;
+      background: var(--canvas);
+    }
+
+    .pane3 {
+      flex: 1;
+      background: var(--background);
+    }
+
+    .pane4 {
+      width: 320px;
+      background: var(--canvas);
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="app">
+
+  <aside class="sidebar">
+
+    <div class="sidebar-header">
+      <div class="app-title">LifeProductMap</div>
+      <button class="collapse-btn">◀</button>
+    </div>
+
+    <div class="sidebar-section">
+
+      <div class="section-label">モード</div>
+
+      <div class="mode-item active">
+        <span>🎯</span>
+        <span>目標</span>
+      </div>
+
+      <div class="mode-item">
+        <span>🕐</span>
+        <span>勤怠</span>
+      </div>
+
+    </div>
+
+    <div class="sidebar-section">
+
+      <div class="goal-section-header">
+        <div class="goal-title">年目標</div>
+        <button class="add-btn">+</button>
+      </div>
+
+      <div class="goal-item">
+        <span class="goal-arrow">▶</span>
+        <span>TOEIC 900点取得</span>
+        <span class="goal-menu">…</span>
+      </div>
+
+      <div class="goal-item">
+        <span class="goal-arrow">▶</span>
+        <span>副業月収10万円</span>
+        <span class="goal-menu">…</span>
+      </div>
+
+      <div class="goal-item">
+        <span class="goal-arrow">▶</span>
+        <span>体重65kg以下</span>
+        <span class="goal-menu">…</span>
+      </div>
+
+    </div>
+
+  </aside>
+
+  <section class="pane pane2">
+    Pane 2（実装予定）
+  </section>
+
+  <section class="pane pane3">
+    Pane 3（実装予定）
+  </section>
+
+  <section class="pane pane4">
+    Pane 4（実装予定）
+  </section>
+
+</div>
+
+</body>
+</html>
