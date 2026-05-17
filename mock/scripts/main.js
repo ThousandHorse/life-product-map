@@ -104,6 +104,30 @@ function show(id, visible) {
 }
 
 
+// ── 退勤ダイアログ ─────────────────────────────────────
+
+function openWorkLogDialog() {
+  const overlay = document.getElementById('work-log-overlay');
+  const input   = document.getElementById('work-log-input');
+  if (overlay) overlay.classList.add('open');
+  if (input)   { input.value = ''; setTimeout(() => input.focus(), 50); }
+}
+
+function closeWorkLogDialog() {
+  const overlay = document.getElementById('work-log-overlay');
+  if (overlay) overlay.classList.remove('open');
+}
+
+function submitWorkLog() {
+  // モックでは退勤時刻の表示を更新するのみ
+  const now = new Date();
+  const hh  = String(now.getHours()).padStart(2, '0');
+  const mm  = String(now.getMinutes()).padStart(2, '0');
+  const rows = document.querySelectorAll('.att-row-value');
+  if (rows[1]) rows[1].textContent = `${hh}:${mm}`;
+  closeWorkLogDialog();
+}
+
 // ── init ─────────────────────────────────────────────
 
 document.addEventListener('DOMContentLoaded', () => setMode('goal'));

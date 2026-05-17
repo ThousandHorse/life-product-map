@@ -1,20 +1,17 @@
 <!-- Pane 3: 勤怠モード – AttendanceListPane
-     仕様: カレンダー形式は採用しない。古い日付順（昇順）の一覧形式で表示する（steps.md Step 8）
+     仕様: 古い日付順（昇順）の一覧形式（steps.md Step 8）
      稼働時間 = 退勤 - 出勤 - 休憩時間
+     退勤時に作業内容を記録する
 -->
-<div class="pane-header-row">
-  <span class="pane-header-text">ATTENDANCE LIST</span>
-  <button class="export-btn">エクスポート</button>
-</div>
-
 <div class="pane-body">
 
-  <!-- Month navigation -->
-  <div class="cal-nav">
-    <div class="cal-nav-title">2026年5月</div>
-    <div class="cal-nav-btns">
+  <!-- ヘッダー行: タイトル・月切替・エクスポート -->
+  <div class="att-header-bar">
+    <span class="att-header-title">2026年5月</span>
+    <div class="att-header-controls">
       <button class="cal-nav-btn">‹</button>
       <button class="cal-nav-btn">›</button>
+      <button class="export-btn">エクスポート</button>
     </div>
   </div>
 
@@ -23,8 +20,10 @@
     <span class="att-col att-col-date">日付</span>
     <span class="att-col att-col-time">出勤</span>
     <span class="att-col att-col-time">退勤</span>
-    <span class="att-col att-col-break">休憩</span>
+    <span class="att-col att-col-break-time">休憩開始</span>
+    <span class="att-col att-col-break-time">休憩終了</span>
     <span class="att-col att-col-dur">稼働</span>
+    <span class="att-col att-col-work">作業内容</span>
   </div>
 
   <!-- Attendance rows (古い日付順 = 昇順) -->
@@ -34,66 +33,100 @@
       <span class="att-col att-col-date">5/9（金）</span>
       <span class="att-col att-col-time">09:00</span>
       <span class="att-col att-col-time">18:05</span>
-      <span class="att-col att-col-break">60m</span>
+      <input class="att-col att-col-break-time att-break-input" type="time" value="13:00" />
+      <input class="att-col att-col-break-time att-break-input" type="time" value="14:00" />
       <span class="att-col att-col-dur">8h 05m</span>
+      <span class="att-col att-col-work">機能設計・ドキュメント整理</span>
     </div>
 
     <div class="att-row-item no-record">
       <span class="att-col att-col-date">5/10（土）</span>
       <span class="att-col att-col-time att-empty">—</span>
       <span class="att-col att-col-time att-empty">—</span>
-      <span class="att-col att-col-break att-empty">—</span>
+      <span class="att-col att-col-break-time att-empty">—</span>
+      <span class="att-col att-col-break-time att-empty">—</span>
       <span class="att-col att-col-dur att-empty">—</span>
+      <span class="att-col att-col-work att-empty">—</span>
     </div>
 
     <div class="att-row-item no-record">
       <span class="att-col att-col-date">5/11（日）</span>
       <span class="att-col att-col-time att-empty">—</span>
       <span class="att-col att-col-time att-empty">—</span>
-      <span class="att-col att-col-break att-empty">—</span>
+      <span class="att-col att-col-break-time att-empty">—</span>
+      <span class="att-col att-col-break-time att-empty">—</span>
       <span class="att-col att-col-dur att-empty">—</span>
+      <span class="att-col att-col-work att-empty">—</span>
     </div>
 
     <div class="att-row-item has-record">
       <span class="att-col att-col-date">5/12（月）</span>
       <span class="att-col att-col-time">09:15</span>
       <span class="att-col att-col-time">17:30</span>
-      <span class="att-col att-col-break">60m</span>
+      <input class="att-col att-col-break-time att-break-input" type="time" value="13:00" />
+      <input class="att-col att-col-break-time att-break-input" type="time" value="14:00" />
       <span class="att-col att-col-dur">7h 15m</span>
+      <span class="att-col att-col-work">DB設計レビュー・実装</span>
     </div>
 
     <div class="att-row-item has-record">
       <span class="att-col att-col-date">5/13（火）</span>
       <span class="att-col att-col-time">09:01</span>
       <span class="att-col att-col-time">18:00</span>
-      <span class="att-col att-col-break">60m</span>
+      <input class="att-col att-col-break-time att-break-input" type="time" value="13:00" />
+      <input class="att-col att-col-break-time att-break-input" type="time" value="14:00" />
       <span class="att-col att-col-dur">7h 59m</span>
+      <span class="att-col att-col-work">APIエンドポイント実装</span>
     </div>
 
     <div class="att-row-item has-record">
       <span class="att-col att-col-date">5/14（水）</span>
       <span class="att-col att-col-time">09:20</span>
       <span class="att-col att-col-time">17:45</span>
-      <span class="att-col att-col-break">45m</span>
+      <input class="att-col att-col-break-time att-break-input" type="time" value="13:00" />
+      <input class="att-col att-col-break-time att-break-input" type="time" value="13:45" />
       <span class="att-col att-col-dur">7h 40m</span>
+      <span class="att-col att-col-work">コードレビュー・バグ修正</span>
     </div>
 
     <div class="att-row-item has-record">
       <span class="att-col att-col-date">5/15（木）</span>
       <span class="att-col att-col-time">08:58</span>
       <span class="att-col att-col-time">19:30</span>
-      <span class="att-col att-col-break">60m</span>
+      <input class="att-col att-col-break-time att-break-input" type="time" value="13:00" />
+      <input class="att-col att-col-break-time att-break-input" type="time" value="14:00" />
       <span class="att-col att-col-dur">9h 32m</span>
+      <span class="att-col att-col-work">リリース作業・障害対応</span>
     </div>
 
     <div class="att-row-item has-record">
       <span class="att-col att-col-date">5/16（金）</span>
       <span class="att-col att-col-time">09:05</span>
       <span class="att-col att-col-time">18:12</span>
-      <span class="att-col att-col-break">60m</span>
+      <input class="att-col att-col-break-time att-break-input" type="time" value="13:00" />
+      <input class="att-col att-col-break-time att-break-input" type="time" value="14:00" />
       <span class="att-col att-col-dur">8h 07m</span>
+      <span class="att-col att-col-work">振り返り・ドキュメント更新</span>
     </div>
 
   </div>
 
+</div>
+
+<!-- 退勤時・作業内容入力ダイアログ -->
+<div class="dialog-overlay" id="work-log-overlay" onclick="closeWorkLogDialog()">
+  <div class="dialog-box" onclick="event.stopPropagation()">
+    <div class="dialog-title">退勤 – 作業内容を入力</div>
+    <div class="dialog-desc">本日の作業内容を記録してください。</div>
+    <textarea
+      class="dialog-textarea"
+      id="work-log-input"
+      placeholder="例: APIエンドポイント実装、コードレビュー"
+      rows="4"
+    ></textarea>
+    <div class="dialog-actions">
+      <button class="dialog-btn dialog-btn-cancel" onclick="closeWorkLogDialog()">キャンセル</button>
+      <button class="dialog-btn dialog-btn-ok" onclick="submitWorkLog()">退勤する</button>
+    </div>
+  </div>
 </div>

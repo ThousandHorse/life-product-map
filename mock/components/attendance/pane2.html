@@ -1,5 +1,6 @@
-<!-- Pane 2: 勤怠モード – 打刻 & 累計 -->
-<div class="pane-header">TODAY</div>
+<!-- Pane 2: 勤怠モード – 打刻 & 累計
+     退勤ボタン押下時に作業内容入力ダイアログを表示する
+-->
 <div class="pane-body">
 
   <div class="card att-today-card">
@@ -7,7 +8,7 @@
 
     <div class="clock-btn-row">
       <button class="clock-btn clock-btn-in">出勤</button>
-      <button class="clock-btn clock-btn-out">退勤</button>
+      <button class="clock-btn clock-btn-out" onclick="openWorkLogDialog()">退勤</button>
     </div>
 
     <div class="divider"></div>
