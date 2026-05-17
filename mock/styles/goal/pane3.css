@@ -40,7 +40,7 @@
 .donut-fill  { stroke: var(--primary); }
 
 .donut-pct-main {
-  font-size: 20px;
+  font-size: 22px;
   font-weight: 700;
   fill: var(--primary);
   font-family: inherit;
@@ -48,7 +48,7 @@
   dominant-baseline: middle;
 }
 .donut-pct-sub {
-  font-size: 9px;
+  font-size: 11px;
   fill: var(--muted);
   font-family: inherit;
   text-anchor: middle;
