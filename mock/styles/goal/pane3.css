@@ -15,12 +15,14 @@
 .progress-chart-card {
   background: var(--canvas);
   border-radius: var(--radius-md);
-  padding: 16px 16px 8px;
+  padding: 16px 16px 10px;
 }
 
+/* 縦横比を保持するため固定 viewBox + auto height */
 .progress-chart-svg {
+  display: block;
   width: 100%;
-  height: 120px;
+  height: auto;
   overflow: visible;
 }
 
@@ -43,26 +45,52 @@
   text-anchor: middle;
 }
 
-.chart-bar         { fill: var(--primary); opacity: 0.35; }
-.chart-bar-accent  { fill: var(--primary); opacity: 0.7; }
-.chart-bar-current { fill: var(--primary); opacity: 1; }
+.chart-bar-pct {
+  font-size: 9px;
+  fill: var(--muted);
+  font-family: inherit;
+  text-anchor: middle;
+}
+.chart-bar-pct-best    { fill: var(--primary); font-weight: 700; }
+.chart-bar-pct-current { fill: var(--primary); font-weight: 700; }
+
+.chart-bar         { fill: var(--primary); opacity: 0.25; }
+.chart-bar-best    { opacity: 0.6; }
+.chart-bar-current { opacity: 1; }
+
+/* 目標ライン */
+.chart-target-line  { stroke: var(--destructive); stroke-width: 1.5; stroke-dasharray: 5 3; opacity: 0.7; }
+.chart-target-label { font-size: 9px; fill: var(--destructive); font-family: inherit; opacity: 0.8; }
 
 .progress-chart-legend {
   display: flex;
   align-items: center;
-  gap: 8px;
-  margin-top: 6px;
+  gap: 12px;
+  margin-top: 8px;
   font-size: 11px;
   color: var(--muted);
 }
 
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
 .legend-dot {
-  width: 8px;
-  height: 8px;
+  width: 10px;
+  height: 10px;
   border-radius: 2px;
   display: inline-block;
-  margin-left: 8px;
 }
-.legend-dot:first-child { margin-left: 0; }
-.legend-dot-accent  { background: var(--primary); opacity: 0.7; }
+.legend-dot-best    { background: var(--primary); opacity: 0.6; }
 .legend-dot-current { background: var(--primary); opacity: 1; }
+
+.legend-line-target {
+  display: inline-block;
+  width: 16px;
+  height: 2px;
+  background: var(--destructive);
+  opacity: 0.7;
+  border-radius: 1px;
+}
