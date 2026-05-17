@@ -1,10 +1,7 @@
 <!-- Pane 3: 目標モード – Detail View -->
 <div class="pane-body">
 
-  <div>
-    <div class="detail-title">TOEIC 900点取得</div>
-    <div class="detail-sub">2026年内達成目標</div>
-  </div>
+  <div class="detail-title">TOEIC 900点取得</div>
 
   <div class="stat-row">
     <div class="stat-card">
@@ -21,9 +18,44 @@
     </div>
   </div>
 
+  <!-- Progress Graph: 週次タスク達成率の棒グラフ -->
   <div>
-    <div class="section-title" style="margin-bottom:10px;">PROGRESS</div>
-    <div class="chart-placeholder">Progress Graph</div>
+    <div class="section-title" style="margin-bottom:12px;">PROGRESS</div>
+    <div class="progress-chart-card">
+      <svg class="progress-chart-svg" viewBox="0 0 340 120" preserveAspectRatio="none">
+        <!-- グリッドライン -->
+        <line x1="0" y1="24"  x2="340" y2="24"  class="chart-grid" />
+        <line x1="0" y1="60"  x2="340" y2="60"  class="chart-grid" />
+        <line x1="0" y1="96"  x2="340" y2="96"  class="chart-grid" />
+        <!-- ラベル (100% / 50% / 0%) -->
+        <text x="0" y="22"  class="chart-label">100%</text>
+        <text x="0" y="58"  class="chart-label">50%</text>
+        <text x="0" y="96"  class="chart-label">0%</text>
+        <!-- 棒グラフ: W1〜W5（達成率 80 / 60 / 90 / 45 / 68%） -->
+        <!-- x オフセット: ラベル幅 30px + 余白 -->
+        <g class="chart-bars">
+          <!-- W1: 80% → height = 96 * 0.80 = 76.8 -->
+          <rect x="44"  y="19.2" width="32" height="76.8" rx="4" class="chart-bar" />
+          <text x="60"  y="112" class="chart-week-label">W1</text>
+          <!-- W2: 60% → height = 57.6 -->
+          <rect x="100" y="38.4" width="32" height="57.6" rx="4" class="chart-bar" />
+          <text x="116" y="112" class="chart-week-label">W2</text>
+          <!-- W3: 90% → height = 86.4 -->
+          <rect x="156" y="9.6"  width="32" height="86.4" rx="4" class="chart-bar chart-bar-accent" />
+          <text x="172" y="112" class="chart-week-label">W3</text>
+          <!-- W4: 45% → height = 43.2 -->
+          <rect x="212" y="52.8" width="32" height="43.2" rx="4" class="chart-bar" />
+          <text x="228" y="112" class="chart-week-label">W4</text>
+          <!-- W5 (今週): 68% → height = 65.3 -->
+          <rect x="268" y="30.7" width="32" height="65.3" rx="4" class="chart-bar chart-bar-current" />
+          <text x="284" y="112" class="chart-week-label">W5 ◀</text>
+        </g>
+      </svg>
+      <div class="progress-chart-legend">
+        <span class="legend-dot legend-dot-accent"></span><span>最高週</span>
+        <span class="legend-dot legend-dot-current"></span><span>今週</span>
+      </div>
+    </div>
   </div>
 
   <div>
