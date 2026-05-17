@@ -6,45 +6,50 @@
   <title>LifeProductMap Mockup</title>
 
   <style>
+    /* ===== Design Tokens ===== */
     :root {
       --background: #f8f5ef;
-      --canvas: #f1ede6;
-      --sidebar: #e8e1d7;
-      --sidebar-foreground: #2f2f2f;
+      --canvas:     #f1ede6;
+      --sidebar:    #e8e1d7;
+      --sidebar-fg: #2f2f2f;
       --sidebar-accent: #d9d3ca;
-      --primary: #1e3a5f;
-      --border: #ddd6cc;
-      --muted-foreground: #9a948c;
-      --destructive: #d04b4b;
+      --primary:    #1e3a5f;
+      --border:     #ddd6cc;
+      --muted:      #9a948c;
+      --destructive:#d04b4b;
+      --white:      #ffffff;
+      --radius-sm:  8px;
+      --radius-md:  12px;
+      --radius-lg:  16px;
+      --radius-xl:  24px;
     }
 
-    * {
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
-      margin: 0;
-      font-family:
-        Inter,
-        "Noto Sans JP",
-        sans-serif;
+      font-family: Inter, "Noto Sans JP", sans-serif;
       background: var(--background);
+      color: var(--sidebar-fg);
     }
 
+    /* ===== Layout ===== */
     .app {
       display: flex;
       height: 100vh;
       overflow: hidden;
     }
 
+    /* ===== Sidebar (Pane 1 / NavPane) ===== */
     .sidebar {
       width: 240px;
+      flex-shrink: 0;
       background: var(--sidebar);
       border-right: 1px solid var(--border);
       display: flex;
       flex-direction: column;
     }
 
+    /* -- Header -- */
     .sidebar-header {
       height: 48px;
       display: flex;
@@ -53,314 +58,792 @@
       padding: 0 14px;
       border-bottom: 1px solid var(--border);
     }
-
     .app-title {
       font-size: 14px;
       font-weight: 700;
-      color: var(--sidebar-foreground);
     }
-
     .collapse-btn {
       width: 28px;
       height: 28px;
       border: none;
       background: transparent;
-      border-radius: 8px;
+      border-radius: var(--radius-sm);
       cursor: pointer;
+      color: var(--muted);
+      font-size: 12px;
     }
+    .collapse-btn:hover { background: rgba(0,0,0,0.06); }
 
-    .sidebar-section {
-      padding: 16px 10px 8px;
-    }
-
-    .section-label {
-      font-size: 11px;
-      font-weight: 600;
-      color: var(--muted-foreground);
-      margin-bottom: 10px;
-      padding: 0 8px;
-      letter-spacing: 0.04em;
-    }
-
-    .mode-item,
-    .goal-item {
-      height: 40px;
-      border-radius: 12px;
+    /* -- Nav Body -- */
+    .sidebar-nav {
+      flex: 1;
+      padding: 12px 8px;
       display: flex;
-      align-items: center;
-      padding: 0 12px;
-      gap: 10px;
-      cursor: pointer;
-      color: var(--sidebar-foreground);
-      font-size: 14px;
-      transition: background 0.2s;
+      flex-direction: column;
+      gap: 4px;
+      overflow-y: auto;
     }
 
-    .mode-item:hover,
-    .goal-item:hover {
-      background: rgba(0,0,0,0.04);
-    }
+    /* -- Nav Section (目標 / 勤怠) -- */
+    .nav-section { display: flex; flex-direction: column; }
 
-    .mode-item.active {
-      background: var(--sidebar-accent);
-      font-weight: 600;
-    }
-
-    .goal-section-header {
+    .nav-section-header {
+      height: 36px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      margin-bottom: 10px;
-      padding: 0 8px;
-    }
-
-    .goal-title {
-      font-size: 11px;
+      padding: 0 10px;
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      font-size: 14px;
       font-weight: 600;
-      color: var(--muted-foreground);
+      transition: background 0.15s;
+      user-select: none;
+    }
+    .nav-section-header:hover { background: rgba(0,0,0,0.05); }
+    .nav-section-header.active { background: var(--sidebar-accent); }
+
+    .nav-section-header-left {
+      display: flex;
+      align-items: center;
+      gap: 8px;
     }
 
-    .add-btn {
-      width: 22px;
-      height: 22px;
-      border-radius: 6px;
+    /* triangle indicator */
+    .nav-chevron {
+      font-size: 9px;
+      color: var(--muted);
+      transition: transform 0.2s;
+    }
+    .nav-section.open .nav-chevron { transform: rotate(90deg); }
+
+    /* add button inside header */
+    .nav-add-btn {
+      width: 20px;
+      height: 20px;
       border: none;
       background: var(--primary);
       color: white;
+      border-radius: 5px;
       cursor: pointer;
-    }
-
-    .goal-arrow {
-      font-size: 10px;
-      color: #777;
-    }
-
-    .goal-menu {
-      margin-left: auto;
-      opacity: 0;
-      transition: opacity 0.15s;
-      font-size: 18px;
-      color: #777;
-    }
-
-    .goal-item:hover .goal-menu {
-      opacity: 1;
-    }
-
-    .pane {
+      font-size: 14px;
+      line-height: 1;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 18px;
-      color: var(--muted-foreground);
+      flex-shrink: 0;
+    }
+    .nav-add-btn:hover { opacity: 0.85; }
+    /* hide add-btn when disabled (5件制限) */
+    .nav-add-btn:disabled {
+      background: var(--border);
+      color: var(--muted);
+      cursor: default;
+    }
+
+    /* -- Goal Items -- */
+    .nav-goals {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      padding: 2px 0 4px 18px;
+    }
+
+    .goal-item {
+      height: 36px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 0 10px;
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      font-size: 13px;
+      transition: background 0.15s;
+      position: relative;
+    }
+    .goal-item:hover { background: rgba(0,0,0,0.05); }
+    .goal-item.active { background: var(--sidebar-accent); font-weight: 600; }
+
+    .goal-item-text { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+    .goal-item-menu {
+      opacity: 0;
+      font-size: 16px;
+      color: var(--muted);
+      flex-shrink: 0;
+      transition: opacity 0.15s;
+      cursor: pointer;
+    }
+    .goal-item:hover .goal-item-menu { opacity: 1; }
+
+    /* ===== Pane common ===== */
+    .pane {
+      display: flex;
+      flex-direction: column;
       border-right: 1px solid var(--border);
+      overflow: hidden;
     }
 
-    .pane2 {
-      width: 280px;
-      background: var(--canvas);
+    .pane2 { width: 280px; flex-shrink: 0; background: var(--canvas); }
+    .pane3 { flex: 1; background: var(--background); }
+    .pane4 { width: 320px; flex-shrink: 0; background: var(--canvas); }
+
+    .pane-header {
+      height: 48px;
+      display: flex;
+      align-items: center;
+      padding: 0 20px;
+      border-bottom: 1px solid var(--border);
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--muted);
+      letter-spacing: 0.04em;
+      flex-shrink: 0;
     }
 
-    .pane3 {
+    .pane-body {
       flex: 1;
-      background: var(--background);
+      overflow-y: auto;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
     }
 
-    .pane4 {
-      width: 320px;
+    /* ===== Card ===== */
+    .card {
+      background: var(--white);
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border);
+      padding: 18px;
+    }
+
+    /* ===== Pane 2 – Goal Mode: Task List ===== */
+    .pane2-month {
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 2px;
+    }
+    .pane2-label {
+      font-size: 11px;
+      color: var(--muted);
+      letter-spacing: 0.06em;
+    }
+
+    .task-card { display: flex; flex-direction: column; gap: 10px; }
+    .task-card-top { display: flex; justify-content: space-between; align-items: flex-start; }
+    .task-title { font-size: 14px; font-weight: 600; }
+    .task-badge {
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 99px;
+      letter-spacing: 0.05em;
+    }
+    .badge-high   { background: #fde8e8; color: var(--destructive); }
+    .badge-mid    { background: #fef3cd; color: #8a6d00; }
+    .badge-done   { background: #e3f5eb; color: #2e7d50; }
+
+    .progress-bar-bg {
+      height: 6px;
       background: var(--canvas);
+      border-radius: 99px;
+      overflow: hidden;
+    }
+    .progress-bar-fill {
+      height: 100%;
+      background: var(--primary);
+      border-radius: 99px;
+    }
+
+    .task-done .task-title { text-decoration: line-through; color: var(--muted); }
+
+    .add-task-btn {
+      height: 38px;
+      border: 1.5px dashed var(--border);
+      border-radius: var(--radius-md);
+      background: transparent;
+      width: 100%;
+      cursor: pointer;
+      font-size: 13px;
+      color: var(--muted);
+      transition: background 0.15s;
+    }
+    .add-task-btn:hover { background: rgba(0,0,0,0.03); }
+
+    /* ===== Pane 3 – Goal Mode: Detail ===== */
+    .detail-title { font-size: 26px; font-weight: 700; line-height: 1.3; }
+    .detail-sub   { font-size: 12px; color: var(--muted); margin-top: 4px; }
+
+    .stat-row { display: flex; gap: 12px; }
+    .stat-card {
+      flex: 1;
+      background: var(--canvas);
+      border-radius: var(--radius-md);
+      padding: 14px 16px;
+    }
+    .stat-label { font-size: 11px; color: var(--muted); margin-bottom: 6px; letter-spacing: 0.04em; }
+    .stat-value { font-size: 28px; font-weight: 700; color: var(--primary); }
+
+    .section-title { font-size: 12px; font-weight: 600; color: var(--muted); letter-spacing: 0.05em; }
+
+    .chart-placeholder {
+      height: 160px;
+      background: var(--canvas);
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    /* ===== Pane 4 – AI Chat ===== */
+    .chat-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .chat-bubble {
+      max-width: 86%;
+      padding: 12px 15px;
+      font-size: 13px;
+      line-height: 1.75;
+    }
+    .chat-bubble.ai {
+      align-self: flex-start;
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 18px 18px 18px 5px;
+      color: #444;
+    }
+    .chat-bubble.user {
+      align-self: flex-end;
+      background: var(--primary);
+      color: white;
+      border-radius: 18px 18px 5px 18px;
+    }
+
+    .chat-input-bar {
+      padding: 14px 16px;
+      border-top: 1px solid var(--border);
+      background: var(--canvas);
+      display: flex;
+      gap: 10px;
+      flex-shrink: 0;
+    }
+    .chat-input {
+      flex: 1;
+      height: 42px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 0 14px;
+      font-size: 13px;
+      background: var(--white);
+      outline: none;
+    }
+    .chat-send-btn {
+      width: 42px;
+      height: 42px;
+      border: none;
+      border-radius: var(--radius-md);
+      background: var(--primary);
+      color: white;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    /* ===== Pane 2 – Attendance Mode ===== */
+    .att-today-card {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .att-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 14px;
+    }
+    .att-row-label { color: var(--muted); font-size: 13px; }
+    .att-row-value { font-weight: 700; font-size: 16px; }
+    .att-divider { height: 1px; background: var(--border); }
+
+    .att-total-label { font-size: 11px; color: var(--muted); letter-spacing: 0.05em; }
+    .att-total-value { font-size: 32px; font-weight: 700; color: var(--primary); margin-top: 4px; }
+
+    .clock-btn-row { display: flex; gap: 10px; }
+    .clock-btn {
+      flex: 1;
+      height: 44px;
+      border: none;
+      border-radius: var(--radius-md);
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .clock-btn-in  { background: var(--primary); color: white; }
+    .clock-btn-out { background: var(--white); border: 1.5px solid var(--border); color: var(--sidebar-fg); }
+
+    /* ===== Pane 3 – Attendance Mode ===== */
+    .calendar-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 4px;
+    }
+    .cal-day-label {
+      text-align: center;
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--muted);
+      padding: 4px 0;
+      letter-spacing: 0.04em;
+    }
+    .cal-day {
+      aspect-ratio: 1;
+      border-radius: var(--radius-sm);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      position: relative;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .cal-day:hover { background: rgba(0,0,0,0.04); }
+    .cal-day.has-record { background: #e8eef5; }
+    .cal-day.today     { background: var(--primary); color: white; font-weight: 700; }
+    .cal-day-num       { font-weight: 600; }
+    .cal-day-dot       { width: 4px; height: 4px; border-radius: 50%; background: var(--primary); margin-top: 2px; }
+    .cal-day.today .cal-day-dot { background: white; }
+
+    .week-graph {
+      height: 100px;
+      display: flex;
+      align-items: flex-end;
+      gap: 8px;
+    }
+    .week-bar-wrap {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      height: 100%;
+      justify-content: flex-end;
+    }
+    .week-bar {
+      width: 100%;
+      border-radius: 4px 4px 0 0;
+      background: var(--primary);
+      opacity: 0.8;
+    }
+    .week-bar-label { font-size: 10px; color: var(--muted); }
+
+    /* ===== Tab toggle (Goal / Attendance view switcher) ===== */
+    .view-tab {
+      display: flex;
+      gap: 6px;
+      padding: 12px 20px 0;
+      flex-shrink: 0;
+    }
+    .tab-btn {
+      height: 30px;
+      padding: 0 14px;
+      border: 1px solid var(--border);
+      border-radius: 99px;
+      background: transparent;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      color: var(--muted);
+      transition: all 0.15s;
+    }
+    .tab-btn.active {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: white;
     }
   </style>
 </head>
 
 <body>
 
-<div class="app">
+<!--
+  MOCKUP STATE SWITCHER
+  ページ上部の「目標モード / 勤怠モード」ボタンで表示を切り替えられます。
+  JavaScript は最小限（クラス付け替えのみ）。
+-->
 
+<!-- State switcher (not part of the final UI) -->
+<div style="position:fixed; top:12px; right:16px; z-index:100; display:flex; gap:8px;">
+  <button onclick="setMode('goal')"       id="btn-goal"       style="padding:6px 14px; border-radius:8px; border:1px solid #ccc; background:white; cursor:pointer; font-size:12px; font-weight:600;">目標モード</button>
+  <button onclick="setMode('attendance')" id="btn-attendance" style="padding:6px 14px; border-radius:8px; border:1px solid #ccc; background:white; cursor:pointer; font-size:12px; font-weight:600;">勤怠モード</button>
+</div>
+
+<div class="app" id="app">
+
+  <!-- ===== Pane 1: NavPane ===== -->
   <aside class="sidebar">
 
+    <!-- Header -->
     <div class="sidebar-header">
       <div class="app-title">LifeProductMap</div>
       <button class="collapse-btn">◀</button>
     </div>
 
-    <div class="sidebar-section">
+    <!-- Nav -->
+    <nav class="sidebar-nav">
 
-      <div class="section-label">モード</div>
-
-      <div class="mode-item active">
-        <span>🎯</span>
-        <span>目標</span>
+      <!-- 目標セクション -->
+      <div class="nav-section open" id="nav-goal">
+        <div class="nav-section-header active" onclick="toggleSection('nav-goal')">
+          <div class="nav-section-header-left">
+            <span class="nav-chevron">▶</span>
+            <span>目標</span>
+          </div>
+          <button class="nav-add-btn" onclick="event.stopPropagation()" title="年目標を追加">+</button>
+        </div>
+        <div class="nav-goals">
+          <div class="goal-item active">
+            <span class="goal-item-text">TOEIC 900点取得</span>
+            <span class="goal-item-menu">…</span>
+          </div>
+          <div class="goal-item">
+            <span class="goal-item-text">副業月収10万円</span>
+            <span class="goal-item-menu">…</span>
+          </div>
+          <div class="goal-item">
+            <span class="goal-item-text">体重65kg以下</span>
+            <span class="goal-item-menu">…</span>
+          </div>
+        </div>
       </div>
 
-      <div class="mode-item">
-        <span>🕐</span>
-        <span>勤怠</span>
+      <!-- 勤怠セクション -->
+      <div class="nav-section" id="nav-attendance">
+        <div class="nav-section-header" onclick="setMode('attendance')" id="nav-att-header">
+          <div class="nav-section-header-left">
+            <span>勤怠</span>
+          </div>
+        </div>
       </div>
 
-    </div>
-
-    <div class="sidebar-section">
-
-      <div class="goal-section-header">
-        <div class="goal-title">年目標</div>
-        <button class="add-btn">+</button>
-      </div>
-
-      <div class="goal-item">
-        <span class="goal-arrow">▶</span>
-        <span>TOEIC 900点取得</span>
-        <span class="goal-menu">…</span>
-      </div>
-
-      <div class="goal-item">
-        <span class="goal-arrow">▶</span>
-        <span>副業月収10万円</span>
-        <span class="goal-menu">…</span>
-      </div>
-
-      <div class="goal-item">
-        <span class="goal-arrow">▶</span>
-        <span>体重65kg以下</span>
-        <span class="goal-menu">…</span>
-      </div>
-
-    </div>
-
+    </nav>
   </aside>
 
-  <section class="pane pane2">
-    <div style="width:100%; padding:24px; display:flex; flex-direction:column; gap:18px; align-items:stretch; justify-content:flex-start;">
+  <!-- ===== Pane 2 ===== -->
+  <section class="pane pane2" id="pane2">
 
-      <div style="display:flex; align-items:center; justify-content:space-between;">
+    <!-- Goal Mode: Pane 2 -->
+    <div id="pane2-goal" style="display:flex; flex-direction:column; height:100%;">
+      <div class="pane-header">MONTH MILESTONE</div>
+      <div class="pane-body">
         <div>
-          <div style="font-size:12px; color:#9a948c; margin-bottom:4px;">MONTH MILESTONE</div>
-          <div style="font-size:20px; font-weight:700; color:#2f2f2f;">2026年5月</div>
+          <div class="pane2-label">選択中の目標</div>
+          <div class="pane2-month">TOEIC 900点取得</div>
         </div>
 
-        <button style="height:36px; border:none; background:#1e3a5f; color:white; border-radius:10px; padding:0 14px; font-weight:600; cursor:pointer;">
-          + タスク追加
-        </button>
+        <!-- task card: high -->
+        <div class="card task-card">
+          <div class="task-card-top">
+            <div class="task-title">英単語を毎日30分</div>
+            <span class="task-badge badge-high">HIGH</span>
+          </div>
+          <div class="progress-bar-bg">
+            <div class="progress-bar-fill" style="width:70%;"></div>
+          </div>
+        </div>
+
+        <!-- task card: mid -->
+        <div class="card task-card">
+          <div class="task-card-top">
+            <div class="task-title">リスニング問題50問</div>
+            <span class="task-badge badge-mid">MID</span>
+          </div>
+          <div class="progress-bar-bg">
+            <div class="progress-bar-fill" style="width:45%;"></div>
+          </div>
+        </div>
+
+        <!-- task card: done -->
+        <div class="card task-card task-done">
+          <div class="task-card-top">
+            <div class="task-title">模擬テスト受験</div>
+            <span class="task-badge badge-done">DONE</span>
+          </div>
+          <div class="progress-bar-bg">
+            <div class="progress-bar-fill" style="width:100%;"></div>
+          </div>
+        </div>
+
+        <button class="add-task-btn">+ タスクを追加</button>
       </div>
+    </div>
 
-      <div style="display:flex; flex-direction:column; gap:12px;">
+    <!-- Attendance Mode: Pane 2 -->
+    <div id="pane2-attendance" style="display:none; flex-direction:column; height:100%;">
+      <div class="pane-header">TODAY</div>
+      <div class="pane-body">
 
-        <div style="background:white; border-radius:16px; padding:16px; border:1px solid #ddd6cc;">
-          <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
-            <div style="font-weight:600; color:#2f2f2f;">英単語を毎日30分</div>
-            <div style="font-size:12px; color:#9a948c;">HIGH</div>
+        <div class="card att-today-card">
+          <div style="font-size:13px; color:var(--muted);">2026年5月17日（日）</div>
+
+          <div class="clock-btn-row">
+            <button class="clock-btn clock-btn-in">出勤</button>
+            <button class="clock-btn clock-btn-out">退勤</button>
           </div>
 
-          <div style="height:8px; background:#ece7de; border-radius:999px; overflow:hidden;">
-            <div style="width:70%; height:100%; background:#1e3a5f;"></div>
+          <div class="att-divider"></div>
+
+          <div class="att-row">
+            <span class="att-row-label">出勤時刻</span>
+            <span class="att-row-value">09:12</span>
+          </div>
+          <div class="att-row">
+            <span class="att-row-label">退勤時刻</span>
+            <span class="att-row-value">—</span>
+          </div>
+          <div class="att-row">
+            <span class="att-row-label">稼働時間</span>
+            <span class="att-row-value">4h 23m</span>
           </div>
         </div>
 
-        <div style="background:white; border-radius:16px; padding:16px; border:1px solid #ddd6cc;">
-          <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
-            <div style="font-weight:600; color:#2f2f2f;">週3回ランニング</div>
-            <div style="font-size:12px; color:#9a948c;">MID</div>
-          </div>
-
-          <div style="height:8px; background:#ece7de; border-radius:999px; overflow:hidden;">
-            <div style="width:45%; height:100%; background:#1e3a5f;"></div>
-          </div>
-        </div>
-
-        <div style="background:white; border-radius:16px; padding:16px; border:1px solid #ddd6cc; opacity:0.7;">
-          <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
-            <div style="font-weight:600; color:#2f2f2f; text-decoration:line-through;">副業LP作成</div>
-            <div style="font-size:12px; color:#9a948c;">DONE</div>
-          </div>
-
-          <div style="height:8px; background:#ece7de; border-radius:999px; overflow:hidden;">
-            <div style="width:100%; height:100%; background:#1e3a5f;"></div>
+        <div class="card">
+          <div class="att-total-label">今月累計</div>
+          <div class="att-total-value">72h</div>
+          <div style="margin-top:10px;">
+            <div class="progress-bar-bg" style="height:8px;">
+              <div class="progress-bar-fill" style="width:60%;"></div>
+            </div>
+            <div style="display:flex; justify-content:space-between; margin-top:6px; font-size:11px; color:var(--muted);">
+              <span>目標 120h</span>
+              <span>60%</span>
+            </div>
           </div>
         </div>
 
       </div>
     </div>
+
   </section>
 
-  <section class="pane pane3">
-    <div style="width:100%; height:100%; padding:32px; display:flex; flex-direction:column; align-items:flex-start; justify-content:flex-start;">
+  <!-- ===== Pane 3 ===== -->
+  <section class="pane pane3" id="pane3">
 
-      <div style="margin-bottom:28px;">
-        <div style="font-size:12px; color:#9a948c; margin-bottom:6px;">DETAIL VIEW</div>
-        <h1 style="margin:0; font-size:30px; color:#2f2f2f;">TOEIC 900点取得</h1>
-      </div>
+    <!-- Goal Mode: Pane 3 -->
+    <div id="pane3-goal" style="display:flex; flex-direction:column; height:100%;">
+      <div class="pane-header">DETAIL</div>
+      <div class="pane-body">
 
-      <div style="width:100%; background:white; border-radius:24px; border:1px solid #ddd6cc; padding:28px; box-shadow:0 6px 20px rgba(0,0,0,0.04);">
+        <div>
+          <div class="detail-title">TOEIC 900点取得</div>
+          <div class="detail-sub">2026年内達成目標</div>
+        </div>
 
-        <div style="display:flex; gap:16px; margin-bottom:24px;">
-
-          <div style="flex:1; background:#f8f5ef; border-radius:16px; padding:18px;">
-            <div style="font-size:12px; color:#9a948c; margin-bottom:8px;">現在スコア</div>
-            <div style="font-size:32px; font-weight:700; color:#1e3a5f;">780</div>
+        <div class="stat-row">
+          <div class="stat-card">
+            <div class="stat-label">現在スコア</div>
+            <div class="stat-value">780</div>
           </div>
-
-          <div style="flex:1; background:#f8f5ef; border-radius:16px; padding:18px;">
-            <div style="font-size:12px; color:#9a948c; margin-bottom:8px;">目標達成率</div>
-            <div style="font-size:32px; font-weight:700; color:#1e3a5f;">68%</div>
+          <div class="stat-card">
+            <div class="stat-label">達成率</div>
+            <div class="stat-value">68%</div>
           </div>
-
+          <div class="stat-card">
+            <div class="stat-label">残日数</div>
+            <div class="stat-value">228</div>
+          </div>
         </div>
 
-        <div style="margin-bottom:18px; font-size:14px; color:#555; line-height:1.8;">
-          2026年内に TOEIC 900点を達成するための目標管理エリア。
-          月次マイルストーン・週次タスク・進捗率をここで確認できます。
+        <div>
+          <div class="section-title" style="margin-bottom:10px;">PROGRESS</div>
+          <div class="chart-placeholder">Progress Graph</div>
         </div>
 
-        <div style="height:220px; background:#f1ede6; border-radius:18px; display:flex; align-items:center; justify-content:center; color:#9a948c; font-size:14px;">
-          Progress Graph / Analytics Area
+        <div>
+          <div class="section-title" style="margin-bottom:10px;">TODAY'S TASKS</div>
+          <div style="display:flex; flex-direction:column; gap:8px;">
+            <div class="card" style="display:flex; align-items:center; gap:12px; padding:14px 18px;">
+              <input type="checkbox" style="width:16px; height:16px; accent-color:var(--primary);" />
+              <span style="font-size:14px;">英単語 30分（Unit 12〜14）</span>
+            </div>
+            <div class="card" style="display:flex; align-items:center; gap:12px; padding:14px 18px;">
+              <input type="checkbox" style="width:16px; height:16px; accent-color:var(--primary);" />
+              <span style="font-size:14px;">リスニング問題 20問</span>
+            </div>
+          </div>
         </div>
 
       </div>
-
     </div>
+
+    <!-- Attendance Mode: Pane 3 -->
+    <div id="pane3-attendance" style="display:none; flex-direction:column; height:100%;">
+      <div class="pane-header">CALENDAR & TIMELINE</div>
+      <div class="pane-body">
+
+        <!-- Month header -->
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <div style="font-size:18px; font-weight:700;">2026年5月</div>
+          <div style="display:flex; gap:8px;">
+            <button style="width:28px; height:28px; border:1px solid var(--border); border-radius:8px; background:white; cursor:pointer;">‹</button>
+            <button style="width:28px; height:28px; border:1px solid var(--border); border-radius:8px; background:white; cursor:pointer;">›</button>
+          </div>
+        </div>
+
+        <!-- Calendar -->
+        <div class="card" style="padding:16px;">
+          <div class="calendar-grid">
+            <!-- Day labels -->
+            <div class="cal-day-label">SUN</div>
+            <div class="cal-day-label">MON</div>
+            <div class="cal-day-label">TUE</div>
+            <div class="cal-day-label">WED</div>
+            <div class="cal-day-label">THU</div>
+            <div class="cal-day-label">FRI</div>
+            <div class="cal-day-label">SAT</div>
+            <!-- Week 1 -->
+            <div class="cal-day"></div>
+            <div class="cal-day"></div>
+            <div class="cal-day"></div>
+            <div class="cal-day"></div>
+            <div class="cal-day has-record"><span class="cal-day-num">1</span><span class="cal-day-dot"></span></div>
+            <div class="cal-day has-record"><span class="cal-day-num">2</span><span class="cal-day-dot"></span></div>
+            <div class="cal-day"><span class="cal-day-num">3</span></div>
+            <!-- Week 2 -->
+            <div class="cal-day"><span class="cal-day-num">4</span></div>
+            <div class="cal-day has-record"><span class="cal-day-num">5</span><span class="cal-day-dot"></span></div>
+            <div class="cal-day has-record"><span class="cal-day-num">6</span><span class="cal-day-dot"></span></div>
+            <div class="cal-day has-record"><span class="cal-day-num">7</span><span class="cal-day-dot"></span></div>
+            <div class="cal-day has-record"><span class="cal-day-num">8</span><span class="cal-day-dot"></span></div>
+            <div class="cal-day has-record"><span class="cal-day-num">9</span><span class="cal-day-dot"></span></div>
+            <div class="cal-day"><span class="cal-day-num">10</span></div>
+            <!-- Week 3 -->
+            <div class="cal-day"><span class="cal-day-num">11</span></div>
+            <div class="cal-day has-record"><span class="cal-day-num">12</span><span class="cal-day-dot"></span></div>
+            <div class="cal-day has-record"><span class="cal-day-num">13</span><span class="cal-day-dot"></span></div>
+            <div class="cal-day has-record"><span class="cal-day-num">14</span><span class="cal-day-dot"></span></div>
+            <div class="cal-day has-record"><span class="cal-day-num">15</span><span class="cal-day-dot"></span></div>
+            <div class="cal-day has-record"><span class="cal-day-num">16</span><span class="cal-day-dot"></span></div>
+            <div class="cal-day"><span class="cal-day-num">17</span></div>
+            <!-- Week 4 (partial) -->
+            <div class="cal-day today"><span class="cal-day-num">18</span><span class="cal-day-dot"></span></div>
+            <div class="cal-day"><span class="cal-day-num">19</span></div>
+            <div class="cal-day"><span class="cal-day-num">20</span></div>
+            <div class="cal-day"><span class="cal-day-num">21</span></div>
+            <div class="cal-day"><span class="cal-day-num">22</span></div>
+            <div class="cal-day"><span class="cal-day-num">23</span></div>
+            <div class="cal-day"><span class="cal-day-num">24</span></div>
+          </div>
+        </div>
+
+        <!-- Weekly graph -->
+        <div>
+          <div class="section-title" style="margin-bottom:12px;">今週の稼働</div>
+          <div class="card" style="padding:16px 20px;">
+            <div class="week-graph">
+              <div class="week-bar-wrap">
+                <div class="week-bar" style="height:55%;"></div>
+                <div class="week-bar-label">月</div>
+              </div>
+              <div class="week-bar-wrap">
+                <div class="week-bar" style="height:80%;"></div>
+                <div class="week-bar-label">火</div>
+              </div>
+              <div class="week-bar-wrap">
+                <div class="week-bar" style="height:70%;"></div>
+                <div class="week-bar-label">水</div>
+              </div>
+              <div class="week-bar-wrap">
+                <div class="week-bar" style="height:90%;"></div>
+                <div class="week-bar-label">木</div>
+              </div>
+              <div class="week-bar-wrap">
+                <div class="week-bar" style="height:40%;"></div>
+                <div class="week-bar-label">金</div>
+              </div>
+              <div class="week-bar-wrap">
+                <div class="week-bar" style="height:0%;"></div>
+                <div class="week-bar-label">土</div>
+              </div>
+              <div class="week-bar-wrap">
+                <div class="week-bar" style="height:10%; opacity:0.4;"></div>
+                <div class="week-bar-label">日</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
   </section>
 
-  <section class="pane pane4">
-    <div style="width:100%; height:100%; display:flex; flex-direction:column;">
+  <!-- ===== Pane 4: AI Chat (goal mode only) ===== -->
+  <section class="pane pane4" id="pane4">
+    <div class="pane-header">AI COACH</div>
 
-      <div style="padding:20px; border-bottom:1px solid #ddd6cc; font-weight:700; color:#2f2f2f; background:#ebe5dc;">
-        AI Coach
+    <div class="chat-body">
+      <div class="chat-bubble ai">
+        TOEIC 900点達成には、Part 5 の精度向上が重要です。今週は文法問題を重点的に進めましょう。
       </div>
-
-      <div style="flex:1; padding:20px; display:flex; flex-direction:column; gap:16px; overflow:auto;">
-
-        <div style="align-self:flex-start; max-width:85%; background:white; border-radius:18px 18px 18px 6px; padding:14px; font-size:14px; line-height:1.7; color:#444; border:1px solid #ddd6cc;">
-          TOEIC 900点達成には、Part 5 の精度向上が重要です。今週は文法問題を重点的に進めましょう。
-        </div>
-
-        <div style="align-self:flex-end; max-width:85%; background:#1e3a5f; color:white; border-radius:18px 18px 6px 18px; padding:14px; font-size:14px; line-height:1.7;">
-          毎日どれくらい学習すれば良いですか？
-        </div>
-
-        <div style="align-self:flex-start; max-width:85%; background:white; border-radius:18px 18px 18px 6px; padding:14px; font-size:14px; line-height:1.7; color:#444; border:1px solid #ddd6cc;">
-          平日は60分、休日は90分を目安にすると、年内達成ペースに乗れます。
-        </div>
-
+      <div class="chat-bubble user">
+        毎日どれくらい学習すれば良いですか？
       </div>
-
-      <div style="padding:16px; border-top:1px solid #ddd6cc; background:#f5f1eb;">
-        <div style="display:flex; gap:10px;">
-          <input
-            type="text"
-            placeholder="AIに相談する"
-            style="flex:1; height:44px; border:none; border-radius:12px; padding:0 14px; background:white;"
-          />
-
-          <button style="width:44px; border:none; border-radius:12px; background:#1e3a5f; color:white; font-size:16px; cursor:pointer;">
-            ↑
-          </button>
-        </div>
+      <div class="chat-bubble ai">
+        平日は60分、休日は90分を目安にすると、年内達成ペースに乗れます。
       </div>
+    </div>
 
+    <div class="chat-input-bar">
+      <input class="chat-input" type="text" placeholder="AIに相談する…" />
+      <button class="chat-send-btn">↑</button>
     </div>
   </section>
 
 </div>
+
+<script>
+  // minimal state switcher for mockup preview only
+  function setMode(mode) {
+    const isGoal = mode === 'goal';
+
+    // sidebar active state
+    document.getElementById('nav-goal').querySelector('.nav-section-header').classList.toggle('active', isGoal);
+    document.getElementById('nav-att-header').classList.toggle('active', !isGoal);
+
+    // pane2
+    document.getElementById('pane2-goal').style.display       = isGoal ? 'flex' : 'none';
+    document.getElementById('pane2-attendance').style.display = isGoal ? 'none' : 'flex';
+
+    // pane3
+    document.getElementById('pane3-goal').style.display       = isGoal ? 'flex' : 'none';
+    document.getElementById('pane3-attendance').style.display = isGoal ? 'none' : 'flex';
+
+    // pane4: hidden in attendance mode
+    document.getElementById('pane4').style.display = isGoal ? 'flex' : 'none';
+
+    // switcher buttons
+    document.getElementById('btn-goal').style.background       = isGoal ? '#1e3a5f' : 'white';
+    document.getElementById('btn-goal').style.color            = isGoal ? 'white'   : '';
+    document.getElementById('btn-attendance').style.background = isGoal ? 'white'   : '#1e3a5f';
+    document.getElementById('btn-attendance').style.color      = isGoal ? ''        : 'white';
+  }
+
+  function toggleSection(id) {
+    document.getElementById(id).classList.toggle('open');
+  }
+
+  // init
+  setMode('goal');
+</script>
 
 </body>
 </html>
