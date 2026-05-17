@@ -84,20 +84,29 @@
 .att-list-header .att-col-dur  { color: var(--muted); }
 .att-list-header .att-col-work { color: var(--muted); }
 
-/* -- 休憩時刻の入力フィールド -- */
-.att-break-input {
+/* -- 時刻入力フィールド（出勤・退勤・休憩開始・休憩終了 共通） --
+   font-family: inherit でシステムフォントのズレを防ぐ */
+.att-time-input {
   width: 100%;
   border: none;
   background: transparent;
   font-size: 13px;
-  color: var(--muted);
+  font-family: inherit;
+  color: var(--sidebar-fg);
   text-align: center;
   outline: none;
   cursor: pointer;
   padding: 0;
 }
-.att-break-input:hover  { background: rgba(0,0,0,0.04); border-radius: 4px; }
-.att-break-input:focus  { background: white; border: 1px solid var(--primary); border-radius: 4px; color: var(--sidebar-fg); }
+.att-time-input::-webkit-calendar-picker-indicator { opacity: 0; width: 0; padding: 0; }
+.att-time-input:hover { background: rgba(0,0,0,0.04); border-radius: 4px; }
+.att-time-input:focus { background: white; border: 1px solid var(--primary); border-radius: 4px; }
+
+/* 休憩列は少し薄めに */
+.att-col-break-time .att-time-input,
+.att-col-break-time.att-time-input { color: var(--muted); }
+.att-col-break-time .att-time-input:focus,
+.att-col-break-time.att-time-input:focus { color: var(--sidebar-fg); }
 
 .att-empty { color: var(--muted); }
 

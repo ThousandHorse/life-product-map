@@ -1,6 +1,6 @@
 <!-- Pane 3: 勤怠モード – AttendanceListPane
      仕様: 古い日付順（昇順）の一覧形式（steps.md Step 8）
-     稼働時間 = 退勤 - 出勤 - 休憩時間
+     稼働時間 = 退勤 - 出勤 - (休憩終了 - 休憩開始)
      退勤時に作業内容を記録する
 -->
 <div class="pane-body">
@@ -31,10 +31,10 @@
 
     <div class="att-row-item has-record">
       <span class="att-col att-col-date">5/9（金）</span>
-      <span class="att-col att-col-time">09:00</span>
-      <span class="att-col att-col-time">18:05</span>
-      <input class="att-col att-col-break-time att-break-input" type="time" value="13:00" />
-      <input class="att-col att-col-break-time att-break-input" type="time" value="14:00" />
+      <input class="att-col att-col-time att-time-input" type="time" value="09:00" />
+      <input class="att-col att-col-time att-time-input" type="time" value="18:05" />
+      <input class="att-col att-col-break-time att-time-input" type="time" value="13:00" />
+      <input class="att-col att-col-break-time att-time-input" type="time" value="14:00" />
       <span class="att-col att-col-dur">8h 05m</span>
       <span class="att-col att-col-work">機能設計・ドキュメント整理</span>
     </div>
@@ -61,50 +61,50 @@
 
     <div class="att-row-item has-record">
       <span class="att-col att-col-date">5/12（月）</span>
-      <span class="att-col att-col-time">09:15</span>
-      <span class="att-col att-col-time">17:30</span>
-      <input class="att-col att-col-break-time att-break-input" type="time" value="13:00" />
-      <input class="att-col att-col-break-time att-break-input" type="time" value="14:00" />
+      <input class="att-col att-col-time att-time-input" type="time" value="09:15" />
+      <input class="att-col att-col-time att-time-input" type="time" value="17:30" />
+      <input class="att-col att-col-break-time att-time-input" type="time" value="13:00" />
+      <input class="att-col att-col-break-time att-time-input" type="time" value="14:00" />
       <span class="att-col att-col-dur">7h 15m</span>
       <span class="att-col att-col-work">DB設計レビュー・実装</span>
     </div>
 
     <div class="att-row-item has-record">
       <span class="att-col att-col-date">5/13（火）</span>
-      <span class="att-col att-col-time">09:01</span>
-      <span class="att-col att-col-time">18:00</span>
-      <input class="att-col att-col-break-time att-break-input" type="time" value="13:00" />
-      <input class="att-col att-col-break-time att-break-input" type="time" value="14:00" />
+      <input class="att-col att-col-time att-time-input" type="time" value="09:01" />
+      <input class="att-col att-col-time att-time-input" type="time" value="18:00" />
+      <input class="att-col att-col-break-time att-time-input" type="time" value="13:00" />
+      <input class="att-col att-col-break-time att-time-input" type="time" value="14:00" />
       <span class="att-col att-col-dur">7h 59m</span>
       <span class="att-col att-col-work">APIエンドポイント実装</span>
     </div>
 
     <div class="att-row-item has-record">
       <span class="att-col att-col-date">5/14（水）</span>
-      <span class="att-col att-col-time">09:20</span>
-      <span class="att-col att-col-time">17:45</span>
-      <input class="att-col att-col-break-time att-break-input" type="time" value="13:00" />
-      <input class="att-col att-col-break-time att-break-input" type="time" value="13:45" />
+      <input class="att-col att-col-time att-time-input" type="time" value="09:20" />
+      <input class="att-col att-col-time att-time-input" type="time" value="17:45" />
+      <input class="att-col att-col-break-time att-time-input" type="time" value="13:00" />
+      <input class="att-col att-col-break-time att-time-input" type="time" value="13:45" />
       <span class="att-col att-col-dur">7h 40m</span>
       <span class="att-col att-col-work">コードレビュー・バグ修正</span>
     </div>
 
     <div class="att-row-item has-record">
       <span class="att-col att-col-date">5/15（木）</span>
-      <span class="att-col att-col-time">08:58</span>
-      <span class="att-col att-col-time">19:30</span>
-      <input class="att-col att-col-break-time att-break-input" type="time" value="13:00" />
-      <input class="att-col att-col-break-time att-break-input" type="time" value="14:00" />
+      <input class="att-col att-col-time att-time-input" type="time" value="08:58" />
+      <input class="att-col att-col-time att-time-input" type="time" value="19:30" />
+      <input class="att-col att-col-break-time att-time-input" type="time" value="13:00" />
+      <input class="att-col att-col-break-time att-time-input" type="time" value="14:00" />
       <span class="att-col att-col-dur">9h 32m</span>
       <span class="att-col att-col-work">リリース作業・障害対応</span>
     </div>
 
     <div class="att-row-item has-record">
       <span class="att-col att-col-date">5/16（金）</span>
-      <span class="att-col att-col-time">09:05</span>
-      <span class="att-col att-col-time">18:12</span>
-      <input class="att-col att-col-break-time att-break-input" type="time" value="13:00" />
-      <input class="att-col att-col-break-time att-break-input" type="time" value="14:00" />
+      <input class="att-col att-col-time att-time-input" type="time" value="09:05" />
+      <input class="att-col att-col-time att-time-input" type="time" value="18:12" />
+      <input class="att-col att-col-break-time att-time-input" type="time" value="13:00" />
+      <input class="att-col att-col-break-time att-time-input" type="time" value="14:00" />
       <span class="att-col att-col-dur">8h 07m</span>
       <span class="att-col att-col-work">振り返り・ドキュメント更新</span>
     </div>
