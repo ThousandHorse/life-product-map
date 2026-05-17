@@ -1,6 +1,7 @@
 /* ===== Sidebar (Pane 1 / NavPane) ===== */
 .sidebar {
   width: 240px;
+  height: 100vh;
   flex-shrink: 0;
   background: var(--sidebar);
   border-right: 1px solid var(--border);
