@@ -1,0 +1,48 @@
+/* ===== Shared UI components =====
+ * card / badge / progress-bar など複数ペインで使う汎用部品。
+ */
+
+/* ----- Card ----- */
+.card {
+  background: var(--white);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border);
+  padding: 18px;
+}
+
+/* ----- Badge ----- */
+.task-badge {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 99px;
+  letter-spacing: 0.05em;
+  flex-shrink: 0;
+}
+.badge-high { background: #fde8e8; color: var(--destructive); }
+.badge-mid  { background: #fef3cd; color: #8a6d00; }
+.badge-done { background: #e3f5eb; color: #2e7d50; }
+
+/* ----- Progress bar ----- */
+.progress-bar-bg {
+  height: 6px;
+  background: var(--canvas);
+  border-radius: 99px;
+  overflow: hidden;
+}
+.progress-bar-fill {
+  height: 100%;
+  background: var(--primary);
+  border-radius: 99px;
+}
+
+/* ----- Section title ----- */
+.section-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--muted);
+  letter-spacing: 0.05em;
+}
+
+/* ----- Divider ----- */
+.divider { height: 1px; background: var(--border); }

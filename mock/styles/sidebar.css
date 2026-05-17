@@ -1,0 +1,134 @@
+/* ===== Sidebar (Pane 1 / NavPane) ===== */
+.sidebar {
+  width: 240px;
+  flex-shrink: 0;
+  background: var(--sidebar);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+}
+
+/* -- Header -- */
+.sidebar-header {
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 14px;
+  border-bottom: 1px solid var(--border);
+}
+.app-title {
+  font-size: 14px;
+  font-weight: 700;
+}
+.collapse-btn {
+  width: 28px;
+  height: 28px;
+  border: none;
+  background: transparent;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  color: var(--muted);
+  font-size: 12px;
+}
+.collapse-btn:hover { background: rgba(0,0,0,0.06); }
+
+/* -- Nav body -- */
+.sidebar-nav {
+  flex: 1;
+  padding: 12px 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  overflow-y: auto;
+}
+
+/* -- Nav section (目標 / 勤怠) -- */
+.nav-section { display: flex; flex-direction: column; }
+
+.nav-section-header {
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 10px;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  transition: background 0.15s;
+  user-select: none;
+}
+.nav-section-header:hover  { background: rgba(0,0,0,0.05); }
+.nav-section-header.active { background: var(--sidebar-accent); }
+
+.nav-section-header-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* chevron rotates when section is open */
+.nav-chevron {
+  font-size: 9px;
+  color: var(--muted);
+  transition: transform 0.2s;
+}
+.nav-section.open .nav-chevron { transform: rotate(90deg); }
+
+/* [+] button inside section header */
+.nav-add-btn {
+  width: 20px;
+  height: 20px;
+  border: none;
+  background: var(--primary);
+  color: white;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.nav-add-btn:hover    { opacity: 0.85; }
+.nav-add-btn:disabled { background: var(--border); color: var(--muted); cursor: default; }
+
+/* -- Goal items -- */
+.nav-goals {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 2px 0 4px 18px;
+}
+
+.goal-item {
+  height: 36px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 10px;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  font-size: 13px;
+  transition: background 0.15s;
+}
+.goal-item:hover  { background: rgba(0,0,0,0.05); }
+.goal-item.active { background: var(--sidebar-accent); font-weight: 600; }
+
+.goal-item-text {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.goal-item-menu {
+  opacity: 0;
+  font-size: 16px;
+  color: var(--muted);
+  flex-shrink: 0;
+  transition: opacity 0.15s;
+  cursor: pointer;
+}
+.goal-item:hover .goal-item-menu { opacity: 1; }

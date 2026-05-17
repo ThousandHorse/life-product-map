@@ -1,0 +1,55 @@
+<!-- Pane 1: NavPane
+     Props (data attributes on parent):
+       none – state is managed by main.js
+-->
+<aside class="sidebar">
+
+  <!-- Header -->
+  <div class="sidebar-header">
+    <div class="app-title">LifeProductMap</div>
+    <button class="collapse-btn" onclick="toggleSidebar()" title="折りたたむ">◀</button>
+  </div>
+
+  <!-- Nav -->
+  <nav class="sidebar-nav">
+
+    <!-- 目標セクション -->
+    <div class="nav-section open" id="nav-goal">
+      <div class="nav-section-header active" onclick="toggleSection('nav-goal')">
+        <div class="nav-section-header-left">
+          <span class="nav-chevron">▶</span>
+          <span>目標</span>
+        </div>
+        <button
+          class="nav-add-btn"
+          onclick="event.stopPropagation()"
+          title="年目標を追加（最大5件）"
+        >+</button>
+      </div>
+      <div class="nav-goals">
+        <div class="goal-item active" onclick="selectGoal(this)">
+          <span class="goal-item-text">TOEIC 900点取得</span>
+          <span class="goal-item-menu">…</span>
+        </div>
+        <div class="goal-item" onclick="selectGoal(this)">
+          <span class="goal-item-text">副業月収10万円</span>
+          <span class="goal-item-menu">…</span>
+        </div>
+        <div class="goal-item" onclick="selectGoal(this)">
+          <span class="goal-item-text">体重65kg以下</span>
+          <span class="goal-item-menu">…</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 勤怠セクション -->
+    <div class="nav-section" id="nav-attendance">
+      <div class="nav-section-header" id="nav-att-header" onclick="setMode('attendance')">
+        <div class="nav-section-header-left">
+          <span>勤怠</span>
+        </div>
+      </div>
+    </div>
+
+  </nav>
+</aside>
