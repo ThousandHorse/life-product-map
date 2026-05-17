@@ -69,13 +69,15 @@
     loadComponent('components/goal/pane4.html',           'pane4'),
     loadComponent('components/attendance/pane2.html',     'pane2-attendance'),
     loadComponent('components/attendance/pane3.html',     'pane3-attendance'),
-  ]).then(() => {
-    // main.js の init（DOMContentLoaded は fetch 完了前に発火するため手動実行）
+  ]).then(async () => {
     if (typeof setMode === 'function') setMode('goal');
+    // render.js で mock-data.json を fetch して各 Pane を描画する
+    if (typeof initMock === 'function') await initMock();
   });
 </script>
 
 <script src="scripts/main.js"></script>
+<script src="scripts/render.js"></script>
 
 </body>
 </html>

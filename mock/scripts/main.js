@@ -34,11 +34,16 @@ function setMode(mode) {
 
 }
 
-/** 目標行のアクティブ状態を切り替える */
+/** 目標行のアクティブ状態を切り替え、render.js で各 Pane を再描画する */
 function selectGoal(el) {
   document.querySelectorAll('.goal-item').forEach(i => i.classList.remove('active'));
   el.classList.add('active');
   if (currentMode !== 'goal') setMode('goal');
+  // render.js の selectGoalById に goalId を渡して Pane 2/3/4 を更新する
+  const goalId = el.dataset.goalId;
+  if (goalId && window.__mockData && typeof selectGoalById === 'function') {
+    selectGoalById(goalId, window.__mockData);
+  }
 }
 
 /** サイドバーの折りたたみ（CSSクラストグル） */

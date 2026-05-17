@@ -1,0 +1,122 @@
+{
+  "goals": [
+    {
+      "id": "g1",
+      "title": "TOEIC 900点取得",
+      "progressMemo": "スコア 780",
+      "achievementRate": 68,
+      "daysLeft": 228,
+      "weeklyProgress": {
+        "done": 10,
+        "total": 13,
+        "days": [
+          { "date": "5/11", "weekday": "月", "done": 3, "total": 3 },
+          { "date": "5/12", "weekday": "火", "done": 2, "total": 2 },
+          { "date": "5/13", "weekday": "水", "done": 1, "total": 2 },
+          { "date": "5/14", "weekday": "木", "done": 2, "total": 2 },
+          { "date": "5/15", "weekday": "金", "done": 2, "total": 3 },
+          { "date": "5/16", "weekday": "土", "done": 0, "total": 1 },
+          { "date": "5/17", "weekday": "日", "done": 0, "total": 0 }
+        ]
+      },
+      "tasks": [
+        { "id": "t1", "title": "英単語を毎日30分", "priority": "high", "progress": 70 },
+        { "id": "t2", "title": "リスニング問題50問", "priority": "mid", "progress": 45 },
+        { "id": "t3", "title": "模擬テスト受験", "priority": "done", "progress": 100 }
+      ],
+      "todayTasks": [
+        { "id": "tt1", "title": "英単語 30分（Unit 12〜14）", "done": false },
+        { "id": "tt2", "title": "リスニング問題 20問", "done": false }
+      ],
+      "aiChat": [
+        { "role": "ai",   "text": "TOEIC 900点達成には、Part 5 の精度向上が重要です。今週は文法問題を重点的に進めましょう。" },
+        { "role": "user", "text": "毎日どれくらい学習すれば良いですか？" },
+        { "role": "ai",   "text": "平日は60分、休日は90分を目安にすると、年内達成ペースに乗れます。" }
+      ]
+    },
+    {
+      "id": "g2",
+      "title": "副業月収10万円",
+      "progressMemo": "累計 32,000円",
+      "achievementRate": 32,
+      "daysLeft": 228,
+      "weeklyProgress": {
+        "done": 5,
+        "total": 10,
+        "days": [
+          { "date": "5/11", "weekday": "月", "done": 1, "total": 2 },
+          { "date": "5/12", "weekday": "火", "done": 1, "total": 2 },
+          { "date": "5/13", "weekday": "水", "done": 1, "total": 2 },
+          { "date": "5/14", "weekday": "木", "done": 1, "total": 2 },
+          { "date": "5/15", "weekday": "金", "done": 1, "total": 2 },
+          { "date": "5/16", "weekday": "土", "done": 0, "total": 0 },
+          { "date": "5/17", "weekday": "日", "done": 0, "total": 0 }
+        ]
+      },
+      "tasks": [
+        { "id": "t4", "title": "クライアント提案書作成", "priority": "high", "progress": 40 },
+        { "id": "t5", "title": "ポートフォリオ更新", "priority": "mid", "progress": 20 }
+      ],
+      "todayTasks": [
+        { "id": "tt3", "title": "提案書の構成を決める", "done": false }
+      ],
+      "aiChat": [
+        { "role": "ai", "text": "副業収入を増やすには、まず既存スキルを活かせる案件を探しましょう。" }
+      ]
+    },
+    {
+      "id": "g3",
+      "title": "体重65kg以下",
+      "progressMemo": "現在 68.5kg",
+      "achievementRate": 45,
+      "daysLeft": 228,
+      "weeklyProgress": {
+        "done": 4,
+        "total": 7,
+        "days": [
+          { "date": "5/11", "weekday": "月", "done": 1, "total": 1 },
+          { "date": "5/12", "weekday": "火", "done": 1, "total": 1 },
+          { "date": "5/13", "weekday": "水", "done": 0, "total": 1 },
+          { "date": "5/14", "weekday": "木", "done": 1, "total": 1 },
+          { "date": "5/15", "weekday": "金", "done": 1, "total": 1 },
+          { "date": "5/16", "weekday": "土", "done": 0, "total": 1 },
+          { "date": "5/17", "weekday": "日", "done": 0, "total": 1 }
+        ]
+      },
+      "tasks": [
+        { "id": "t6", "title": "毎朝30分ウォーキング", "priority": "high", "progress": 60 },
+        { "id": "t7", "title": "夜の炭水化物制限", "priority": "mid", "progress": 30 }
+      ],
+      "todayTasks": [
+        { "id": "tt4", "title": "朝ウォーキング 30分", "done": false }
+      ],
+      "aiChat": [
+        { "role": "ai", "text": "体重管理は食事7割・運動3割です。まず夕食の炭水化物を減らすことから始めましょう。" }
+      ]
+    }
+  ],
+  "attendance": {
+    "today": {
+      "date": "2026-05-17",
+      "dateLabel": "2026年5月17日（土）",
+      "clockIn": "09:12",
+      "clockOut": null,
+      "workedMinutes": 263
+    },
+    "monthSummary": {
+      "totalHours": 72,
+      "targetHours": 120,
+      "progressRate": 60
+    },
+    "records": {
+      "2026-05": [
+        { "date": "2026-05-09", "clockIn": "09:00", "clockOut": "18:05", "breakStart": "13:00", "breakEnd": "14:00", "workLog": "機能設計・ドキュメント整理" },
+        { "date": "2026-05-12", "clockIn": "09:15", "clockOut": "17:30", "breakStart": "13:00", "breakEnd": "14:00", "workLog": "DB設計レビュー・実装" },
+        { "date": "2026-05-13", "clockIn": "09:01", "clockOut": "18:00", "breakStart": "13:00", "breakEnd": "14:00", "workLog": "APIエンドポイント実装" },
+        { "date": "2026-05-14", "clockIn": "09:20", "clockOut": "17:45", "breakStart": "13:00", "breakEnd": "13:45", "workLog": "コードレビュー・バグ修正" },
+        { "date": "2026-05-15", "clockIn": "08:58", "clockOut": "19:30", "breakStart": "13:00", "breakEnd": "14:00", "workLog": "リリース作業・障害対応" },
+        { "date": "2026-05-16", "clockIn": "09:05", "clockOut": "18:12", "breakStart": "13:00", "breakEnd": "14:00", "workLog": "振り返り・ドキュメント更新" }
+      ]
+    }
+  }
+}
