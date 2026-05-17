@@ -110,6 +110,10 @@
 
 .att-empty { color: var(--muted); }
 
+/* -- 曜日カラー -- */
+.att-col-date.is-sat { color: var(--weekday-sat); }
+.att-col-date.is-sun { color: var(--weekday-sun); }
+
 /* -- 退勤ダイアログ -- */
 .dialog-desc {
   font-size: 13px;

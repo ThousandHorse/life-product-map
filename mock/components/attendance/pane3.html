@@ -94,7 +94,9 @@ function recalcDur(row) {
 function buildRow(dateStr, record) {
   const [y, m, d] = dateStr.split('-').map(Number);
   const dt  = new Date(y, m - 1, d);
-  const label = `${m}/${d}（${WEEKDAYS[dt.getDay()]}）`;
+  const dow = dt.getDay(); // 0=日, 6=土
+  const label = `${m}/${d}（${WEEKDAYS[dow]}）`;
+  const dateClass = dow === 6 ? 'is-sat' : dow === 0 ? 'is-sun' : '';
 
   const row = document.createElement('div');
 
@@ -105,7 +107,7 @@ function buildRow(dateStr, record) {
 
     row.className = 'att-row-item has-record';
     row.innerHTML = `
-      <span class="att-col att-col-date">${label}</span>
+      <span class="att-col att-col-date ${dateClass}">${label}</span>
       <input class="att-col att-col-time att-time-input" type="time" value="${record.clockIn}" />
       <input class="att-col att-col-time att-time-input" type="time" value="${record.clockOut}" />
       <input class="att-col att-col-break-time att-time-input" type="time" value="${bs}" />
@@ -119,7 +121,7 @@ function buildRow(dateStr, record) {
   } else {
     row.className = 'att-row-item no-record';
     row.innerHTML = `
-      <span class="att-col att-col-date">${label}</span>
+      <span class="att-col att-col-date ${dateClass}">${label}</span>
       <span class="att-col att-col-time att-empty">—</span>
       <span class="att-col att-col-time att-empty">—</span>
       <span class="att-col att-col-break-time att-empty">—</span>
