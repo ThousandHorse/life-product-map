@@ -66,9 +66,10 @@
 .att-row-item.no-record { opacity: 0.45; }
 
 .att-col { font-size: 13px; }
-.att-col-date { flex: 0 0 90px; font-weight: 600; }
-.att-col-time { flex: 0 0 60px; text-align: center; }
-.att-col-dur  { flex: 0 0 70px; text-align: right; color: var(--primary); font-weight: 600; }
+.att-col-date  { flex: 0 0 90px; font-weight: 600; }
+.att-col-time  { flex: 0 0 56px; text-align: center; }
+.att-col-break { flex: 0 0 48px; text-align: center; color: var(--muted); }
+.att-col-dur   { flex: 0 0 70px; text-align: right; color: var(--primary); font-weight: 600; }
 
 .att-list-header .att-col {
   font-size: 10px;
@@ -76,5 +77,6 @@
   color: var(--muted);
   letter-spacing: 0.04em;
 }
+.att-list-header .att-col-break { color: var(--muted); }
 
 .att-empty { color: var(--muted); }

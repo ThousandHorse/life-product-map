@@ -55,7 +55,8 @@ DailyReport { id, date, reflection, learned, aiComment? }
 // aiComment: Phase 1 はダミーテキスト、Phase 3 で Claude API から取得
 
 // 勤怠打刻
-AttendanceRecord { id, date, clockIn?, clockOut? }
+AttendanceRecord { id, date, clockIn?, clockOut?, breakMinutes? }
+// breakMinutes: 休憩時間（分）。稼働時間 = clockOut - clockIn - breakMinutes
 
 // 勤怠設定
 AttendanceSettings { targetHoursPerMonth, xlsxTemplate?, columnMapping? }
@@ -200,14 +201,14 @@ const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null)
 
 **実装内容:**
 - 出勤ボタン / 退勤ボタン（ワンタップ打刻）
-- 今日の打刻状況表示（出勤時刻・退勤時刻・稼働時間）
+- 今日の打刻状況表示（出勤時刻・退勤時刻・休憩時間・稼働時間）
 - 目標稼働時間の設定（月単位、プルダウン: 40 / 60 / 80 / 100 / 120 / 140 / 160 / 180 時間）
 
 **完了条件:**
 - [ ] 出勤ボタンをタップすると現在時刻が `clockIn` に記録される
 - [ ] 退勤ボタンをタップすると現在時刻が `clockOut` に記録される
 - [ ] 出勤中は「出勤ボタン」が disabled になり「退勤ボタン」が有効になる
-- [ ] 今日の稼働時間（clockOut - clockIn）が表示される
+- [ ] 今日の稼働時間（clockOut - clockIn - breakMinutes）が表示される
 - [ ] 目標稼働時間（月単位）をプルダウンで変更でき、`attendanceSettings` に反映される
 - [ ] ページリロード後も打刻データが localStorage から復元される
 
@@ -221,14 +222,16 @@ const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null)
 **実装内容:**
 - 上部にエクスポートボタン（Step 9 で機能実装、Step 8 時点では配置のみ）
 - 月次の打刻データを日付順の一覧形式で表示（カレンダー形式は採用しない）
-- 各行に日付・出勤時刻・退勤時刻・稼働時間を表示
+- 月次の打刻データを古い日付順（昇順）で一覧表示
+- 各行に日付・出勤時刻・退勤時刻・休憩時間・稼働時間を表示（稼働時間 = 退勤 - 出勤 - 休憩）
 - 打刻済みの行と未打刻の行をビジュアルで区別
 - 前月・次月へのナビゲーション（月切替ボタン）
 
 **完了条件:**
 - [ ] 勤怠モード時に Pane 3 の上部にエクスポートボタンが表示される
-- [ ] 月次一覧が表示される
-- [ ] 各行に日付・出勤・退勤・稼働時間が表示される
+- [ ] 月次一覧が古い日付順（昇順）で表示される
+- [ ] 各行に日付・出勤・退勤・休憩・稼働時間が表示される
+- [ ] 稼働時間は「退勤 - 出勤 - 休憩時間」で算出される
 - [ ] 打刻済みの行と未打刻の行がビジュアルで区別できる
 - [ ] 前月・次月へのナビゲーションができる
 
@@ -241,7 +244,7 @@ const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null)
 
 **実装内容:**
 - 月次の打刻データを xlsx 形式でダウンロードする
-- Phase 1 は固定フォーマット（日付・出勤・退勤・稼働時間の列）
+- Phase 1 は固定フォーマット（日付・出勤・退勤・休憩時間・稼働時間の列）
 - AttendanceListPane 上部の「エクスポート」ボタンから呼び出す
 
 **注意事項:**
@@ -250,7 +253,7 @@ const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null)
 
 **完了条件:**
 - [ ] 「エクスポート」ボタンをクリックすると xlsx ファイルがダウンロードされる
-- [ ] xlsx に「日付」「出勤時刻」「退勤時刻」「稼働時間（時間）」の列が含まれる
+- [ ] xlsx に「日付」「出勤時刻」「退勤時刻」「休憩時間（分）」「稼働時間（時間）」の列が含まれる
 - [ ] 当月の全打刻データが行として含まれる
 - [ ] 打刻のない日は空行になる
 

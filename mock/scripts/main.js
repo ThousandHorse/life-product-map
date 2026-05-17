@@ -32,9 +32,6 @@ function setMode(mode) {
   const pane4 = document.getElementById('pane4');
   if (pane4) pane4.style.display = isGoal ? 'flex' : 'none';
 
-  // switcher buttons (mockup dev tool)
-  styleDevBtn('btn-goal',       isGoal);
-  styleDevBtn('btn-attendance', !isGoal);
 }
 
 /** 目標行のアクティブ状態を切り替える */
@@ -106,12 +103,6 @@ function show(id, visible) {
   if (el) el.style.display = visible ? 'flex' : 'none';
 }
 
-function styleDevBtn(id, active) {
-  const btn = document.getElementById(id);
-  if (!btn) return;
-  btn.style.background = active ? '#1e3a5f' : 'white';
-  btn.style.color       = active ? 'white'   : '';
-}
 
 // ── init ─────────────────────────────────────────────
 

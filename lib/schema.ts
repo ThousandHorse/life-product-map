@@ -53,6 +53,8 @@ export const attendanceRecordSchema = z.object({
   // .datetime() で ISO 8601 形式（例: "2026-05-16T09:00:00.000Z"）を強制する
   clockIn: z.string().datetime().optional(),
   clockOut: z.string().datetime().optional(),
+  // 休憩時間（分）。稼働時間 = clockOut - clockIn - breakMinutes
+  breakMinutes: z.number().int().min(0).optional(),
 });
 
 // 日報（1日1件）
