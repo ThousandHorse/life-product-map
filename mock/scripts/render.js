@@ -9,11 +9,6 @@ const CIRCUMFERENCE = 2 * Math.PI * 44; // ドーナツ r=44 の周長 ≈ 276.5
 
 // ── ユーティリティ ──────────────────────────────────────────
 
-function toMin(hhmm) {
-  const [h, m] = hhmm.split(':').map(Number);
-  return h * 60 + m;
-}
-
 function formatDur(min) {
   if (min <= 0) return '—';
   const h = Math.floor(min / 60);
@@ -149,7 +144,7 @@ function renderAttendancePane2(attendance) {
   setText('#pane2-attendance .att-date-label', t.dateLabel);
   setText('#pane2-attendance .att-clockIn-value',  t.clockIn  || '—');
   setText('#pane2-attendance .att-clockOut-value', t.clockOut || '—');
-  setText('#pane2-attendance .att-worked-value',   t.clockOut ? formatDur(t.workedMinutes) : formatDur(t.workedMinutes));
+  setText('#pane2-attendance .att-worked-value',   formatDur(t.workedMinutes));
 
   const s = attendance.monthSummary;
   setText('#pane2-attendance .att-total-value', `${s.totalHours}h`);
