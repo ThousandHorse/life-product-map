@@ -59,7 +59,7 @@ AttendanceRecord { id, date, clockIn?, clockOut? }
 
 // 勤怠設定
 AttendanceSettings { targetHoursPerMonth, xlsxTemplate?, columnMapping? }
-// targetHoursPerMonth: 月間目標稼働時間（プルダウン: 40/60/80/100/120/140/160h）
+// targetHoursPerMonth: 月間目標稼働時間（プルダウン: 40/60/80/100/120/140/160/180h）
 ```
 
 **進捗ステータス計算（lib/computed/tasks.ts）:**
@@ -201,7 +201,7 @@ const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null)
 **実装内容:**
 - 出勤ボタン / 退勤ボタン（ワンタップ打刻）
 - 今日の打刻状況表示（出勤時刻・退勤時刻・稼働時間）
-- 目標稼働時間の設定（月単位、プルダウン: 40 / 60 / 80 / 100 / 120 / 140 / 160 時間）
+- 目標稼働時間の設定（月単位、プルダウン: 40 / 60 / 80 / 100 / 120 / 140 / 160 / 180 時間）
 
 **完了条件:**
 - [ ] 出勤ボタンをタップすると現在時刻が `clockIn` に記録される

@@ -1,5 +1,11 @@
-<!-- Pane 3: 勤怠モード – Calendar & Weekly Graph -->
-<div class="pane-header">CALENDAR & TIMELINE</div>
+<!-- Pane 3: 勤怠モード – AttendanceListPane
+     仕様: カレンダー形式は採用しない。日付順の一覧形式で表示する（steps.md Step 8）
+-->
+<div class="pane-header-row">
+  <span class="pane-header-text">ATTENDANCE LIST</span>
+  <button class="export-btn">エクスポート</button>
+</div>
+
 <div class="pane-body">
 
   <!-- Month navigation -->
@@ -11,87 +17,74 @@
     </div>
   </div>
 
-  <!-- Calendar grid -->
-  <div class="card" style="padding:16px;">
-    <div class="calendar-grid">
-      <!-- Day labels -->
-      <div class="cal-day-label">SUN</div>
-      <div class="cal-day-label">MON</div>
-      <div class="cal-day-label">TUE</div>
-      <div class="cal-day-label">WED</div>
-      <div class="cal-day-label">THU</div>
-      <div class="cal-day-label">FRI</div>
-      <div class="cal-day-label">SAT</div>
-      <!-- Week 1 -->
-      <div class="cal-day"></div>
-      <div class="cal-day"></div>
-      <div class="cal-day"></div>
-      <div class="cal-day"></div>
-      <div class="cal-day has-record"><span class="cal-day-num">1</span><span class="cal-day-dot"></span></div>
-      <div class="cal-day has-record"><span class="cal-day-num">2</span><span class="cal-day-dot"></span></div>
-      <div class="cal-day"><span class="cal-day-num">3</span></div>
-      <!-- Week 2 -->
-      <div class="cal-day"><span class="cal-day-num">4</span></div>
-      <div class="cal-day has-record"><span class="cal-day-num">5</span><span class="cal-day-dot"></span></div>
-      <div class="cal-day has-record"><span class="cal-day-num">6</span><span class="cal-day-dot"></span></div>
-      <div class="cal-day has-record"><span class="cal-day-num">7</span><span class="cal-day-dot"></span></div>
-      <div class="cal-day has-record"><span class="cal-day-num">8</span><span class="cal-day-dot"></span></div>
-      <div class="cal-day has-record"><span class="cal-day-num">9</span><span class="cal-day-dot"></span></div>
-      <div class="cal-day"><span class="cal-day-num">10</span></div>
-      <!-- Week 3 -->
-      <div class="cal-day"><span class="cal-day-num">11</span></div>
-      <div class="cal-day has-record"><span class="cal-day-num">12</span><span class="cal-day-dot"></span></div>
-      <div class="cal-day has-record"><span class="cal-day-num">13</span><span class="cal-day-dot"></span></div>
-      <div class="cal-day has-record"><span class="cal-day-num">14</span><span class="cal-day-dot"></span></div>
-      <div class="cal-day has-record"><span class="cal-day-num">15</span><span class="cal-day-dot"></span></div>
-      <div class="cal-day has-record"><span class="cal-day-num">16</span><span class="cal-day-dot"></span></div>
-      <div class="cal-day"><span class="cal-day-num">17</span></div>
-      <!-- Week 4 -->
-      <div class="cal-day today"><span class="cal-day-num">18</span><span class="cal-day-dot"></span></div>
-      <div class="cal-day"><span class="cal-day-num">19</span></div>
-      <div class="cal-day"><span class="cal-day-num">20</span></div>
-      <div class="cal-day"><span class="cal-day-num">21</span></div>
-      <div class="cal-day"><span class="cal-day-num">22</span></div>
-      <div class="cal-day"><span class="cal-day-num">23</span></div>
-      <div class="cal-day"><span class="cal-day-num">24</span></div>
-    </div>
+  <!-- Attendance list header -->
+  <div class="att-list-header">
+    <span class="att-col att-col-date">日付</span>
+    <span class="att-col att-col-time">出勤</span>
+    <span class="att-col att-col-time">退勤</span>
+    <span class="att-col att-col-dur">稼働</span>
   </div>
 
-  <!-- Weekly bar graph -->
-  <div>
-    <div class="section-title" style="margin-bottom:12px;">今週の稼働</div>
-    <div class="card" style="padding:16px 20px;">
-      <div class="week-graph">
-        <div class="week-bar-wrap">
-          <div class="week-bar" style="height:55%;"></div>
-          <div class="week-bar-label">月</div>
-        </div>
-        <div class="week-bar-wrap">
-          <div class="week-bar" style="height:80%;"></div>
-          <div class="week-bar-label">火</div>
-        </div>
-        <div class="week-bar-wrap">
-          <div class="week-bar" style="height:70%;"></div>
-          <div class="week-bar-label">水</div>
-        </div>
-        <div class="week-bar-wrap">
-          <div class="week-bar" style="height:90%;"></div>
-          <div class="week-bar-label">木</div>
-        </div>
-        <div class="week-bar-wrap">
-          <div class="week-bar" style="height:40%;"></div>
-          <div class="week-bar-label">金</div>
-        </div>
-        <div class="week-bar-wrap">
-          <div class="week-bar" style="height:0%;"></div>
-          <div class="week-bar-label">土</div>
-        </div>
-        <div class="week-bar-wrap">
-          <div class="week-bar" style="height:10%; opacity:0.4;"></div>
-          <div class="week-bar-label">日</div>
-        </div>
-      </div>
+  <!-- Attendance rows -->
+  <div class="att-list">
+
+    <div class="att-row-item has-record">
+      <span class="att-col att-col-date">5/16（金）</span>
+      <span class="att-col att-col-time">09:05</span>
+      <span class="att-col att-col-time">18:12</span>
+      <span class="att-col att-col-dur">9h 07m</span>
     </div>
+
+    <div class="att-row-item has-record">
+      <span class="att-col att-col-date">5/15（木）</span>
+      <span class="att-col att-col-time">08:58</span>
+      <span class="att-col att-col-time">19:30</span>
+      <span class="att-col att-col-dur">10h 32m</span>
+    </div>
+
+    <div class="att-row-item has-record">
+      <span class="att-col att-col-date">5/14（水）</span>
+      <span class="att-col att-col-time">09:20</span>
+      <span class="att-col att-col-time">17:45</span>
+      <span class="att-col att-col-dur">8h 25m</span>
+    </div>
+
+    <div class="att-row-item has-record">
+      <span class="att-col att-col-date">5/13（火）</span>
+      <span class="att-col att-col-time">09:01</span>
+      <span class="att-col att-col-time">18:00</span>
+      <span class="att-col att-col-dur">8h 59m</span>
+    </div>
+
+    <div class="att-row-item has-record">
+      <span class="att-col att-col-date">5/12（月）</span>
+      <span class="att-col att-col-time">09:15</span>
+      <span class="att-col att-col-time">17:30</span>
+      <span class="att-col att-col-dur">8h 15m</span>
+    </div>
+
+    <!-- 未打刻の行 -->
+    <div class="att-row-item no-record">
+      <span class="att-col att-col-date">5/11（日）</span>
+      <span class="att-col att-col-time att-empty">—</span>
+      <span class="att-col att-col-time att-empty">—</span>
+      <span class="att-col att-col-dur att-empty">—</span>
+    </div>
+
+    <div class="att-row-item no-record">
+      <span class="att-col att-col-date">5/10（土）</span>
+      <span class="att-col att-col-time att-empty">—</span>
+      <span class="att-col att-col-time att-empty">—</span>
+      <span class="att-col att-col-dur att-empty">—</span>
+    </div>
+
+    <div class="att-row-item has-record">
+      <span class="att-col att-col-date">5/9（金）</span>
+      <span class="att-col att-col-time">09:00</span>
+      <span class="att-col att-col-time">18:05</span>
+      <span class="att-col att-col-dur">9h 05m</span>
+    </div>
+
   </div>
 
 </div>

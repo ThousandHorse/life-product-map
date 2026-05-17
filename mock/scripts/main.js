@@ -1,8 +1,9 @@
 // ===== Mockup state manager =====
-// モード切替・セクション折りたたみのみを担う最小限のスクリプト。
+// モード切替・サイドバー折りたたみのみを担う最小限のスクリプト。
 // React 移行時はこのロジックを useState / useCallback に置き換える。
 
 let currentMode = 'goal';
+let goalCount = 3; // モックの初期目標数
 
 /** 目標モード / 勤怠モードを切り替える */
 function setMode(mode) {
@@ -36,23 +37,66 @@ function setMode(mode) {
   styleDevBtn('btn-attendance', !isGoal);
 }
 
-/** nav-section の折りたたみ / 展開 */
-function toggleSection(id) {
-  document.getElementById(id).classList.toggle('open');
-}
-
 /** 目標行のアクティブ状態を切り替える */
 function selectGoal(el) {
   document.querySelectorAll('.goal-item').forEach(i => i.classList.remove('active'));
   el.classList.add('active');
-  // 目標モードに切り替え（勤怠モードから戻る用途）
   if (currentMode !== 'goal') setMode('goal');
 }
 
-/** サイドバーの折りたたみ（モックアップでは幅トグルのみ） */
+/** サイドバーの折りたたみ（CSSクラストグル） */
 function toggleSidebar() {
-  const sidebar = document.querySelector('.sidebar');
-  sidebar.style.width = sidebar.style.width === '48px' ? '240px' : '48px';
+  const sidebar = document.getElementById('sidebar');
+  sidebar.classList.toggle('collapsed');
+}
+
+// ── 年目標追加ダイアログ ────────────────────────────────
+
+function openAddGoalDialog() {
+  if (goalCount >= 5) return;
+  const overlay = document.getElementById('add-goal-overlay');
+  const input   = document.getElementById('add-goal-input');
+  if (overlay) overlay.classList.add('open');
+  if (input)   { input.value = ''; setTimeout(() => input.focus(), 50); }
+}
+
+function closeAddGoalDialog() {
+  const overlay = document.getElementById('add-goal-overlay');
+  if (overlay) overlay.classList.remove('open');
+}
+
+function submitAddGoal() {
+  const input = document.getElementById('add-goal-input');
+  const title = input ? input.value.trim() : '';
+  if (!title) return;
+
+  goalCount++;
+  const goals = document.querySelector('.nav-goals');
+  if (goals) {
+    const item = document.createElement('div');
+    item.className = 'goal-item';
+    item.setAttribute('onclick', 'selectGoal(this)');
+    item.innerHTML = `
+      <span class="goal-arrow">▶</span>
+      <span class="goal-item-text sidebar-expanded-only">${escapeHtml(title)}</span>
+      <span class="goal-item-menu sidebar-expanded-only">…</span>
+    `;
+    // 折りたたみ中なら expanded-only を非表示に合わせる
+    if (document.getElementById('sidebar').classList.contains('collapsed')) {
+      item.querySelectorAll('.sidebar-expanded-only').forEach(el => el.style.display = 'none');
+    }
+    goals.appendChild(item);
+  }
+
+  // 5件達成で追加ボタンを disabled に
+  const addBtn = document.getElementById('goal-add-btn');
+  if (addBtn) addBtn.disabled = goalCount >= 5;
+
+  closeAddGoalDialog();
+}
+
+function escapeHtml(str) {
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
 // ── helpers ──────────────────────────────────────────

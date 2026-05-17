@@ -145,3 +145,99 @@
   cursor: pointer;
 }
 .goal-item:hover .goal-item-menu { opacity: 1; }
+
+/* -- Collapse toggle button -- */
+.sidebar-toggle-btn {
+  margin-left: auto;
+  width: 24px;
+  height: 24px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-sm);
+  flex-shrink: 0;
+}
+.sidebar-toggle-btn:hover { background: rgba(0,0,0,0.07); }
+.sidebar-toggle-icon { font-size: 11px; color: var(--muted); transition: transform 0.2s; }
+
+/* -- Collapsed state -- */
+.sidebar.collapsed {
+  width: 48px;
+}
+.sidebar.collapsed .sidebar-expanded-only {
+  display: none;
+}
+.sidebar.collapsed .sidebar-toggle-icon {
+  transform: rotate(180deg);
+}
+.sidebar.collapsed .mode-item {
+  justify-content: center;
+  padding: 0;
+}
+.sidebar.collapsed .goal-item {
+  justify-content: center;
+  padding: 0 8px;
+}
+.sidebar.collapsed .nav-goals-header {
+  justify-content: center;
+  padding: 4px 0 6px;
+}
+
+/* -- Add-goal dialog -- */
+.dialog-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.3);
+  z-index: 100;
+  align-items: center;
+  justify-content: center;
+}
+.dialog-overlay.open {
+  display: flex;
+}
+.dialog-box {
+  background: var(--white);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  width: 320px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+}
+.dialog-title {
+  font-size: 15px;
+  font-weight: 700;
+}
+.dialog-input {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: 14px;
+  background: var(--canvas);
+  outline: none;
+  box-sizing: border-box;
+}
+.dialog-input:focus { border-color: var(--primary); }
+.dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+.dialog-btn {
+  padding: 7px 16px;
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid var(--border);
+}
+.dialog-btn-cancel { background: var(--white); }
+.dialog-btn-cancel:hover { background: var(--canvas); }
+.dialog-btn-ok { background: var(--primary); color: white; border-color: var(--primary); }
+.dialog-btn-ok:hover { opacity: 0.85; }

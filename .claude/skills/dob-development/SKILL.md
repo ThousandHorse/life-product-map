@@ -59,6 +59,7 @@ Pane 4 (AiChatPane)
 | [reference/workflow.md](reference/workflow.md) | 実装→PR→レビュー対応→マージ待ちの詳細手順。コード規約・サブエージェントの使い方も記載 |
 | [reference/pr-template.md](reference/pr-template.md) | PR 概要の書き方・Step 別記載ポイント |
 | [reference/comment-policy.md](reference/comment-policy.md) | コメントの書き方（WHY を書く・WHAT は書かない）の詳細と記述例 |
+| [mock/index.html](../../../mock/index.html) | UI デザイン確認用モックアップ（HTML + CSS + JS）。各 Pane の見た目・構造の参考に使う。`python3 -m http.server 5500` で起動し `http://localhost:5500/mock/` でアクセス |
 
 ## スキルの更新ルール
 

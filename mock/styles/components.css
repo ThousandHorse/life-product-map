@@ -19,9 +19,9 @@
   letter-spacing: 0.05em;
   flex-shrink: 0;
 }
-.badge-high { background: #fde8e8; color: var(--destructive); }
-.badge-mid  { background: #fef3cd; color: #8a6d00; }
-.badge-done { background: #e3f5eb; color: #2e7d50; }
+.badge-high { background: var(--badge-high-bg); color: var(--badge-high-fg); }
+.badge-mid  { background: var(--badge-mid-bg);  color: var(--badge-mid-fg); }
+.badge-done { background: var(--badge-done-bg); color: var(--badge-done-fg); }
 
 /* ----- Progress bar ----- */
 .progress-bar-bg {
