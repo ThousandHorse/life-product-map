@@ -58,7 +58,8 @@ DailyReport { id, date, reflection, learned, aiComment? }
 AttendanceRecord { id, date, clockIn?, clockOut? }
 
 // 勤怠設定
-AttendanceSettings { targetHoursPerDay, xlsxTemplate?, columnMapping? }
+AttendanceSettings { targetHoursPerMonth, xlsxTemplate?, columnMapping? }
+// targetHoursPerMonth: 月間目標稼働時間（プルダウン: 40/60/80/100/120/140/160h）
 ```
 
 **進捗ステータス計算（lib/computed/tasks.ts）:**
@@ -200,14 +201,14 @@ const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null)
 **実装内容:**
 - 出勤ボタン / 退勤ボタン（ワンタップ打刻）
 - 今日の打刻状況表示（出勤時刻・退勤時刻・稼働時間）
-- 目標稼働時間の設定（プルダウン: 4 / 5 / 6 / 7 / 8 時間）
+- 目標稼働時間の設定（月単位、プルダウン: 40 / 60 / 80 / 100 / 120 / 140 / 160 時間）
 
 **完了条件:**
 - [ ] 出勤ボタンをタップすると現在時刻が `clockIn` に記録される
 - [ ] 退勤ボタンをタップすると現在時刻が `clockOut` に記録される
 - [ ] 出勤中は「出勤ボタン」が disabled になり「退勤ボタン」が有効になる
 - [ ] 今日の稼働時間（clockOut - clockIn）が表示される
-- [ ] 目標稼働時間をプルダウンで変更でき、`attendanceSettings` に反映される
+- [ ] 目標稼働時間（月単位）をプルダウンで変更でき、`attendanceSettings` に反映される
 - [ ] ページリロード後も打刻データが localStorage から復元される
 
 ---
@@ -218,13 +219,15 @@ const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null)
 - `components/workspace/AttendanceListPane.tsx`（Pane 3 の勤怠モード）
 
 **実装内容:**
+- 上部にエクスポートボタン（Step 9 で機能実装、Step 8 時点では配置のみ）
 - 月次の打刻データを日付順の一覧形式で表示（カレンダー形式は採用しない）
 - 各行に日付・出勤時刻・退勤時刻・稼働時間を表示
 - 打刻済みの行と未打刻の行をビジュアルで区別
 - 前月・次月へのナビゲーション（月切替ボタン）
 
 **完了条件:**
-- [ ] 勤怠モード時に Pane 3 に月次一覧が表示される
+- [ ] 勤怠モード時に Pane 3 の上部にエクスポートボタンが表示される
+- [ ] 月次一覧が表示される
 - [ ] 各行に日付・出勤・退勤・稼働時間が表示される
 - [ ] 打刻済みの行と未打刻の行がビジュアルで区別できる
 - [ ] 前月・次月へのナビゲーションができる
@@ -239,7 +242,7 @@ const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null)
 **実装内容:**
 - 月次の打刻データを xlsx 形式でダウンロードする
 - Phase 1 は固定フォーマット（日付・出勤・退勤・稼働時間の列）
-- AttendancePane の「エクスポート」ボタンから呼び出す
+- AttendanceListPane 上部の「エクスポート」ボタンから呼び出す
 
 **注意事項:**
 - xlsx の会社指定フォーマット対応（テンプレートアップロード + 列マッピング）は Phase 2 以降のスコープ
