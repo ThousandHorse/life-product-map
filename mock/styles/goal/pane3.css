@@ -15,82 +15,100 @@
 .progress-chart-card {
   background: var(--canvas);
   border-radius: var(--radius-md);
-  padding: 16px 16px 10px;
+  padding: 16px;
 }
 
-/* 縦横比を保持するため固定 viewBox + auto height */
-.progress-chart-svg {
-  display: block;
-  width: 100%;
-  height: auto;
-  overflow: visible;
-}
-
-.chart-grid {
-  stroke: var(--border);
-  stroke-width: 1;
-  stroke-dasharray: 4 3;
-}
-
-.chart-label {
-  font-size: 9px;
-  fill: var(--muted);
-  font-family: inherit;
-}
-
-.chart-week-label {
-  font-size: 9px;
-  fill: var(--muted);
-  font-family: inherit;
-  text-anchor: middle;
-}
-
-.chart-bar-pct {
-  font-size: 9px;
-  fill: var(--muted);
-  font-family: inherit;
-  text-anchor: middle;
-}
-.chart-bar-pct-best    { fill: var(--primary); font-weight: 700; }
-.chart-bar-pct-current { fill: var(--primary); font-weight: 700; }
-
-.chart-bar         { fill: var(--primary); opacity: 0.25; }
-.chart-bar-best    { opacity: 0.6; }
-.chart-bar-current { opacity: 1; }
-
-/* 目標ライン */
-.chart-target-line  { stroke: var(--destructive); stroke-width: 1.5; stroke-dasharray: 5 3; opacity: 0.7; }
-.chart-target-label { font-size: 9px; fill: var(--destructive); font-family: inherit; opacity: 0.8; }
-
-.progress-chart-legend {
+/* ドーナツ + 日別一覧を横並び */
+.donut-layout {
   display: flex;
   align-items: center;
-  gap: 12px;
-  margin-top: 8px;
+  gap: 20px;
+}
+
+/* ドーナツグラフ */
+.donut-wrap {
+  flex: 0 0 110px;
+}
+
+.donut-svg {
+  display: block;
+  width: 110px;
+  height: 110px;
+}
+
+.donut-track { stroke: var(--border); }
+.donut-fill  { stroke: var(--primary); }
+
+.donut-pct-main {
+  font-size: 20px;
+  font-weight: 700;
+  fill: var(--primary);
+  font-family: inherit;
+  text-anchor: middle;
+  dominant-baseline: middle;
+}
+.donut-pct-sub {
+  font-size: 9px;
+  fill: var(--muted);
+  font-family: inherit;
+  text-anchor: middle;
+}
+
+/* 日別リスト */
+.donut-detail {
+  flex: 1;
+  min-width: 0;
+}
+
+.donut-week-label {
   font-size: 11px;
   color: var(--muted);
+  margin-bottom: 8px;
+  letter-spacing: 0.03em;
 }
 
-.legend-item {
+.donut-day-list {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.donut-day-row {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 6px;
 }
 
-.legend-dot {
-  width: 10px;
-  height: 10px;
-  border-radius: 2px;
-  display: inline-block;
+.donut-day-date {
+  font-size: 11px;
+  color: var(--muted);
+  flex: 0 0 46px;
 }
-.legend-dot-best    { background: var(--primary); opacity: 0.6; }
-.legend-dot-current { background: var(--primary); opacity: 1; }
 
-.legend-line-target {
-  display: inline-block;
-  width: 16px;
-  height: 2px;
-  background: var(--destructive);
-  opacity: 0.7;
-  border-radius: 1px;
+.donut-day-bar-bg {
+  flex: 1;
+  height: 6px;
+  background: var(--border);
+  border-radius: 3px;
+  overflow: hidden;
 }
+
+.donut-day-bar-fill {
+  height: 100%;
+  border-radius: 3px;
+  background: var(--primary);
+  transition: width 0.3s;
+}
+
+/* 0件の行はバーを薄く */
+.donut-day-row.none .donut-day-bar-fill { background: var(--border); }
+
+.donut-day-badge {
+  font-size: 10px;
+  font-weight: 600;
+  flex: 0 0 28px;
+  text-align: right;
+}
+.donut-day-badge.done    { color: var(--primary); }
+.donut-day-badge.partial { color: var(--muted); }
+.donut-day-badge.none    { color: var(--border); }
