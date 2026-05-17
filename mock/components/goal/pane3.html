@@ -1,0 +1,114 @@
+<!-- Pane 3: 目標モード – Detail View -->
+<div class="pane-body">
+
+  <div class="detail-title">TOEIC 900点取得</div>
+
+  <div class="stat-row">
+    <div class="stat-card">
+      <div class="stat-label">進捗メモ</div>
+      <div class="stat-value" style="font-size:18px; margin-top:4px; font-weight:600;">スコア 780</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">達成率</div>
+      <div class="stat-value">68%</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">残日数</div>
+      <div class="stat-value">228</div>
+    </div>
+  </div>
+
+  <!-- Progress: 今週のタスク完了率（ドーナツ円グラフ） -->
+  <div>
+    <div class="section-title progress-section-title" style="margin-bottom:12px;">今週の進捗</div>
+    <div class="progress-chart-card">
+      <div class="donut-layout">
+
+        <!-- ドーナツグラフ -->
+        <div class="donut-wrap">
+          <!--
+            circle: r=44, 周長 = 2π×44 ≈ 276.5
+            完了率 68% → 塗り = 276.5 × 0.68 ≈ 188
+            stroke-dasharray="188 276.5"
+            開始位置を12時に合わせるため rotate(-90)
+          -->
+          <svg class="donut-svg" viewBox="0 0 100 100">
+            <!-- 背景トラック -->
+            <circle cx="50" cy="50" r="44"
+              fill="none"
+              stroke-width="10"
+              class="donut-track" />
+            <!-- 達成分 -->
+            <circle cx="50" cy="50" r="44"
+              fill="none"
+              stroke-width="10"
+              stroke-linecap="round"
+              stroke-dasharray="188 276.5"
+              transform="rotate(-90 50 50)"
+              class="donut-fill" />
+            <!-- 中央テキスト -->
+            <text x="50" y="42" class="donut-pct-main">68%</text>
+            <text x="50" y="66" class="donut-pct-sub">完了</text>
+          </svg>
+        </div>
+
+        <!-- 日別タスク一覧 -->
+        <div class="donut-detail">
+          <div class="donut-day-list">
+            <div class="donut-day-row done">
+              <span class="donut-day-date">5/11 月</span>
+              <div class="donut-day-bar-bg"><div class="donut-day-bar-fill" style="width:100%"></div></div>
+              <span class="donut-day-badge done">3/3</span>
+            </div>
+            <div class="donut-day-row done">
+              <span class="donut-day-date">5/12 火</span>
+              <div class="donut-day-bar-bg"><div class="donut-day-bar-fill" style="width:100%"></div></div>
+              <span class="donut-day-badge done">2/2</span>
+            </div>
+            <div class="donut-day-row partial">
+              <span class="donut-day-date">5/13 水</span>
+              <div class="donut-day-bar-bg"><div class="donut-day-bar-fill" style="width:50%"></div></div>
+              <span class="donut-day-badge partial">1/2</span>
+            </div>
+            <div class="donut-day-row done">
+              <span class="donut-day-date">5/14 木</span>
+              <div class="donut-day-bar-bg"><div class="donut-day-bar-fill" style="width:100%"></div></div>
+              <span class="donut-day-badge done">2/2</span>
+            </div>
+            <div class="donut-day-row partial">
+              <span class="donut-day-date">5/15 金</span>
+              <div class="donut-day-bar-bg"><div class="donut-day-bar-fill" style="width:67%"></div></div>
+              <span class="donut-day-badge partial">2/3</span>
+            </div>
+            <div class="donut-day-row none">
+              <span class="donut-day-date">5/16 土</span>
+              <div class="donut-day-bar-bg"><div class="donut-day-bar-fill" style="width:0%"></div></div>
+              <span class="donut-day-badge none">0/1</span>
+            </div>
+            <div class="donut-day-row none">
+              <span class="donut-day-date">5/17 日</span>
+              <div class="donut-day-bar-bg"><div class="donut-day-bar-fill" style="width:0%"></div></div>
+              <span class="donut-day-badge none">未</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <div>
+    <div class="section-title" style="margin-bottom:10px;">TODAY'S TASKS</div>
+    <div style="display:flex; flex-direction:column; gap:8px;">
+      <div class="card" style="display:flex; align-items:center; gap:12px; padding:14px 18px;">
+        <input type="checkbox" style="width:16px; height:16px; accent-color:var(--primary);" />
+        <span style="font-size:14px;">英単語 30分（Unit 12〜14）</span>
+      </div>
+      <div class="card" style="display:flex; align-items:center; gap:12px; padding:14px 18px;">
+        <input type="checkbox" style="width:16px; height:16px; accent-color:var(--primary);" />
+        <span style="font-size:14px;">リスニング問題 20問</span>
+      </div>
+    </div>
+  </div>
+
+</div>

@@ -1,0 +1,137 @@
+/* ===== Pane 3: 勤怠モード styles ===== */
+
+/* -- ヘッダーバー: タイトル・月切替・エクスポートを1行に -- */
+.att-header-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px 12px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.att-header-title {
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.att-header-controls {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.cal-nav-btn {
+  width: 28px;
+  height: 28px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: white;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.export-btn {
+  font-size: 12px;
+  padding: 4px 10px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: white;
+  cursor: pointer;
+  color: var(--foreground);
+  margin-left: 4px;
+}
+.export-btn:hover { background: var(--canvas); }
+
+/* -- 一覧ヘッダー・行 -- */
+.att-list-header {
+  display: flex;
+  align-items: center;
+  padding: 8px 20px 6px;
+  border-bottom: 1px solid var(--border);
+}
+
+.att-list {
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+}
+
+.att-row-item {
+  display: flex;
+  align-items: center;
+  padding: 10px 20px;
+  border-bottom: 1px solid var(--border);
+  transition: background 0.12s;
+}
+.att-row-item:hover { background: var(--canvas); }
+.att-row-item.no-record { opacity: 0.45; }
+
+/* -- 列定義 -- */
+.att-col { font-size: 13px; white-space: nowrap; }
+.att-col-date       { flex: 0 0 84px; font-weight: 600; }
+.att-col-time       { flex: 0 0 52px; text-align: center; }
+.att-col-break-time { flex: 0 0 72px; text-align: center; color: var(--muted); }
+.att-col-dur        { flex: 0 0 68px; text-align: right; color: var(--primary); font-weight: 600; }
+.att-col-work       { flex: 1; padding-left: 16px; color: var(--sidebar-fg); overflow: hidden; text-overflow: ellipsis; }
+
+.att-list-header .att-col {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--muted);
+  letter-spacing: 0.04em;
+}
+.att-list-header .att-col-dur  { color: var(--muted); }
+.att-list-header .att-col-work { color: var(--muted); }
+
+/* -- 時刻入力フィールド（出勤・退勤・休憩開始・休憩終了 共通） --
+   font-family: inherit でシステムフォントのズレを防ぐ */
+.att-time-input {
+  width: 100%;
+  border: none;
+  background: transparent;
+  font-size: 13px;
+  font-family: inherit;
+  color: var(--sidebar-fg);
+  text-align: center;
+  outline: none;
+  cursor: pointer;
+  padding: 0;
+}
+.att-time-input::-webkit-calendar-picker-indicator { opacity: 0; width: 0; padding: 0; }
+.att-time-input:hover { background: rgba(0,0,0,0.04); border-radius: 4px; }
+.att-time-input:focus { background: white; border: 1px solid var(--primary); border-radius: 4px; }
+
+/* 休憩列は少し薄めに */
+.att-col-break-time .att-time-input,
+.att-col-break-time.att-time-input { color: var(--muted); }
+.att-col-break-time .att-time-input:focus,
+.att-col-break-time.att-time-input:focus { color: var(--sidebar-fg); }
+
+.att-empty { color: var(--muted); }
+
+/* -- 曜日カラー -- */
+.att-col-date.is-sat { color: var(--weekday-sat); }
+.att-col-date.is-sun { color: var(--weekday-sun); }
+
+/* -- 退勤ダイアログ -- */
+.dialog-desc {
+  font-size: 13px;
+  color: var(--muted);
+  margin-top: -8px;
+}
+
+.dialog-textarea {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: 14px;
+  background: var(--canvas);
+  outline: none;
+  box-sizing: border-box;
+  resize: vertical;
+  font-family: inherit;
+  line-height: 1.6;
+}
+.dialog-textarea:focus { border-color: var(--primary); }

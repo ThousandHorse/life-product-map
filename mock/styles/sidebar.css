@@ -1,0 +1,243 @@
+/* ===== Sidebar (Pane 1 / NavPane) ===== */
+.sidebar {
+  width: 240px;
+  height: 100vh;
+  flex-shrink: 0;
+  background: var(--sidebar);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+}
+
+/* -- Header -- */
+.sidebar-header {
+  height: 48px;
+  display: flex;
+  align-items: center;
+  padding: 0 16px;
+  border-bottom: 1px solid var(--border);
+}
+.app-title {
+  font-size: 14px;
+  font-weight: 700;
+}
+
+/* -- Nav body -- */
+.sidebar-nav {
+  flex: 1;
+  padding: 12px 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  overflow-y: auto;
+  background: var(--sidebar);
+}
+
+/* -- Section label (「モード」「年目標」) -- */
+.nav-section-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--muted);
+  letter-spacing: 0.04em;
+  padding: 4px 10px 6px;
+}
+
+/* -- Mode list -- */
+.nav-mode-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.mode-item {
+  height: 36px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 12px;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  transition: background 0.15s;
+  user-select: none;
+}
+.mode-item:hover  { background: rgba(0,0,0,0.05); }
+.mode-item.active { background: var(--sidebar-accent); }
+
+.mode-icon  { font-size: 15px; line-height: 1; }
+.mode-label { color: var(--sidebar-fg); }
+
+/* -- Divider between mode and goals -- */
+.nav-divider {
+  height: 1px;
+  background: var(--border);
+  margin: 8px 4px;
+}
+
+/* -- Goals section header -- */
+.nav-goals-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4px 10px 6px;
+}
+
+/* [+] button inside section header */
+.nav-add-btn {
+  width: 20px;
+  height: 20px;
+  border: none;
+  background: var(--primary);
+  color: white;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.nav-add-btn:hover    { opacity: 0.85; }
+.nav-add-btn:disabled { background: var(--border); color: var(--muted); cursor: default; }
+
+/* -- Goal items -- */
+.nav-goals {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 2px 0 4px 18px;
+}
+
+.goal-item {
+  height: 36px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 10px;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  font-size: 13px;
+  transition: background 0.15s;
+}
+.goal-item:hover  { background: rgba(0,0,0,0.05); }
+.goal-item.active { background: var(--sidebar-accent); font-weight: 600; }
+
+.goal-arrow {
+  font-size: 9px;
+  color: var(--muted);
+  flex-shrink: 0;
+}
+
+.goal-item-text {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.goal-item-menu {
+  opacity: 0;
+  font-size: 16px;
+  color: var(--muted);
+  flex-shrink: 0;
+  transition: opacity 0.15s;
+  cursor: pointer;
+}
+.goal-item:hover .goal-item-menu { opacity: 1; }
+
+/* -- Collapse toggle button -- */
+.sidebar-toggle-btn {
+  margin-left: auto;
+  width: 24px;
+  height: 24px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-sm);
+  flex-shrink: 0;
+}
+.sidebar-toggle-btn:hover { background: rgba(0,0,0,0.07); }
+.sidebar-toggle-icon { font-size: 11px; color: var(--muted); transition: transform 0.2s; }
+
+/* -- Collapsed state -- */
+.sidebar.collapsed {
+  width: 48px;
+}
+.sidebar.collapsed .sidebar-expanded-only {
+  display: none;
+}
+.sidebar.collapsed .sidebar-toggle-icon {
+  transform: rotate(180deg);
+}
+.sidebar.collapsed .mode-item {
+  justify-content: center;
+  padding: 0;
+}
+.sidebar.collapsed .goal-item {
+  justify-content: center;
+  padding: 0 8px;
+}
+.sidebar.collapsed .nav-goals-header {
+  justify-content: center;
+  padding: 4px 0 6px;
+}
+
+/* -- Add-goal dialog -- */
+.dialog-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.3);
+  z-index: 100;
+  align-items: center;
+  justify-content: center;
+}
+.dialog-overlay.open {
+  display: flex;
+}
+.dialog-box {
+  background: var(--white);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  width: 320px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+}
+.dialog-title {
+  font-size: 15px;
+  font-weight: 700;
+}
+.dialog-input {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: 14px;
+  background: var(--canvas);
+  outline: none;
+  box-sizing: border-box;
+}
+.dialog-input:focus { border-color: var(--primary); }
+.dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+.dialog-btn {
+  padding: 7px 16px;
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid var(--border);
+}
+.dialog-btn-cancel { background: var(--white); }
+.dialog-btn-cancel:hover { background: var(--canvas); }
+.dialog-btn-ok { background: var(--primary); color: white; border-color: var(--primary); }
+.dialog-btn-ok:hover { opacity: 0.85; }

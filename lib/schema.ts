@@ -53,6 +53,11 @@ export const attendanceRecordSchema = z.object({
   // .datetime() で ISO 8601 形式（例: "2026-05-16T09:00:00.000Z"）を強制する
   clockIn: z.string().datetime().optional(),
   clockOut: z.string().datetime().optional(),
+  // 休憩開始・終了（HH:MM 形式）。デフォルト "13:00"〜"14:00"、ユーザーが行ごとに編集可能
+  breakStart: z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/).optional(),
+  breakEnd:   z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/).optional(),
+  // 退勤ボタン押下時のダイアログで入力する作業内容メモ
+  workLog: z.string().optional(),
 });
 
 // 日報（1日1件）
@@ -69,9 +74,9 @@ export const dailyReportSchema = z.object({
 // 勤怠設定
 // xlsxTemplate と columnMapping は Phase 2 でテンプレートアップロード機能を実装する際に使う
 export const attendanceSettingsSchema = z.object({
-  // プルダウンの選択肢は 4〜8h だが、スキーマは 0〜24 の範囲で受け入れる
-  // UI 側で選択肢を制限しているため、実際に 0〜3 や 9〜24 が入ることはない
-  targetHoursPerDay: z.number().min(0).max(24),
+  // プルダウンの選択肢は 40〜180h（月単位）だが、スキーマは 0〜744 の範囲で受け入れる
+  // UI 側で選択肢を制限しているため、実際に範囲外の値が入ることはない
+  targetHoursPerMonth: z.number().min(0).max(744),
   xlsxTemplate: z.string().optional(),
   columnMapping: z.record(z.string(), z.string()).optional(),
 });

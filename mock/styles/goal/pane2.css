@@ -1,0 +1,62 @@
+/* ===== Pane 2 styles ===== */
+
+/* -- Goal mode -- */
+.pane2-month { font-size: 18px; font-weight: 700; margin-bottom: 2px; }
+.pane2-label { font-size: 11px; color: var(--muted); letter-spacing: 0.06em; }
+
+.task-card { display: flex; flex-direction: column; gap: 10px; }
+.task-card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+.task-title { font-size: 14px; font-weight: 600; }
+.task-done .task-title { text-decoration: line-through; color: var(--muted); }
+
+.add-task-btn {
+  height: 38px;
+  border: 1.5px dashed var(--border);
+  border-radius: var(--radius-md);
+  background: transparent;
+  width: 100%;
+  cursor: pointer;
+  font-size: 13px;
+  color: var(--muted);
+  transition: background 0.15s;
+}
+.add-task-btn:hover { background: rgba(0,0,0,0.03); }
+
+/* -- Attendance mode -- */
+.att-today-card { display: flex; flex-direction: column; gap: 14px; }
+
+.clock-btn-row { display: flex; gap: 10px; }
+.clock-btn {
+  flex: 1;
+  height: 44px;
+  border: none;
+  border-radius: var(--radius-md);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.clock-btn-in  { background: var(--primary); color: white; }
+.clock-btn-out { background: var(--white); border: 1.5px solid var(--border); color: var(--sidebar-fg); }
+
+.att-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.att-row-label { font-size: 13px; color: var(--muted); }
+.att-row-value { font-size: 16px; font-weight: 700; }
+
+.att-total-label { font-size: 11px; color: var(--muted); letter-spacing: 0.05em; }
+.att-total-value { font-size: 32px; font-weight: 700; color: var(--primary); margin-top: 4px; }
+
+.att-progress-meta {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 6px;
+  font-size: 11px;
+  color: var(--muted);
+}

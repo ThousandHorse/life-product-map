@@ -16,9 +16,9 @@ Pane 1 (NavPane)
 Pane 2 (TaskListPane / AttendancePane)
   ← 月マイルストーン + 週タスク展開（目標モード）
   ← 出退勤打刻 + 稼働時間設定（勤怠モード）
-Pane 3 (DetailPane / CalendarPane)
+Pane 3 (DetailPane / AttendanceListPane)
   ← 今日のタスク一覧（常時）・タスク詳細・日報入力・AI フィードバック（目標モード）
-  ← 月次カレンダー（勤怠モード）
+  ← 月次打刻一覧（勤怠モード）
 Pane 4 (AiChatPane)
   ← AI 壁打ちチャット（目標モードのみ表示。勤怠モード時は非表示）
 ```
@@ -35,6 +35,7 @@ Pane 4 (AiChatPane)
 | 永続化 (Phase 1) | localStorage | 外部サービス不要でオフライン動作。Phase 2 で Supabase に差し替え |
 | AI (Phase 3) | claude-haiku-4-5 | コスト最小（約0.01-0.02円/コール） |
 | スタイリング | Tailwind CSS v4 + @theme | CSS 変数でデザイントークンを一元管理。色番号直書き禁止 |
+| 曜日カラー | 土曜: `--weekday-sat`（青）、日祝: `--weekday-sun`（赤） | `tokens.css` で定義。祝日は React 実装時にライブラリで対応 |
 
 ## Phase 1 実装 Step 一覧
 
@@ -47,7 +48,7 @@ Pane 4 (AiChatPane)
 | 5 | `feat: 目標モード DetailPane` | DetailPane.tsx（今日のタスク一覧・タスク詳細・日報・AI フィードバック） |
 | 6 | `feat: AI チャットモック（AiChatPane）` | AiChatPane.tsx（Phase 3 接続前のモック UI） |
 | 7 | `feat: 勤怠モード - 打刻 UI` | AttendancePane.tsx（出退勤打刻・稼働時間設定） |
-| 8 | `feat: 勤怠モード - 月次カレンダー` | CalendarPane.tsx（月次カレンダー・打刻表示） |
+| 8 | `feat: 勤怠モード - 月次一覧` | AttendanceListPane.tsx（月次打刻一覧・打刻表示） |
 | 9 | `feat: 勤怠モード - xlsx エクスポート` | lib/xlsx-export.ts（月次データ xlsx ダウンロード） |
 | 10 | `feat: シードデータと E2E 動作確認` | data/seed.ts・全シナリオ手動確認 |
 
@@ -59,6 +60,7 @@ Pane 4 (AiChatPane)
 | [reference/workflow.md](reference/workflow.md) | 実装→PR→レビュー対応→マージ待ちの詳細手順。コード規約・サブエージェントの使い方も記載 |
 | [reference/pr-template.md](reference/pr-template.md) | PR 概要の書き方・Step 別記載ポイント |
 | [reference/comment-policy.md](reference/comment-policy.md) | コメントの書き方（WHY を書く・WHAT は書かない）の詳細と記述例 |
+| [mock/index.html](../../../mock/index.html) | UI デザイン確認用モックアップ（HTML + CSS + JS）。各 Pane の見た目・構造の参考に使う。`python3 -m http.server 5500` で起動し `http://localhost:5500/mock/` でアクセス。コンポーネントは `mock/components/goal/` と `mock/components/attendance/` に分割されている |
 
 ## スキルの更新ルール
 

@@ -1,0 +1,82 @@
+<!-- Pane 1: NavPane
+     仕様書準拠構造:
+       ヘッダー（アプリ名 + 折りたたみボタン）
+       ├─ モード切替セクション（目標 🎯 / 勤怠 🕐）
+       └─ 年目標セクション（目標モード時のみ、最大5件）
+-->
+<aside class="sidebar" id="sidebar">
+
+  <!-- Header: アプリ名 + 折りたたみボタン -->
+  <div class="sidebar-header">
+    <div class="app-title sidebar-expanded-only">LifeProductMap</div>
+    <button class="sidebar-toggle-btn" onclick="toggleSidebar()" title="サイドバーを折りたたむ">
+      <span class="sidebar-toggle-icon">◀</span>
+    </button>
+  </div>
+
+  <!-- Nav -->
+  <nav class="sidebar-nav">
+
+    <!-- モード切替セクション -->
+    <div class="nav-section-label sidebar-expanded-only">モード</div>
+    <div class="nav-mode-list">
+      <!-- 目標モード -->
+      <div class="mode-item active" id="mode-goal" onclick="setMode('goal')" title="目標モード">
+        <span class="mode-icon">🎯</span>
+        <span class="mode-label sidebar-expanded-only">目標</span>
+      </div>
+      <!-- 勤怠モード -->
+      <div class="mode-item" id="mode-attendance" onclick="setMode('attendance')" title="勤怠モード">
+        <span class="mode-icon">🕐</span>
+        <span class="mode-label sidebar-expanded-only">勤怠</span>
+      </div>
+    </div>
+
+    <div class="nav-divider"></div>
+
+    <!-- 年目標セクション（目標モード時のみ表示） -->
+    <div id="goals-section">
+      <div class="nav-goals-header">
+        <span class="nav-section-label sidebar-expanded-only" style="margin-bottom:0;">年目標</span>
+        <button class="nav-add-btn" id="goal-add-btn" onclick="openAddGoalDialog()" title="年目標を追加（最大5件）">+</button>
+      </div>
+      <div class="nav-goals">
+        <div class="goal-item active" onclick="selectGoal(this)">
+          <span class="goal-arrow">▶</span>
+          <span class="goal-item-text sidebar-expanded-only">TOEIC 900点取得</span>
+          <span class="goal-item-menu sidebar-expanded-only">…</span>
+        </div>
+        <div class="goal-item" onclick="selectGoal(this)">
+          <span class="goal-arrow">▶</span>
+          <span class="goal-item-text sidebar-expanded-only">副業月収10万円</span>
+          <span class="goal-item-menu sidebar-expanded-only">…</span>
+        </div>
+        <div class="goal-item" onclick="selectGoal(this)">
+          <span class="goal-arrow">▶</span>
+          <span class="goal-item-text sidebar-expanded-only">体重65kg以下</span>
+          <span class="goal-item-menu sidebar-expanded-only">…</span>
+        </div>
+      </div>
+    </div>
+
+  </nav>
+</aside>
+
+<!-- 年目標追加ダイアログ -->
+<div class="dialog-overlay" id="add-goal-overlay" onclick="closeAddGoalDialog()">
+  <div class="dialog-box" onclick="event.stopPropagation()">
+    <div class="dialog-title">年目標を追加</div>
+    <input
+      class="dialog-input"
+      id="add-goal-input"
+      type="text"
+      placeholder="目標タイトルを入力"
+      maxlength="40"
+      onkeydown="if(event.key==='Enter') submitAddGoal()"
+    />
+    <div class="dialog-actions">
+      <button class="dialog-btn dialog-btn-cancel" onclick="closeAddGoalDialog()">キャンセル</button>
+      <button class="dialog-btn dialog-btn-ok" onclick="submitAddGoal()">追加</button>
+    </div>
+  </div>
+</div>

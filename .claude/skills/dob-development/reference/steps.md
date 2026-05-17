@@ -55,10 +55,14 @@ DailyReport { id, date, reflection, learned, aiComment? }
 // aiComment: Phase 1 はダミーテキスト、Phase 3 で Claude API から取得
 
 // 勤怠打刻
-AttendanceRecord { id, date, clockIn?, clockOut? }
+AttendanceRecord { id, date, clockIn?, clockOut?, breakStart?, breakEnd?, workLog? }
+// breakStart / breakEnd: 休憩開始・終了時刻（HH:MM 形式）。デフォルト 13:00〜14:00、ユーザーが編集可能
+// workLog: 当日の作業内容メモ。退勤ボタン押下時のダイアログで入力する
+// 稼働時間 = clockOut - clockIn - (breakEnd - breakStart)
 
 // 勤怠設定
-AttendanceSettings { targetHoursPerDay, xlsxTemplate?, columnMapping? }
+AttendanceSettings { targetHoursPerMonth, xlsxTemplate?, columnMapping? }
+// targetHoursPerMonth: 月間目標稼働時間（プルダウン: 40/60/80/100/120/140/160/180h）
 ```
 
 **進捗ステータス計算（lib/computed/tasks.ts）:**
@@ -199,33 +203,44 @@ const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null)
 
 **実装内容:**
 - 出勤ボタン / 退勤ボタン（ワンタップ打刻）
+- 退勤ボタン押下時に作業内容入力ダイアログを表示し、入力後に退勤を確定する
 - 今日の打刻状況表示（出勤時刻・退勤時刻・稼働時間）
-- 目標稼働時間の設定（プルダウン: 4 / 5 / 6 / 7 / 8 時間）
+- 目標稼働時間の設定（月単位、プルダウン: 40 / 60 / 80 / 100 / 120 / 140 / 160 / 180 時間）
 
 **完了条件:**
 - [ ] 出勤ボタンをタップすると現在時刻が `clockIn` に記録される
-- [ ] 退勤ボタンをタップすると現在時刻が `clockOut` に記録される
+- [ ] 退勤ボタンをタップすると作業内容入力ダイアログが開く
+- [ ] ダイアログで作業内容を入力し確定すると `clockOut` と `workLog` が記録される
 - [ ] 出勤中は「出勤ボタン」が disabled になり「退勤ボタン」が有効になる
-- [ ] 今日の稼働時間（clockOut - clockIn）が表示される
-- [ ] 目標稼働時間をプルダウンで変更でき、`attendanceSettings` に反映される
+- [ ] 今日の稼働時間（clockOut - clockIn - (breakEnd - breakStart)）が表示される
+- [ ] 目標稼働時間（月単位）をプルダウンで変更でき、`attendanceSettings` に反映される
 - [ ] ページリロード後も打刻データが localStorage から復元される
 
 ---
 
-## Step 8: 勤怠モード - 月次カレンダー（CalendarPane）
+## Step 8: 勤怠モード - 月次一覧（AttendanceListPane）
 
 **作成ファイル:**
-- `components/workspace/CalendarPane.tsx`（Pane 3 の勤怠モード）
+- `components/workspace/AttendanceListPane.tsx`（Pane 3 の勤怠モード）
 
 **実装内容:**
-- 月次カレンダービュー（`react-day-picker` を使用）
-- 各日に出勤時刻・退勤時刻・稼働時間を表示
-- 打刻済みの日にマーカーを表示（未打刻と区別）
+- ヘッダーに月タイトル・月切替ボタン（‹ ›）・エクスポートボタンを1行で表示
+- 月次の打刻データを古い日付順（昇順）の一覧形式で表示（カレンダー形式は採用しない）
+- 各行に日付・出勤時刻・退勤時刻・休憩開始・休憩終了・稼働時間・作業内容を表示
+- 休憩開始・終了はデフォルト 13:00〜14:00 で、各行ごとにユーザーが編集可能
+- 稼働時間 = 退勤 - 出勤 - (休憩終了 - 休憩開始)
+- **注意**: 休憩時間が勤務時間内に収まっているかの検証（重複チェック）と日跨ぎ勤務（例: 22:00〜02:00）への対応が必要。React 実装時は `date-fns` 等を使い、モックの単純計算をそのまま移植しないこと
+- 打刻済みの行と未打刻の行をビジュアルで区別
+- 前月・次月へのナビゲーション（月切替ボタン）
 
 **完了条件:**
-- [ ] 勤怠モード時に Pane 3 に月次カレンダーが表示される
-- [ ] 各日に当日の打刻データ（出勤・退勤・稼働時間）が表示される
-- [ ] 打刻済みの日と未打刻の日がビジュアルで区別できる
+- [ ] ヘッダーに「月タイトル → 月切替ボタン → エクスポートボタン」の順で表示される
+- [ ] 月次一覧が古い日付順（昇順）で表示される
+- [ ] 各行に日付・出勤・退勤・休憩開始・休憩終了・稼働時間・作業内容が表示される
+- [ ] 休憩開始・終了がデフォルト 13:00〜14:00 で、各行ごとに編集できる
+- [ ] 稼働時間は「退勤 - 出勤 - 休憩時間」で算出される
+- [ ] 作業内容が表示される（退勤ダイアログで入力した値）
+- [ ] 打刻済みの行と未打刻の行がビジュアルで区別できる
 - [ ] 前月・次月へのナビゲーションができる
 
 ---
@@ -237,8 +252,8 @@ const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null)
 
 **実装内容:**
 - 月次の打刻データを xlsx 形式でダウンロードする
-- Phase 1 は固定フォーマット（日付・出勤・退勤・稼働時間の列）
-- AttendancePane の「エクスポート」ボタンから呼び出す
+- Phase 1 は固定フォーマット（日付・出勤・退勤・休憩開始・休憩終了・稼働時間・作業内容の列）
+- AttendanceListPane 上部の「エクスポート」ボタンから呼び出す
 
 **注意事項:**
 - xlsx の会社指定フォーマット対応（テンプレートアップロード + 列マッピング）は Phase 2 以降のスコープ
@@ -246,7 +261,7 @@ const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null)
 
 **完了条件:**
 - [ ] 「エクスポート」ボタンをクリックすると xlsx ファイルがダウンロードされる
-- [ ] xlsx に「日付」「出勤時刻」「退勤時刻」「稼働時間（時間）」の列が含まれる
+- [ ] xlsx に「日付」「出勤時刻」「退勤時刻」「休憩開始」「休憩終了」「稼働時間（時間）」「作業内容」の列が含まれる
 - [ ] 当月の全打刻データが行として含まれる
 - [ ] 打刻のない日は空行になる
 

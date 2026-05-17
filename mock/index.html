@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LifeProductMap Mockup</title>
+
+  <!-- Design tokens must be loaded first so all other sheets can reference variables -->
+  <link rel="stylesheet" href="styles/tokens.css" />
+  <link rel="stylesheet" href="styles/layout.css" />
+  <link rel="stylesheet" href="styles/components.css" />
+  <link rel="stylesheet" href="styles/sidebar.css" />
+
+  <!-- Goal mode styles -->
+  <link rel="stylesheet" href="styles/goal/pane2.css" />
+  <link rel="stylesheet" href="styles/goal/pane3.css" />
+  <link rel="stylesheet" href="styles/goal/pane4.css" />
+
+  <!-- Attendance mode styles -->
+  <link rel="stylesheet" href="styles/attendance/pane2.css" />
+  <link rel="stylesheet" href="styles/attendance/pane3.css" />
+</head>
+
+<body>
+
+
+<div class="app">
+
+  <!-- Pane 1: NavPane -->
+  <div id="slot-sidebar"></div>
+
+  <!-- Pane 2 -->
+  <section class="pane pane2">
+    <div id="pane2-goal"       style="display:flex; flex-direction:column; height:100%;"></div>
+    <div id="pane2-attendance" style="display:none; flex-direction:column; height:100%;"></div>
+  </section>
+
+  <!-- Pane 3 -->
+  <section class="pane pane3">
+    <div id="pane3-goal"       style="display:flex; flex-direction:column; height:100%;"></div>
+    <div id="pane3-attendance" style="display:none; flex-direction:column; height:100%;"></div>
+  </section>
+
+  <!-- Pane 4: AI Chat (goal mode only) -->
+  <section class="pane pane4" id="pane4" style="display:flex; flex-direction:column;"></section>
+
+</div>
+
+<script>
+  // Fetch each component HTML and inject into its slot.
+  // React 移行時は各スロットを対応するコンポーネントに置き換えるだけでよい。
+  async function loadComponent(url, targetId) {
+    const res  = await fetch(url);
+    const html = await res.text();
+    const el   = document.getElementById(targetId);
+    el.innerHTML = html;
+    // innerHTML でのスクリプト挿入は自動実行されないため手動で再実行する
+    el.querySelectorAll('script').forEach(orig => {
+      const s = document.createElement('script');
+      s.textContent = orig.textContent;
+      orig.replaceWith(s);
+    });
+  }
+
+  Promise.all([
+    loadComponent('components/sidebar.html',              'slot-sidebar'),
+    loadComponent('components/goal/pane2.html',           'pane2-goal'),
+    loadComponent('components/goal/pane3.html',           'pane3-goal'),
+    loadComponent('components/goal/pane4.html',           'pane4'),
+    loadComponent('components/attendance/pane2.html',     'pane2-attendance'),
+    loadComponent('components/attendance/pane3.html',     'pane3-attendance'),
+  ]).then(() => {
+    // main.js の init（DOMContentLoaded は fetch 完了前に発火するため手動実行）
+    if (typeof setMode === 'function') setMode('goal');
+  });
+</script>
+
+<script src="scripts/main.js"></script>
+
+</body>
+</html>

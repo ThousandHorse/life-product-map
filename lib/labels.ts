@@ -60,7 +60,7 @@ export const LABELS = {
   attendance: {
     clockIn: "出勤",
     clockOut: "退勤",
-    targetHours: "目標稼働時間",
+    targetHoursPerMonth: "月間目標稼働時間",
     export: "エクスポート",
     hours: "時間",
     workDuration: "稼働時間",
