@@ -5,13 +5,16 @@
 -->
 <div class="pane-body">
 
-  <!-- ヘッダー行: タイトル・月切替・エクスポート -->
+  <!-- ヘッダー行: 年月タイトル・月切替プルダウン・エクスポート・テンプレ読み込み -->
   <div class="att-header-bar">
-    <span class="att-header-title" id="att-month-title"></span>
+    <div class="att-header-left">
+      <span class="att-header-title" id="att-month-title"></span>
+      <!-- 月切替プルダウン: JS が options を生成する -->
+      <select class="att-month-select" id="att-month-select" onchange="attNavMonthSelect(this.value)"></select>
+    </div>
     <div class="att-header-controls">
-      <button class="cal-nav-btn" onclick="attNavMonth(-1)">‹</button>
-      <button class="cal-nav-btn" onclick="attNavMonth(+1)">›</button>
       <button class="export-btn">エクスポート</button>
+      <button class="export-btn template-btn" onclick="openTemplateDialog()">テンプレ読み込み</button>
     </div>
   </div>
 
@@ -49,6 +52,27 @@
   </div>
 </div>
 
+<!-- テンプレ読み込みダイアログ -->
+<div class="dialog-overlay" id="template-overlay" onclick="closeTemplateDialog()">
+  <div class="dialog-box" onclick="event.stopPropagation()">
+    <div class="dialog-title">勤務表テンプレを読み込む</div>
+    <div class="dialog-desc">CSVまたはExcelファイルを選択してください。</div>
+    <div class="template-file-area" id="template-file-area">
+      <span class="template-file-icon">📄</span>
+      <span class="template-file-label">ファイルをここにドロップ<br>または</span>
+      <label class="template-file-pick">
+        ファイルを選択
+        <input type="file" accept=".csv,.xlsx,.xls" style="display:none;" onchange="onTemplateFileSelect(this)" />
+      </label>
+      <span class="template-file-note">.csv / .xlsx / .xls</span>
+    </div>
+    <div class="dialog-actions">
+      <button class="dialog-btn dialog-btn-cancel" onclick="closeTemplateDialog()">キャンセル</button>
+      <button class="dialog-btn dialog-btn-ok" disabled>読み込む</button>
+    </div>
+  </div>
+</div>
+
 <script>
 // ── モックデータ ────────────────────────────────────────────────
 // React 移行時はここを API/localStorage 読み込みに置き換える
@@ -59,6 +83,8 @@ const ATT_MOCK_RECORDS = {
   '2026-05-14': { clockIn: '09:20', clockOut: '17:45', breakEnd: '13:45', workLog: 'コードレビュー・バグ修正' },
   '2026-05-15': { clockIn: '08:58', clockOut: '19:30', workLog: 'リリース作業・障害対応' },
   '2026-05-16': { clockIn: '09:05', clockOut: '18:12', workLog: '振り返り・ドキュメント更新' },
+  '2026-04-10': { clockIn: '09:00', clockOut: '17:30', workLog: '4月モックデータ' },
+  '2026-04-15': { clockIn: '10:00', clockOut: '18:00', workLog: '要件定義' },
 };
 
 const WEEKDAYS = ['日', '月', '火', '水', '木', '金', '土'];
@@ -66,6 +92,9 @@ const WEEKDAYS = ['日', '月', '火', '水', '木', '金', '土'];
 // 表示中の年月（初期値: 今月）
 let attYear  = new Date().getFullYear();
 let attMonth = new Date().getMonth() + 1; // 1-indexed
+
+// プルダウンに表示する範囲: 今月を含む前後 12ヶ月
+const ATT_SELECT_RANGE = 12;
 
 /** HH:MM 文字列を分に変換 */
 function toMin(hhmm) {
@@ -79,6 +108,38 @@ function formatDur(min) {
   const h = Math.floor(min / 60);
   const m = min % 60;
   return h > 0 ? `${h}h ${String(m).padStart(2, '0')}m` : `${m}m`;
+}
+
+/** 月切替プルダウンの options を生成・選択値を同期する */
+function buildMonthSelect(year, month) {
+  const sel = document.getElementById('att-month-select');
+  if (!sel) return;
+  sel.innerHTML = '';
+
+  const now = new Date();
+  const nowY = now.getFullYear();
+  const nowM = now.getMonth() + 1;
+
+  // 今月から過去 ATT_SELECT_RANGE ヶ月分を降順で生成
+  for (let i = 0; i < ATT_SELECT_RANGE; i++) {
+    let y = nowY, m = nowM - i;
+    if (m < 1) { m += 12; y--; }
+    const val = `${y}-${String(m).padStart(2, '0')}`;
+    const label = `${y}年${m}月`;
+    const opt = document.createElement('option');
+    opt.value = val;
+    opt.textContent = label;
+    if (y === year && m === month) opt.selected = true;
+    sel.appendChild(opt);
+  }
+}
+
+/** プルダウン選択時に呼ばれる */
+function attNavMonthSelect(val) {
+  const [y, m] = val.split('-').map(Number);
+  attYear  = y;
+  attMonth = m;
+  renderAttList(attYear, attMonth);
 }
 
 /** input[type=time] の change イベントで稼働時間を再計算して表示する */
@@ -141,6 +202,7 @@ function renderAttList(year, month) {
   if (!title || !list) return;
 
   title.textContent = `${year}年${month}月`;
+  buildMonthSelect(year, month);
   list.innerHTML = '';
 
   const daysInMonth = new Date(year, month, 0).getDate();
@@ -151,15 +213,22 @@ function renderAttList(year, month) {
   }
 }
 
-/** 月ナビゲーション (delta: -1 or +1) */
-function attNavMonth(delta) {
-  attMonth += delta;
-  if (attMonth < 1)  { attMonth = 12; attYear--; }
-  if (attMonth > 12) { attMonth = 1;  attYear++; }
-  renderAttList(attYear, attMonth);
+/** テンプレ読み込みダイアログを開く */
+function openTemplateDialog() {
+  document.getElementById('template-overlay').style.display = 'flex';
 }
 
-// コンポーネントが fetch で挿入された後に実行されるよう DOMContentLoaded ではなく即時実行
-// index.html が innerHTML で挿入するため、スクリプトは自動実行される
+/** テンプレ読み込みダイアログを閉じる */
+function closeTemplateDialog() {
+  document.getElementById('template-overlay').style.display = '';
+}
+
+/** ファイル選択時: 読み込みボタンを有効化（モック・実際の読み込みは未実装） */
+function onTemplateFileSelect(input) {
+  const okBtn = input.closest('.dialog-box').querySelector('.dialog-btn-ok');
+  if (okBtn) okBtn.disabled = !input.files.length;
+}
+
+// コンポーネントが fetch で挿入された後に実行されるよう即時実行
 renderAttList(attYear, attMonth);
 </script>
