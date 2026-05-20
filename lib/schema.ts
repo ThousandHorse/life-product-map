@@ -96,4 +96,5 @@ export type AttendanceSettings = z.infer<typeof attendanceSettingsSchema>;
 export const yearGoalsSchema = z.array(yearGoalSchema).max(5);
 export const monthMilestonesSchema = z.array(monthMilestoneSchema);
 export const weekTasksSchema = z.array(weekTaskSchema);
+export const dailyReportsSchema = z.array(dailyReportSchema);
 export const attendanceRecordsSchema = z.array(attendanceRecordSchema);

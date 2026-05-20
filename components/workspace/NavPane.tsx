@@ -83,7 +83,6 @@ export function NavPane({
         collapsed ? "w-12" : "w-60"
       )}
     >
-      {/* ヘッダー */}
       <div className="flex h-12 flex-shrink-0 items-center justify-between border-b border-border px-3">
         {!collapsed && (
           <span className="text-sm font-semibold text-sidebar-foreground">
@@ -103,7 +102,6 @@ export function NavPane({
         </Button>
       </div>
 
-      {/* ナビゲーション */}
       <nav className="flex flex-1 flex-col gap-1 overflow-y-auto p-2">
 
         {/* 目標モード */}
@@ -203,7 +201,6 @@ export function NavPane({
           </div>
         )}
 
-        {/* 区切り線 */}
         <div className="my-1 border-t border-border" />
 
         {/* 勤怠モード */}

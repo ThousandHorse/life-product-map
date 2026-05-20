@@ -27,6 +27,7 @@ import {
   type YearGoal,
   attendanceRecordsSchema,
   attendanceSettingsSchema,
+  dailyReportsSchema,
   monthMilestonesSchema,
   weekTasksSchema,
   yearGoalsSchema,
@@ -55,12 +56,14 @@ export function Workspace() {
     const savedGoals = load(STORAGE_KEYS.goals, yearGoalsSchema);
     const savedMilestones = load(STORAGE_KEYS.milestones, monthMilestonesSchema);
     const savedTasks = load(STORAGE_KEYS.tasks, weekTasksSchema);
+    const savedDailyReports = load(STORAGE_KEYS.dailyReports, dailyReportsSchema);
     const savedAttendanceRecords = load(STORAGE_KEYS.attendanceRecords, attendanceRecordsSchema);
     const savedAttendanceSettings = load(STORAGE_KEYS.attendanceSettings, attendanceSettingsSchema);
 
     if (savedGoals) setGoals(savedGoals);
     if (savedMilestones) setMilestones(savedMilestones);
     if (savedTasks) setTasks(savedTasks);
+    if (savedDailyReports) setDailyReports(savedDailyReports);
     if (savedAttendanceRecords) setAttendanceRecords(savedAttendanceRecords);
     if (savedAttendanceSettings) setAttendanceSettings(savedAttendanceSettings);
   }, []);
