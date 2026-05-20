@@ -8,9 +8,8 @@
   <!-- ヘッダー行: 年月タイトル・月切替プルダウン・エクスポート・テンプレ読み込み -->
   <div class="att-header-bar">
     <div class="att-header-left">
-      <span class="att-header-title" id="att-month-title"></span>
-      <!-- 月切替プルダウン: JS が options を生成する -->
-      <select class="att-month-select" id="att-month-select" onchange="attNavMonthSelect(this.value)"></select>
+      <!-- 月切替プルダウン: タイトルを兼ねる。JS が options を生成する -->
+      <select class="att-month-select att-month-select-title" id="att-month-select" onchange="attNavMonthSelect(this.value)"></select>
     </div>
     <div class="att-header-controls">
       <button class="export-btn">エクスポート</button>
@@ -197,11 +196,9 @@ function buildRow(dateStr, record) {
 
 /** 指定年月のリストを描画する */
 function renderAttList(year, month) {
-  const title = document.getElementById('att-month-title');
-  const list  = document.getElementById('att-list');
-  if (!title || !list) return;
+  const list = document.getElementById('att-list');
+  if (!list) return;
 
-  title.textContent = `${year}年${month}月`;
   buildMonthSelect(year, month);
   list.innerHTML = '';
 

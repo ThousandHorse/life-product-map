@@ -21,7 +21,7 @@
   font-weight: 700;
 }
 
-/* 月切替プルダウン */
+/* 月切替プルダウン（年月タイトルを兼ねる） */
 .att-month-select {
   font-size: 13px;
   padding: 3px 6px;
@@ -35,6 +35,16 @@
 }
 .att-month-select:hover { border-color: var(--primary); }
 .att-month-select:focus { border-color: var(--primary); }
+
+/* タイトル兼用: ヘッダータイトルと同じ大きさ・太さに */
+.att-month-select-title {
+  font-size: 18px;
+  font-weight: 700;
+  border: none;
+  background: transparent;
+  padding: 0 4px 0 0;
+  color: var(--foreground);
+}
 
 .att-header-controls {
   display: flex;
