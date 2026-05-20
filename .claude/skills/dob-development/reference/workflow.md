@@ -6,13 +6,31 @@
 - **PR のマージはユーザーが手動で行う**: `gh pr merge` は使わない。PR を作成したら、ユーザーがマージするまで次の Step に進まず待つ
 - **マージ確認後に次の Step へ**: ユーザーから「マージした」「次進めて」などの明示的な指示があってから次の Step の実装を開始する
 - **main / develop への直接 push 禁止**: コード変更は必ず feature ブランチで行い PR 経由でマージする
+- **feature ブランチは必ず develop から切る**: `git checkout -b feature/step-XX-xxx develop`。main から切らない
 - **PR のベースは develop**: feature → develop へ PR を出す。develop → main は定期リリース時にまとめてマージ
 
 ---
 
 ## Step 1: 仕様確認（実装前）
 
-`reference/steps.md` から対象 Step の仕様を確認する。
+`reference/steps.md` から対象 Step の仕様を確認する。  
+**複数ファイルにまたがる確認や、既存コードとの整合チェックはサブエージェント（`Explore`）に委譲する。**
+
+```
+Agent(subagent_type="Explore", prompt="
+  以下を読んで、Step XX の実装に必要な情報をまとめてください。
+
+  確認対象:
+  - .claude/skills/dob-development/reference/steps.md（Step XX の仕様・完了条件）
+  - lib/schema.ts（関連する型・スキーマ）
+  - [既存の関連ファイルがあれば列挙]
+
+  返してほしい内容:
+  1. 作成・変更するファイル一覧
+  2. 完了条件（箇条書き）
+  3. 依存する前 Step・注意事項
+")
+```
 
 確認項目:
 1. この Step で作成・変更するファイル名
