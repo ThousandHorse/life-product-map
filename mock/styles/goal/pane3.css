@@ -4,6 +4,30 @@
 
 .progress-section-title { font-size: 16px; font-weight: 700; color: var(--sidebar-fg); }
 
+/* -- 達成率カード: ステータスに応じて背景色を変える -- */
+.stat-card-achievement.status-ok      { background: var(--badge-done-bg); }
+.stat-card-achievement.status-caution { background: var(--badge-mid-bg); }
+.stat-card-achievement.status-danger  { background: var(--badge-high-bg); }
+
+.stat-card-achievement.status-ok      .stat-label,
+.stat-card-achievement.status-ok      .stat-value { color: var(--badge-done-fg); }
+.stat-card-achievement.status-caution .stat-label,
+.stat-card-achievement.status-caution .stat-value { color: var(--badge-mid-fg); }
+.stat-card-achievement.status-danger  .stat-label,
+.stat-card-achievement.status-danger  .stat-value { color: var(--badge-high-fg); }
+
+/* 達成率と右端アイコンを横並び */
+.stat-card-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.goal-status-icon {
+  font-size: 22px;
+  line-height: 1;
+}
+
 .stat-row { display: flex; gap: 12px; }
 .stat-card {
   flex: 1;
@@ -48,12 +72,6 @@
   font-family: inherit;
   text-anchor: middle;
   dominant-baseline: middle;
-}
-.donut-pct-sub {
-  font-size: 11px;
-  fill: var(--muted);
-  font-family: inherit;
-  text-anchor: middle;
 }
 
 /* 日別リスト */

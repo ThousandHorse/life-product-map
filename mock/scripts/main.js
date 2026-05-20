@@ -16,10 +16,6 @@ function setMode(mode) {
   if (modeGoal) modeGoal.classList.toggle('active', isGoal);
   if (modeAtt)  modeAtt.classList.toggle('active', !isGoal);
 
-  // 年目標セクションは目標モード時のみ表示
-  const goalsSection = document.getElementById('goals-section');
-  if (goalsSection) goalsSection.style.display = isGoal ? 'block' : 'none';
-
   // pane2
   show('pane2-goal',       isGoal);
   show('pane2-attendance', !isGoal);
@@ -34,11 +30,16 @@ function setMode(mode) {
 
 }
 
-/** 目標行のアクティブ状態を切り替える */
+/** 目標行のアクティブ状態を切り替え、render.js で各 Pane を再描画する */
 function selectGoal(el) {
   document.querySelectorAll('.goal-item').forEach(i => i.classList.remove('active'));
   el.classList.add('active');
   if (currentMode !== 'goal') setMode('goal');
+  // render.js の selectGoalById に goalId を渡して Pane 2/3/4 を更新する
+  const goalId = el.dataset.goalId;
+  if (goalId && window.__mockData && typeof selectGoalById === 'function') {
+    selectGoalById(goalId, window.__mockData);
+  }
 }
 
 /** サイドバーの折りたたみ（CSSクラストグル） */
