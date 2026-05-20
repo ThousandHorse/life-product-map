@@ -228,7 +228,15 @@ Agent(subagent_type="Explore", prompt="
 
 ### 新しいチャットで再開する方法
 
-新チャットでは Claude がスキルファイルを自動的に読み込むため、以下を伝えるだけで再開できる。
+新チャットでは **まず以下のスキルファイルを読んでから作業を開始する**。
+
+```
+.claude/skills/dob-development/SKILL.md
+.claude/skills/dob-development/reference/steps.md
+.claude/skills/dob-development/reference/workflow.md
+```
+
+読み込み後、ユーザーから以下を伝えてもらうだけで再開できる。
 
 ```
 「Step X（〇〇）の続きをお願いします。ブランチは feature/step-XX-xxx です。」
