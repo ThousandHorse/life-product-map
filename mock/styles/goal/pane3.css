@@ -4,22 +4,15 @@
 
 .progress-section-title { font-size: 16px; font-weight: 700; color: var(--sidebar-fg); }
 
-/* -- ステータスバッジ + 統計行 -- */
-.goal-status-row {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
+/* -- ステータスバッジ（進捗メモ欄の代替） -- */
 .goal-status-badge {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
   font-size: 13px;
   font-weight: 600;
-  padding: 6px 14px;
+  padding: 4px 10px;
   border-radius: var(--radius-sm);
-  width: fit-content;
+  margin-top: 4px;
 }
 .goal-status-badge.ok      { background: var(--badge-done-bg); color: var(--badge-done-fg); }
 .goal-status-badge.caution { background: var(--badge-mid-bg);  color: var(--badge-mid-fg); }
