@@ -4,22 +4,29 @@
 
 .progress-section-title { font-size: 16px; font-weight: 700; color: var(--sidebar-fg); }
 
-/* -- ステータスカード: stat-card の背景ごと色を変える -- */
-.stat-card.status-ok      { background: var(--badge-done-bg); }
-.stat-card.status-caution { background: var(--badge-mid-bg); }
-.stat-card.status-danger  { background: var(--badge-high-bg); }
+/* -- 達成率カード: ステータスに応じて背景色を変える -- */
+.stat-card-achievement.status-ok      { background: var(--badge-done-bg); }
+.stat-card-achievement.status-caution { background: var(--badge-mid-bg); }
+.stat-card-achievement.status-danger  { background: var(--badge-high-bg); }
 
-.goal-status-badge {
-  font-size: 28px;
-  font-weight: 700;
-  margin-top: 4px;
+.stat-card-achievement.status-ok      .stat-label,
+.stat-card-achievement.status-ok      .stat-value { color: var(--badge-done-fg); }
+.stat-card-achievement.status-caution .stat-label,
+.stat-card-achievement.status-caution .stat-value { color: var(--badge-mid-fg); }
+.stat-card-achievement.status-danger  .stat-label,
+.stat-card-achievement.status-danger  .stat-value { color: var(--badge-high-fg); }
+
+/* 達成率と右端アイコンを横並び */
+.stat-card-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
-.stat-card.status-ok      .goal-status-badge { color: var(--badge-done-fg); }
-.stat-card.status-caution .goal-status-badge { color: var(--badge-mid-fg); }
-.stat-card.status-danger  .goal-status-badge { color: var(--badge-high-fg); }
-.stat-card.status-ok      .stat-label { color: var(--badge-done-fg); opacity: 0.7; }
-.stat-card.status-caution .stat-label { color: var(--badge-mid-fg);  opacity: 0.7; }
-.stat-card.status-danger  .stat-label { color: var(--badge-high-fg); opacity: 0.7; }
+
+.goal-status-icon {
+  font-size: 22px;
+  line-height: 1;
+}
 
 .stat-row { display: flex; gap: 12px; }
 .stat-card {

@@ -76,24 +76,22 @@ function renderGoalPane3(goal) {
   setText('#pane3-goal .detail-title', goal.title);
 
   // ステータス（達成率・残日数から ok/caution/danger を判定）
-  // バッジ要素とその親カードの両方にクラスを付与してカード全体を色付けする
-  const badge = document.getElementById('goal-status-badge');
-  if (badge) {
+  // 達成率カードの背景色と右端アイコンで表現する
+  const achievementCard = document.getElementById('stat-card-achievement');
+  const statusIcon      = document.getElementById('goal-status-icon');
+  if (achievementCard && statusIcon) {
     const rate     = goal.achievementRate;
     const daysLeft = goal.daysLeft;
-    let status, label;
+    let status, icon;
     if (rate < 40 || daysLeft < 7) {
-      status = 'danger'; label = '🚨 危険';
+      status = 'danger';  icon = '🚨';
     } else if (rate < 70 && daysLeft < 14) {
-      status = 'caution'; label = '⚠️ 注意';
+      status = 'caution'; icon = '⚠️';
     } else {
-      status = 'ok'; label = '✅ 順調';
+      status = 'ok';      icon = '✅';
     }
-    badge.className = 'goal-status-badge';
-    badge.textContent = label;
-    // 親の stat-card に status クラスを付与してカード背景を変える
-    const card = badge.closest('.stat-card');
-    if (card) card.className = `stat-card status-${status}`;
+    achievementCard.className = `stat-card stat-card-achievement status-${status}`;
+    statusIcon.textContent = icon;
   }
 
   // 達成率・残日数

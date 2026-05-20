@@ -3,15 +3,14 @@
 
   <div class="detail-title"></div>
 
-  <!-- 統計カード行: ステータス・達成率・残日数 -->
+  <!-- 統計カード行: 達成率（ステータス統合）・残日数 -->
   <div class="stat-row">
-    <div class="stat-card">
-      <div class="stat-label">ステータス</div>
-      <div class="goal-status-badge" id="goal-status-badge"></div>
-    </div>
-    <div class="stat-card">
+    <div class="stat-card stat-card-achievement" id="stat-card-achievement">
       <div class="stat-label">達成率</div>
-      <div class="stat-value stat-achievementRate"></div>
+      <div class="stat-card-inner">
+        <div class="stat-value stat-achievementRate"></div>
+        <div class="goal-status-icon" id="goal-status-icon"></div>
+      </div>
     </div>
     <div class="stat-card">
       <div class="stat-label">残日数</div>
