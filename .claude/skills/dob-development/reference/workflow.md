@@ -6,7 +6,7 @@
 - **PR のマージはユーザーが手動で行う**: `gh pr merge` は使わない。PR を作成したら、ユーザーがマージするまで次の Step に進まず待つ
 - **マージ確認後に次の Step へ**: ユーザーから「マージした」「次進めて」などの明示的な指示があってから次の Step の実装を開始する
 - **main / develop への直接 push 禁止**: コード変更は必ず feature ブランチで行い PR 経由でマージする
-- **feature ブランチは必ず develop から切る**: `git checkout -b feature/xxx develop`。main から切らない
+- **feature ブランチは必ず develop から切る**: `git checkout -b feature/step-XX-xxx develop`。main から切らない
 - **PR のベースは develop**: feature → develop へ PR を出す。develop → main は定期リリース時にまとめてマージ
 
 ---
