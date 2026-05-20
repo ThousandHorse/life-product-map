@@ -103,14 +103,14 @@ export function Workspace() {
       />
 
       {/* Pane 2: TaskListPane / AttendancePane（Step 4・7 で実装） */}
-      <section className="flex w-70 flex-shrink-0 flex-col border-r border-border bg-canvas" />
+      <section className="flex w-[280px] flex-shrink-0 flex-col border-r border-border bg-canvas" />
 
       {/* Pane 3: DetailPane / AttendanceListPane（Step 5・8 で実装） */}
       <section className="flex flex-1 flex-col border-r border-border bg-background" />
 
       {/* Pane 4: AiChatPane（Step 6 で実装、勤怠モード時は非表示） */}
       {showPane4 && (
-        <section className="flex w-80 flex-shrink-0 flex-col bg-canvas" />
+        <section className="flex w-[320px] flex-shrink-0 flex-col bg-canvas" />
       )}
     </div>
   );
