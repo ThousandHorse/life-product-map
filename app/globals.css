@@ -5,6 +5,8 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
+  --color-weekday-sat: var(--weekday-sat);
+  --color-weekday-sun: var(--weekday-sun);
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   /* `--font-inter` は next/font/google（app/layout.tsx）が <html> に注入する CSS 変数。
@@ -75,6 +77,8 @@
 }
 
 :root {
+  --weekday-sat: oklch(0.4459 0.1832 264.0539);
+  --weekday-sun: oklch(0.5033 0.1687 27.0059);
   --background: oklch(0.9701 0.0041 91.4464);
   --foreground: oklch(0.2354 0.0019 286.2536);
   --card: oklch(0.9972 0.0028 84.5587);
@@ -129,6 +133,8 @@
 }
 
 .dark {
+  --weekday-sat: oklch(0.6235 0.2084 262.8696);
+  --weekday-sun: oklch(0.6368 0.2028 24.0999);
   --background: oklch(0.2252 0.0049 248.0473);
   --foreground: oklch(0.9168 0.0035 67.7802);
   --card: oklch(0.2668 0.0071 248.094);
