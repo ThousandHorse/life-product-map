@@ -13,7 +13,24 @@
 
 ## Step 1: 仕様確認（実装前）
 
-`reference/steps.md` から対象 Step の仕様を確認する。
+`reference/steps.md` から対象 Step の仕様を確認する。  
+**複数ファイルにまたがる確認や、既存コードとの整合チェックはサブエージェント（`Explore`）に委譲する。**
+
+```
+Agent(subagent_type="Explore", prompt="
+  以下を読んで、Step XX の実装に必要な情報をまとめてください。
+
+  確認対象:
+  - .claude/skills/dob-development/reference/steps.md（Step XX の仕様・完了条件）
+  - lib/schema.ts（関連する型・スキーマ）
+  - [既存の関連ファイルがあれば列挙]
+
+  返してほしい内容:
+  1. 作成・変更するファイル一覧
+  2. 完了条件（箇条書き）
+  3. 依存する前 Step・注意事項
+")
+```
 
 確認項目:
 1. この Step で作成・変更するファイル名
