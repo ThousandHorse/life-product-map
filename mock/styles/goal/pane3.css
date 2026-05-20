@@ -4,19 +4,22 @@
 
 .progress-section-title { font-size: 16px; font-weight: 700; color: var(--sidebar-fg); }
 
-/* -- ステータスバッジ（進捗メモ欄の代替） -- */
+/* -- ステータスカード: stat-card の背景ごと色を変える -- */
+.stat-card.status-ok      { background: var(--badge-done-bg); }
+.stat-card.status-caution { background: var(--badge-mid-bg); }
+.stat-card.status-danger  { background: var(--badge-high-bg); }
+
 .goal-status-badge {
-  display: inline-flex;
-  align-items: center;
-  font-size: 13px;
-  font-weight: 600;
-  padding: 4px 10px;
-  border-radius: var(--radius-sm);
+  font-size: 15px;
+  font-weight: 700;
   margin-top: 4px;
 }
-.goal-status-badge.ok      { background: var(--badge-done-bg); color: var(--badge-done-fg); }
-.goal-status-badge.caution { background: var(--badge-mid-bg);  color: var(--badge-mid-fg); }
-.goal-status-badge.danger  { background: var(--badge-high-bg); color: var(--badge-high-fg); }
+.stat-card.status-ok      .goal-status-badge { color: var(--badge-done-fg); }
+.stat-card.status-caution .goal-status-badge { color: var(--badge-mid-fg); }
+.stat-card.status-danger  .goal-status-badge { color: var(--badge-high-fg); }
+.stat-card.status-ok      .stat-label { color: var(--badge-done-fg); opacity: 0.7; }
+.stat-card.status-caution .stat-label { color: var(--badge-mid-fg);  opacity: 0.7; }
+.stat-card.status-danger  .stat-label { color: var(--badge-high-fg); opacity: 0.7; }
 
 .stat-row { display: flex; gap: 12px; }
 .stat-card {

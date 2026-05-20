@@ -75,7 +75,8 @@ function renderGoalPane3(goal) {
   // タイトル
   setText('#pane3-goal .detail-title', goal.title);
 
-  // ステータスバッジ（達成率・残日数から ok/caution/danger を判定）
+  // ステータス（達成率・残日数から ok/caution/danger を判定）
+  // バッジ要素とその親カードの両方にクラスを付与してカード全体を色付けする
   const badge = document.getElementById('goal-status-badge');
   if (badge) {
     const rate     = goal.achievementRate;
@@ -88,8 +89,11 @@ function renderGoalPane3(goal) {
     } else {
       status = 'ok'; label = '✅ 順調';
     }
-    badge.className = `goal-status-badge ${status}`;
+    badge.className = 'goal-status-badge';
     badge.textContent = label;
+    // 親の stat-card に status クラスを付与してカード背景を変える
+    const card = badge.closest('.stat-card');
+    if (card) card.className = `stat-card status-${status}`;
   }
 
   // 達成率・残日数
