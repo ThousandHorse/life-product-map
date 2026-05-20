@@ -219,6 +219,7 @@ Agent(subagent_type="Explore", prompt="
 
 【現在の状況】
 - ブランチ: feature/step-XX-xxx
+- PR: #XX（作成済みの場合。指摘対応中の場合は明記）
 - 作業中の Step: Step X（〇〇の実装）
 - 完了済み: 〇〇・〇〇
 - 次にやること: 〇〇
@@ -239,5 +240,5 @@ Agent(subagent_type="Explore", prompt="
 読み込み後、ユーザーから以下を伝えてもらうだけで再開できる。
 
 ```
-「Step X（〇〇）の続きをお願いします。ブランチは feature/step-XX-xxx です。」
+「Step X（〇〇）の続きをお願いします。ブランチは feature/step-XX-xxx です。PR #XX の指摘対応から再開してください。」
 ```
