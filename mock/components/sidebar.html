@@ -18,25 +18,30 @@
     <!-- モード切替セクション -->
     <div class="nav-section-label sidebar-expanded-only">モード</div>
     <div class="nav-mode-list">
+
+      <!-- 目標モード + 年目標リストを直下にネスト -->
       <div class="mode-item active" id="mode-goal" onclick="setMode('goal')" title="目標モード">
         <span class="mode-icon">🎯</span>
         <span class="mode-label sidebar-expanded-only">目標</span>
       </div>
+
+      <!-- 年目標セクション: 目標の直下に常時表示 -->
+      <div id="goals-section">
+        <div class="nav-goals-header">
+          <span class="nav-section-label sidebar-expanded-only" style="margin-bottom:0;">年目標</span>
+          <button class="nav-add-btn" id="goal-add-btn" onclick="openAddGoalDialog()" title="年目標を追加（最大5件）">+</button>
+        </div>
+        <div class="nav-goals"></div>
+      </div>
+
+      <div class="nav-divider"></div>
+
+      <!-- 勤怠モード -->
       <div class="mode-item" id="mode-attendance" onclick="setMode('attendance')" title="勤怠モード">
         <span class="mode-icon">🕐</span>
         <span class="mode-label sidebar-expanded-only">勤怠</span>
       </div>
-    </div>
 
-    <div class="nav-divider"></div>
-
-    <!-- 年目標セクション: 常時表示（render.js が .nav-goals を生成する） -->
-    <div id="goals-section">
-      <div class="nav-goals-header">
-        <span class="nav-section-label sidebar-expanded-only" style="margin-bottom:0;">年目標</span>
-        <button class="nav-add-btn" id="goal-add-btn" onclick="openAddGoalDialog()" title="年目標を追加（最大5件）">+</button>
-      </div>
-      <div class="nav-goals"></div>
     </div>
 
   </nav>
