@@ -58,7 +58,6 @@ mock/
 |---|---|---|
 | `id` | string | 一意ID（例: `"g1"`） |
 | `title` | string | 年目標タイトル |
-| `progressMemo` | string | 進捗メモ（自由テキスト） |
 | `achievementRate` | number | 達成率（0〜100） |
 | `daysLeft` | number | 残日数 |
 | `weeklyProgress.done` | number | 今週の完了タスク数 |
@@ -100,6 +99,16 @@ mock/
 | `breakStart` | string | 休憩開始 HH:MM（デフォルト `"13:00"`） |
 | `breakEnd` | string | 休憩終了 HH:MM（デフォルト `"14:00"`） |
 | `workLog` | string | 作業内容メモ |
+
+---
+
+### ステータスバッジ判定ロジック（Pane 3）
+
+| 条件 | ステータス |
+|---|---|
+| 達成率 < 40% または 残日数 < 7日 | 🚨 danger（赤） |
+| 達成率 < 70% かつ 残日数 < 14日 | ⚠️ caution（黄） |
+| それ以外 | ✅ ok（緑） |
 
 ---
 

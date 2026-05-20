@@ -4,6 +4,27 @@
 
 .progress-section-title { font-size: 16px; font-weight: 700; color: var(--sidebar-fg); }
 
+/* -- ステータスバッジ + 統計行 -- */
+.goal-status-row {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.goal-status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 6px 14px;
+  border-radius: var(--radius-sm);
+  width: fit-content;
+}
+.goal-status-badge.ok      { background: var(--badge-done-bg); color: var(--badge-done-fg); }
+.goal-status-badge.caution { background: var(--badge-mid-bg);  color: var(--badge-mid-fg); }
+.goal-status-badge.danger  { background: var(--badge-high-bg); color: var(--badge-high-fg); }
+
 .stat-row { display: flex; gap: 12px; }
 .stat-card {
   flex: 1;
@@ -48,12 +69,6 @@
   font-family: inherit;
   text-anchor: middle;
   dominant-baseline: middle;
-}
-.donut-pct-sub {
-  font-size: 11px;
-  fill: var(--muted);
-  font-family: inherit;
-  text-anchor: middle;
 }
 
 /* 日別リスト */

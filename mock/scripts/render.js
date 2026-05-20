@@ -72,13 +72,31 @@ function renderGoalPane2(goal) {
 // ── Pane 3（目標モード）: 詳細・進捗・今日のタスク ──────────
 
 function renderGoalPane3(goal) {
-  // タイトル・統計
+  // タイトル
   setText('#pane3-goal .detail-title', goal.title);
-  setText('#pane3-goal .stat-progressMemo', goal.progressMemo);
+
+  // ステータスバッジ（達成率・残日数から ok/caution/danger を判定）
+  const badge = document.getElementById('goal-status-badge');
+  if (badge) {
+    const rate     = goal.achievementRate;
+    const daysLeft = goal.daysLeft;
+    let status, label;
+    if (rate < 40 || daysLeft < 7) {
+      status = 'danger'; label = '🚨 危険';
+    } else if (rate < 70 && daysLeft < 14) {
+      status = 'caution'; label = '⚠️ 注意';
+    } else {
+      status = 'ok'; label = '✅ 順調';
+    }
+    badge.className = `goal-status-badge ${status}`;
+    badge.textContent = label;
+  }
+
+  // 達成率・残日数
   setText('#pane3-goal .stat-achievementRate', `${goal.achievementRate}%`);
   setText('#pane3-goal .stat-daysLeft', String(goal.daysLeft));
 
-  // ドーナツ
+  // ドーナツ（完了率のみ、「完了」テキストなし）
   const pct    = goal.weeklyProgress.done / (goal.weeklyProgress.total || 1);
   const filled = CIRCUMFERENCE * pct;
   const pctText = Math.round(pct * 100) + '%';

@@ -16,10 +16,6 @@ function setMode(mode) {
   if (modeGoal) modeGoal.classList.toggle('active', isGoal);
   if (modeAtt)  modeAtt.classList.toggle('active', !isGoal);
 
-  // 年目標セクションは目標モード時のみ表示
-  const goalsSection = document.getElementById('goals-section');
-  if (goalsSection) goalsSection.style.display = isGoal ? 'block' : 'none';
-
   // pane2
   show('pane2-goal',       isGoal);
   show('pane2-attendance', !isGoal);

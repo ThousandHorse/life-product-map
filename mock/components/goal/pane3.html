@@ -3,18 +3,18 @@
 
   <div class="detail-title"></div>
 
-  <div class="stat-row">
-    <div class="stat-card">
-      <div class="stat-label">進捗メモ</div>
-      <div class="stat-value stat-progressMemo" style="font-size:18px; margin-top:4px; font-weight:600;"></div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-label">達成率</div>
-      <div class="stat-value stat-achievementRate"></div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-label">残日数</div>
-      <div class="stat-value stat-daysLeft"></div>
+  <!-- ステータスバッジ + 達成率・残日数 -->
+  <div class="goal-status-row">
+    <div class="goal-status-badge" id="goal-status-badge"></div>
+    <div class="stat-row">
+      <div class="stat-card">
+        <div class="stat-label">達成率</div>
+        <div class="stat-value stat-achievementRate"></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">残日数</div>
+        <div class="stat-value stat-daysLeft"></div>
+      </div>
     </div>
   </div>
 
@@ -36,8 +36,8 @@
               stroke-dasharray="0 276.5"
               transform="rotate(-90 50 50)"
               class="donut-fill" />
-            <text x="50" y="42" class="donut-pct-main"></text>
-            <text x="50" y="66" class="donut-pct-sub">完了</text>
+            <!-- 中央: 完了率のみ（「完了」文言なし） -->
+            <text x="50" y="54" class="donut-pct-main"></text>
           </svg>
         </div>
 

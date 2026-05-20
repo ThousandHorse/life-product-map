@@ -1,5 +1,6 @@
 <!-- Pane 1: NavPane
      年目標リストは render.js の renderSidebar() が mock-data.json から生成する
+     年目標セクションはモード切替の下に常時表示（勤怠モード時も表示）
 -->
 <aside class="sidebar" id="sidebar">
 
@@ -29,7 +30,7 @@
 
     <div class="nav-divider"></div>
 
-    <!-- 年目標セクション（render.js が .nav-goals を生成する） -->
+    <!-- 年目標セクション: 常時表示（render.js が .nav-goals を生成する） -->
     <div id="goals-section">
       <div class="nav-goals-header">
         <span class="nav-section-label sidebar-expanded-only" style="margin-bottom:0;">年目標</span>
