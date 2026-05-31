@@ -52,6 +52,21 @@ Agent(subagent_type="Explore", prompt="
 
 仕様確認が完了したら、**実装を始める前に**以下の形式で実装方針をユーザーに提示し、承認を得てから実装に入る。
 
+### mock を必ず先に読む
+
+方針を提示する前に、実装対象 Pane に対応する mock ファイルを全て読む。
+
+| 対象 Pane | 読むファイル |
+|---|---|
+| NavPane（Pane 1） | `mock/components/sidebar.html`, `mock/styles/sidebar.css` |
+| TaskListPane / AttendancePane（Pane 2） | `mock/components/goal/pane2.html`, `mock/styles/goal/pane2.css`, `mock/components/attendance/pane2.html`, `mock/styles/attendance/pane2.css` |
+| DetailPane / AttendanceListPane（Pane 3） | `mock/components/goal/pane3.html`, `mock/styles/goal/pane3.css`, `mock/components/attendance/pane3.html`, `mock/styles/attendance/pane3.css` |
+| AiChatPane（Pane 4） | `mock/components/goal/pane4.html`, `mock/styles/goal/pane4.css` |
+| 共通 | `mock/styles/layout.css`, `mock/styles/tokens.css`, `mock/styles/components.css`, `mock/scripts/main.js`, `mock/scripts/render.js` |
+
+mock の UI 構造・レイアウト幅・デザイントークン・インタラクションを把握した上で、方針に反映する。
+mock と実装方針に差分がある場合は「懸念点・確認したい点」に明記してユーザーに確認する。
+
 ### 提示する内容
 
 1. **作成ファイル一覧** — ファイル名・種別（新規/変更）・一言説明の表形式
@@ -100,6 +115,10 @@ Agent(subagent_type="Explore", prompt="
 ## Step 2: 実装
 
 完了条件を全て満たすこと。コメントポリシー（[comment-policy.md](comment-policy.md)）に従ってコメントを書く。
+
+**UI を伴うコンポーネントは、mock のデザインに合わせること。**
+レイアウト幅・色トークン・インタラクション（ホバー・アクティブ状態など）は `mock/` を正とする。
+mock にない要素（shadcn コンポーネント固有の挙動など）はそのままでよい。
 
 ## Step 3: PR 作成前コードレビュー
 
