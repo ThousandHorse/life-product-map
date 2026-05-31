@@ -59,10 +59,10 @@ Agent(subagent_type="Explore", prompt="
 | 対象 Pane | 読むファイル |
 |---|---|
 | NavPane（Pane 1） | `mock/components/sidebar.html`, `mock/styles/sidebar.css` |
-| TaskListPane / AttendancePane（Pane 2） | `mock/components/goal/pane2.html`, `mock/components/attendance/pane2.html` |
-| DetailPane / AttendanceListPane（Pane 3） | `mock/components/goal/pane3.html`, `mock/components/attendance/pane3.html` |
-| AiChatPane（Pane 4） | `mock/components/goal/pane4.html` |
-| 共通 | `mock/styles/layout.css`, `mock/styles/tokens.css`, `mock/scripts/main.js` |
+| TaskListPane / AttendancePane（Pane 2） | `mock/components/goal/pane2.html`, `mock/styles/goal/pane2.css`, `mock/components/attendance/pane2.html`, `mock/styles/attendance/pane2.css` |
+| DetailPane / AttendanceListPane（Pane 3） | `mock/components/goal/pane3.html`, `mock/styles/goal/pane3.css`, `mock/components/attendance/pane3.html`, `mock/styles/attendance/pane3.css` |
+| AiChatPane（Pane 4） | `mock/components/goal/pane4.html`, `mock/styles/goal/pane4.css` |
+| 共通 | `mock/styles/layout.css`, `mock/styles/tokens.css`, `mock/styles/components.css`, `mock/scripts/main.js`, `mock/scripts/render.js` |
 
 mock の UI 構造・レイアウト幅・デザイントークン・インタラクションを把握した上で、方針に反映する。
 mock と実装方針に差分がある場合は「懸念点・確認したい点」に明記してユーザーに確認する。
