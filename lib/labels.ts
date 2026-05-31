@@ -70,5 +70,7 @@ export const LABELS = {
     cancel: "キャンセル",
     save: "保存",
     close: "閉じる",
+    add: "追加",
+    confirm: "確認",
   },
 } as const;

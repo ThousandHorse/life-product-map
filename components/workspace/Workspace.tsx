@@ -49,6 +49,8 @@ export function Workspace() {
   const [mode, setMode] = useState<"goal" | "attendance">("goal");
   const [selectedGoalId, setSelectedGoalId] = useState<string | null>(null);
   const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
+  // load 完了前に save が走ると初期値で localStorage を上書きしてしまうため、フラグで保護する
+  const [isLoaded, setIsLoaded] = useState(false);
 
   // localStorage からデータを復元する。
   // useEffect 内限定にする理由: SSR 時は window が存在せず load() が null を返すため
@@ -66,14 +68,15 @@ export function Workspace() {
     if (savedDailyReports) setDailyReports(savedDailyReports);
     if (savedAttendanceRecords) setAttendanceRecords(savedAttendanceRecords);
     if (savedAttendanceSettings) setAttendanceSettings(savedAttendanceSettings);
+    setIsLoaded(true);
   }, []);
 
-  useEffect(() => { save(STORAGE_KEYS.goals, goals); }, [goals]);
-  useEffect(() => { save(STORAGE_KEYS.milestones, milestones); }, [milestones]);
-  useEffect(() => { save(STORAGE_KEYS.tasks, tasks); }, [tasks]);
-  useEffect(() => { save(STORAGE_KEYS.dailyReports, dailyReports); }, [dailyReports]);
-  useEffect(() => { save(STORAGE_KEYS.attendanceRecords, attendanceRecords); }, [attendanceRecords]);
-  useEffect(() => { save(STORAGE_KEYS.attendanceSettings, attendanceSettings); }, [attendanceSettings]);
+  useEffect(() => { if (isLoaded) save(STORAGE_KEYS.goals, goals); }, [isLoaded, goals]);
+  useEffect(() => { if (isLoaded) save(STORAGE_KEYS.milestones, milestones); }, [isLoaded, milestones]);
+  useEffect(() => { if (isLoaded) save(STORAGE_KEYS.tasks, tasks); }, [isLoaded, tasks]);
+  useEffect(() => { if (isLoaded) save(STORAGE_KEYS.dailyReports, dailyReports); }, [isLoaded, dailyReports]);
+  useEffect(() => { if (isLoaded) save(STORAGE_KEYS.attendanceRecords, attendanceRecords); }, [isLoaded, attendanceRecords]);
+  useEffect(() => { if (isLoaded) save(STORAGE_KEYS.attendanceSettings, attendanceSettings); }, [isLoaded, attendanceSettings]);
 
   function handleAddGoal(title: string) {
     const newGoal: YearGoal = { id: crypto.randomUUID(), title };

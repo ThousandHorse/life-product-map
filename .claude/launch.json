@@ -4,7 +4,7 @@
     {
       "name": "mock",
       "runtimeExecutable": "bash",
-      "runtimeArgs": ["-c", "cd /Users/chibatakuma/Documents/Project/life-product-map && python3 -m http.server 5500"],
+      "runtimeArgs": ["-c", "python3 -m http.server 5500"],
       "port": 5500
     },
     {

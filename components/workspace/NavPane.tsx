@@ -149,7 +149,7 @@ export function NavPane({
                     maxLength={40}
                     value={addTitle}
                     onChange={(e) => setAddTitle(e.target.value)}
-                    onKeyDown={(e) => e.key === "Enter" && handleAddSubmit()}
+                    onKeyDown={(e) => e.key === "Enter" && !e.nativeEvent.isComposing && handleAddSubmit()}
                     autoFocus
                   />
                   <DialogFooter>
@@ -157,7 +157,7 @@ export function NavPane({
                       {LABELS.common.cancel}
                     </DialogClose>
                     <Button onClick={handleAddSubmit} disabled={!addTitle.trim()}>
-                      追加
+                      {LABELS.common.add}
                     </Button>
                   </DialogFooter>
                 </DialogContent>
@@ -184,18 +184,20 @@ export function NavPane({
                   {goal.title}
                 </button>
 
-                {/* ホバー時に削除ボタンを表示 */}
-                {hoveredGoalId === goal.id && (
-                  <Button
-                    variant="ghost"
-                    size="icon-xs"
-                    className="flex-shrink-0 text-muted-foreground hover:text-destructive"
-                    onClick={() => setDeleteTarget(goal)}
-                    aria-label={`${goal.title}を削除`}
-                  >
-                    <Trash2 />
-                  </Button>
-                )}
+                {/* ホバーまたはフォーカス時に削除ボタンを表示。タッチ/キーボードでも操作できるよう focus-within を併用 */}
+                <Button
+                  variant="ghost"
+                  size="icon-xs"
+                  className={cn(
+                    "flex-shrink-0 text-muted-foreground hover:text-destructive transition-opacity",
+                    hoveredGoalId === goal.id ? "opacity-100" : "opacity-0 focus:opacity-100"
+                  )}
+                  onClick={() => setDeleteTarget(goal)}
+                  aria-label={`${goal.title}を削除`}
+                  tabIndex={hoveredGoalId === goal.id ? 0 : -1}
+                >
+                  <Trash2 />
+                </Button>
               </div>
             ))}
           </div>
