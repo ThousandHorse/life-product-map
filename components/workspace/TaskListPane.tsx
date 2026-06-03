@@ -78,6 +78,7 @@ function generateYearMonthOptions(now: Date): string[] {
 }
 
 type TaskListPaneProps = {
+  selectedGoalId: string | null;
   milestones: MonthMilestone[];
   tasks: WeekTask[];
   selectedTaskId: string | null;
@@ -89,6 +90,7 @@ type TaskListPaneProps = {
 };
 
 export function TaskListPane({
+  selectedGoalId,
   milestones,
   tasks,
   selectedTaskId,
@@ -106,6 +108,12 @@ export function TaskListPane({
   // new Date() をレンダリングのたびに呼ぶと月またぎ直後に選択肢と初期値が不一致になるため、
   // マウント時点の日付を依存配列なし（[]）で固定する。
   const yearMonthOptions = useMemo(() => generateYearMonthOptions(new Date()), []);
+  // 選択中の年目標に紐づくマイルストーンのみ表示する。
+  // 全マイルストーンをそのまま渡すと別の目標に切り替えても全件表示されてしまうため
+  const filteredMilestones = useMemo(
+    () => milestones.filter((m) => m.goalId === selectedGoalId),
+    [milestones, selectedGoalId]
+  );
   const [milestoneOpen, setMilestoneOpen] = useState(false);
   // 初期値は今月（選択肢の先頭）
   const [milestoneYearMonth, setMilestoneYearMonth] = useState(() => yearMonthOptions[0]);
@@ -155,6 +163,15 @@ export function TaskListPane({
   // 今日のタスク件数を算出して件数バッジに表示する
   const todayTaskCount = tasks.filter((t) => t.isToday).length;
 
+  // 目標が未選択の場合は goalId が空文字になるデータが作られるのを防ぐためプレースホルダーを表示する
+  if (!selectedGoalId) {
+    return (
+      <section className="flex w-[280px] flex-shrink-0 flex-col items-center justify-center border-r border-border bg-canvas p-4 text-center text-sm text-muted-foreground">
+        目標を選択してください
+      </section>
+    );
+  }
+
   return (
     <section className="flex w-[280px] flex-shrink-0 flex-col border-r border-border bg-canvas">
       {/* 今日のタスクボタン: 選択中タスクをリセットして Pane 3 をデフォルト表示に戻す */}
@@ -184,7 +201,7 @@ export function TaskListPane({
 
       {/* マイルストーン一覧 */}
       <div className="flex flex-1 flex-col gap-1 overflow-y-auto p-2">
-        {milestones.map((milestone) => {
+        {filteredMilestones.map((milestone) => {
           // W1→W2→W3→W4 の順に表示するため追加順ではなく weekLabel でソートする
           const WEEK_ORDER: Record<WeekTask["weekLabel"], number> = { W1: 0, W2: 1, W3: 2, W4: 3 };
           const milestoneTasks = tasks
@@ -235,7 +252,7 @@ export function TaskListPane({
                 <div className="flex flex-col gap-0.5 pb-1 pl-4">
                   {/* 週タスク一覧 */}
                   {milestoneTasks.map((task) => (
-                    <div key={task.id} className="flex items-center gap-1">
+                    <div key={task.id} className="group flex items-center gap-1">
                       <button
                         type="button"
                         onClick={() => onSelectTask(task.id)}

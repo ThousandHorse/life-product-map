@@ -103,8 +103,13 @@ export function Workspace() {
 
   function handleDeleteMilestone(id: string) {
     setMilestones((prev) => prev.filter((m) => m.id !== id));
-    // マイルストーン削除時は紐づく週タスクも削除する。孤児タスクが残ると表示が壊れるため
-    setTasks((prev) => prev.filter((t) => t.milestoneId !== id));
+    // マイルストーン削除時は紐づく週タスクも削除する。孤児タスクが残ると表示が壊れるため。
+    // 削除対象タスクが選択中の場合は selectedTaskId もリセットして Pane 3 の表示崩れを防ぐ
+    setTasks((prev) => {
+      const hasSelected = prev.some((t) => t.milestoneId === id && t.id === selectedTaskId);
+      if (hasSelected) setSelectedTaskId(null);
+      return prev.filter((t) => t.milestoneId !== id);
+    });
   }
 
   function handleAddTask(
@@ -154,6 +159,7 @@ export function Workspace() {
       {/* Pane 2: TaskListPane / AttendancePane（勤怠モードは Step 7 で実装） */}
       {mode === "goal" && (
         <TaskListPane
+          selectedGoalId={selectedGoalId}
           milestones={milestones}
           tasks={tasks}
           selectedTaskId={selectedTaskId}
