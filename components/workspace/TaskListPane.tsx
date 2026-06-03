@@ -48,8 +48,18 @@ const STATUS_CONFIG = {
   danger:  { icon: "🔴", label: LABELS.progressStatus.danger,  bg: "bg-destructive/10" },
 } as const;
 
-// WeekLabel の選択肢（タスク追加ダイアログで使う）
-const WEEK_LABELS = ["W1", "W2", "W3", "W4"] as const;
+/**
+ * 期日（YYYY-MM-DD）から weekLabel を自動計算する。
+ * 週と期日は役割が重複するため、期日だけ入力してもらい weekLabel は導出する設計にした。
+ *   1〜7日  → W1 / 8〜14日 → W2 / 15〜21日 → W3 / 22日以降 → W4
+ */
+function weekLabelFromDueDate(dueDate: string): WeekTask["weekLabel"] {
+  const day = new Date(dueDate).getDate();
+  if (day <= 7)  return "W1";
+  if (day <= 14) return "W2";
+  if (day <= 21) return "W3";
+  return "W4";
+}
 
 /**
  * 今月から過去12ヶ月分の YYYY-MM 文字列を降順で返す。
@@ -102,9 +112,9 @@ export function TaskListPane({
   const [milestoneTitle, setMilestoneTitle] = useState("");
 
   // タスク追加ダイアログの状態（どのマイルストーン配下かも保持する）
+  // weekLabel は期日から自動計算するため state として持たない
   const [taskDialogMilestoneId, setTaskDialogMilestoneId] = useState<string | null>(null);
   const [taskTitle, setTaskTitle] = useState("");
-  const [taskWeekLabel, setTaskWeekLabel] = useState<WeekTask["weekLabel"]>("W1");
   const [taskDueDate, setTaskDueDate] = useState("");
 
   function toggleOpen(id: string) {
@@ -129,9 +139,9 @@ export function TaskListPane({
     const title = taskTitle.trim();
     const due = taskDueDate.trim();
     if (!title || !due) return;
-    onAddTask(taskDialogMilestoneId, taskWeekLabel, title, due);
+    // 期日から weekLabel を自動計算して渡す（ユーザーに週を選ばせない設計）
+    onAddTask(taskDialogMilestoneId, weekLabelFromDueDate(due), title, due);
     setTaskTitle("");
-    setTaskWeekLabel("W1");
     setTaskDueDate("");
     setTaskDialogMilestoneId(null);
   }
@@ -336,27 +346,13 @@ export function TaskListPane({
                 autoFocus
               />
             </div>
-            <div className="flex gap-2">
-              <div className="flex flex-1 flex-col gap-1">
-                <label className="text-xs text-muted-foreground">週</label>
-                <select
-                  value={taskWeekLabel}
-                  onChange={(e) => setTaskWeekLabel(e.target.value as WeekTask["weekLabel"])}
-                  className="rounded-md border border-input bg-background px-2 py-1.5 text-sm"
-                >
-                  {WEEK_LABELS.map((w) => (
-                    <option key={w} value={w}>{LABELS.task.weekLabel[w]}</option>
-                  ))}
-                </select>
-              </div>
-              <div className="flex flex-1 flex-col gap-1">
-                <label className="text-xs text-muted-foreground">期日</label>
-                <Input
-                  type="date"
-                  value={taskDueDate}
-                  onChange={(e) => setTaskDueDate(e.target.value)}
-                />
-              </div>
+            <div className="flex flex-col gap-1">
+              <label className="text-xs text-muted-foreground">期日</label>
+              <Input
+                type="date"
+                value={taskDueDate}
+                onChange={(e) => setTaskDueDate(e.target.value)}
+              />
             </div>
           </div>
           <DialogFooter>
