@@ -163,7 +163,11 @@ export function TaskListPane({
       {/* マイルストーン一覧 */}
       <div className="flex flex-1 flex-col gap-1 overflow-y-auto p-2">
         {milestones.map((milestone) => {
-          const milestoneTasks = tasks.filter((t) => t.milestoneId === milestone.id);
+          // W1→W2→W3→W4 の順に表示するため追加順ではなく weekLabel でソートする
+          const WEEK_ORDER: Record<WeekTask["weekLabel"], number> = { W1: 0, W2: 1, W3: 2, W4: 3 };
+          const milestoneTasks = tasks
+            .filter((t) => t.milestoneId === milestone.id)
+            .sort((a, b) => WEEK_ORDER[a.weekLabel] - WEEK_ORDER[b.weekLabel]);
           // 保存値はキャッシュ扱いのため、表示前に最新のタスク状態で再計算する
           const status = computeProgressStatus(milestone, milestoneTasks);
           const statusConfig = STATUS_CONFIG[status];
