@@ -40,11 +40,12 @@ import { type MonthMilestone, type WeekTask } from "@/lib/schema";
 import { computeProgressStatus } from "@/lib/computed/tasks";
 import { cn } from "@/lib/utils";
 
-// 進捗ステータスに対応するアイコンと色クラス
+// 進捗ステータスに対応するアイコン・ラベル・背景色クラス。
+// 絵文字だけでは視認性が低いため、カード全体の背景色でもステータスを表現する
 const STATUS_CONFIG = {
-  ok:      { icon: "✅", label: LABELS.progressStatus.ok },
-  caution: { icon: "⚠️", label: LABELS.progressStatus.caution },
-  danger:  { icon: "🔴", label: LABELS.progressStatus.danger },
+  ok:      { icon: "✅", label: LABELS.progressStatus.ok,      bg: "bg-success/10" },
+  caution: { icon: "⚠️", label: LABELS.progressStatus.caution, bg: "bg-warning/10" },
+  danger:  { icon: "🔴", label: LABELS.progressStatus.danger,  bg: "bg-destructive/10" },
 } as const;
 
 // WeekLabel の選択肢（タスク追加ダイアログで使う）
@@ -174,13 +175,13 @@ export function TaskListPane({
               open={isOpen}
               onOpenChange={() => toggleOpen(milestone.id)}
             >
-              {/* マイルストーンヘッダー */}
-              <div className="flex items-center gap-1">
+              {/* マイルストーンヘッダー: ステータスに応じた背景色でカード全体を色分けする */}
+              <div className={cn("flex items-center gap-1 rounded-md", statusConfig.bg)}>
                 <CollapsibleTrigger
                   render={
                     <button
                       type="button"
-                      className="flex flex-1 items-center gap-1.5 rounded-md px-2 py-1.5 text-left text-xs font-medium text-foreground hover:bg-accent transition-colors"
+                      className="flex flex-1 items-center gap-1.5 rounded-md px-2 py-1.5 text-left text-xs font-medium text-foreground hover:bg-accent/50 transition-colors"
                     />
                   }
                 >
@@ -235,26 +236,18 @@ export function TaskListPane({
                     </div>
                   ))}
 
-                  {/* タスク追加ダイアログトリガー */}
-                  <Dialog
-                    open={taskDialogMilestoneId === milestone.id}
-                    onOpenChange={(open) => {
-                      if (!open) setTaskDialogMilestoneId(null);
-                    }}
+                  {/* タスク追加ボタン。
+                      DialogTrigger を Collapsible 内に置くと select の選択操作が
+                      ダイアログ外クリックと誤検知されて閉じてしまうため、
+                      onClick で state をセットするだけにして DialogContent は外側に置く */}
+                  <button
+                    type="button"
+                    className="flex items-center gap-1 rounded-md px-2 py-1 text-xs text-muted-foreground hover:bg-accent transition-colors"
+                    onClick={() => setTaskDialogMilestoneId(milestone.id)}
                   >
-                    <DialogTrigger
-                      render={
-                        <button
-                          type="button"
-                          className="flex items-center gap-1 rounded-md px-2 py-1 text-xs text-muted-foreground hover:bg-accent transition-colors"
-                          onClick={() => setTaskDialogMilestoneId(milestone.id)}
-                        />
-                      }
-                    >
-                      <Plus className="size-3" />
-                      {LABELS.task.add}
-                    </DialogTrigger>
-                  </Dialog>
+                    <Plus className="size-3" />
+                    {LABELS.task.add}
+                  </button>
                 </div>
               </CollapsibleContent>
             </Collapsible>
