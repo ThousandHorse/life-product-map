@@ -152,6 +152,9 @@ export function TaskListPane({
     return `${year}年${month}月`;
   }
 
+  // 今日のタスク件数を算出して件数バッジに表示する
+  const todayTaskCount = tasks.filter((t) => t.isToday).length;
+
   return (
     <section className="flex w-[280px] flex-shrink-0 flex-col border-r border-border bg-canvas">
       {/* 今日のタスクボタン: 選択中タスクをリセットして Pane 3 をデフォルト表示に戻す */}
@@ -160,13 +163,22 @@ export function TaskListPane({
           type="button"
           onClick={() => onSelectTask(null)}
           className={cn(
-            "w-full rounded-lg px-3 py-2 text-left text-sm font-medium transition-colors",
+            "flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-sm font-medium transition-colors",
             selectedTaskId === null
               ? "bg-primary text-primary-foreground"
               : "text-foreground hover:bg-accent"
           )}
         >
-          {LABELS.task.today}
+          <span>{LABELS.task.today}</span>
+          {/* 件数バッジ: 0件でも表示して「今日のタスクがない」ことを伝える */}
+          <span className={cn(
+            "rounded-full px-1.5 py-0.5 text-xs",
+            selectedTaskId === null
+              ? "bg-primary-foreground/20 text-primary-foreground"
+              : "bg-muted text-muted-foreground"
+          )}>
+            {todayTaskCount}
+          </span>
         </button>
       </div>
 

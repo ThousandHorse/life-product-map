@@ -113,6 +113,9 @@ export function Workspace() {
     title: string,
     dueDate: string
   ) {
+    // 期日が今日と一致する場合は自動的に isToday: true にする。
+    // ユーザーに明示的にフラグをセットさせると手間が増えるため、期日から自動導出する設計にした
+    const today = new Date().toISOString().slice(0, 10);
     const newTask: WeekTask = {
       id: crypto.randomUUID(),
       milestoneId,
@@ -121,7 +124,7 @@ export function Workspace() {
       dueDate,
       status: "todo",
       priority: "medium",
-      isToday: false,
+      isToday: dueDate === today,
     };
     setTasks((prev) => [...prev, newTask]);
   }
