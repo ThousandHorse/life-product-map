@@ -34,6 +34,7 @@ import {
 } from "@/lib/schema";
 import { STORAGE_KEYS, load, save } from "@/lib/storage";
 import { NavPane } from "./NavPane";
+import { TaskListPane } from "./TaskListPane";
 
 const DEFAULT_SETTINGS: AttendanceSettings = {
   targetHoursPerMonth: 160,
@@ -88,6 +89,48 @@ export function Workspace() {
     if (selectedGoalId === id) setSelectedGoalId(null);
   }
 
+  function handleAddMilestone(yearMonth: string, title: string) {
+    const newMilestone: MonthMilestone = {
+      id: crypto.randomUUID(),
+      // selectedGoalId がない場合は空文字にする（UI 側で goalId 必須にする想定）
+      goalId: selectedGoalId ?? "",
+      yearMonth,
+      title,
+      progressStatus: "ok",
+    };
+    setMilestones((prev) => [...prev, newMilestone]);
+  }
+
+  function handleDeleteMilestone(id: string) {
+    setMilestones((prev) => prev.filter((m) => m.id !== id));
+    // マイルストーン削除時は紐づく週タスクも削除する。孤児タスクが残ると表示が壊れるため
+    setTasks((prev) => prev.filter((t) => t.milestoneId !== id));
+  }
+
+  function handleAddTask(
+    milestoneId: string,
+    weekLabel: WeekTask["weekLabel"],
+    title: string,
+    dueDate: string
+  ) {
+    const newTask: WeekTask = {
+      id: crypto.randomUUID(),
+      milestoneId,
+      weekLabel,
+      title,
+      dueDate,
+      status: "todo",
+      priority: "medium",
+      isToday: false,
+    };
+    setTasks((prev) => [...prev, newTask]);
+  }
+
+  function handleDeleteTask(id: string) {
+    setTasks((prev) => prev.filter((t) => t.id !== id));
+    if (selectedTaskId === id) setSelectedTaskId(null);
+  }
+
   // 勤怠モード時は Pane 4（AI チャット）を非表示にする。
   // 勤怠打刻は素早い操作が主なので、AI チャットエリアを消してデスクを広く使う設計
   const showPane4 = mode === "goal";
@@ -105,8 +148,22 @@ export function Workspace() {
         onChangeMode={setMode}
       />
 
-      {/* Pane 2: TaskListPane / AttendancePane（Step 4・7 で実装） */}
-      <section className="flex w-[280px] flex-shrink-0 flex-col border-r border-border bg-canvas" />
+      {/* Pane 2: TaskListPane / AttendancePane（勤怠モードは Step 7 で実装） */}
+      {mode === "goal" && (
+        <TaskListPane
+          milestones={milestones}
+          tasks={tasks}
+          selectedTaskId={selectedTaskId}
+          onSelectTask={setSelectedTaskId}
+          onAddMilestone={handleAddMilestone}
+          onDeleteMilestone={handleDeleteMilestone}
+          onAddTask={handleAddTask}
+          onDeleteTask={handleDeleteTask}
+        />
+      )}
+      {mode === "attendance" && (
+        <section className="flex w-[280px] flex-shrink-0 flex-col border-r border-border bg-canvas" />
+      )}
 
       {/* Pane 3: DetailPane / AttendanceListPane（Step 5・8 で実装） */}
       <section className="flex flex-1 flex-col border-r border-border bg-background" />
