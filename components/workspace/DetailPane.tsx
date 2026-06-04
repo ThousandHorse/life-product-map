@@ -377,8 +377,19 @@ export function DetailPane({
             {LABELS.dailyReport.button}
           </Button>
 
-          <Dialog open={reportOpen} onOpenChange={handleOpenChange}>
-            <DialogContent>
+          {/* disablePointerDismissal: 外側クリックでは閉じないようにする。
+              Esc キーも onOpenChange で無視し、バツ・閉じるボタンのみで閉じる設計にした。
+              誤操作で入力内容が消えるのを防ぐため */}
+          <Dialog
+            open={reportOpen}
+            onOpenChange={(open, details) => {
+              // Esc キーや外側クリックによるクローズは無視する
+              if (!open && details.reason !== "close-press") return;
+              handleOpenChange(open);
+            }}
+            disablePointerDismissal
+          >
+            <DialogContent className="sm:max-w-lg">
               <DialogHeader>
                 <DialogTitle>{LABELS.dailyReport.button}</DialogTitle>
               </DialogHeader>
