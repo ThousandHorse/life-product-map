@@ -33,6 +33,7 @@ import {
   yearGoalsSchema,
 } from "@/lib/schema";
 import { STORAGE_KEYS, load, save } from "@/lib/storage";
+import { getLocalDateString } from "@/lib/task-config";
 import { NavPane } from "./NavPane";
 import { TaskListPane } from "./TaskListPane";
 import { DetailPane } from "./DetailPane";
@@ -127,11 +128,8 @@ export function Workspace() {
     dueDate: string
   ) {
     // 期日が今日と一致する場合は自動的に isToday: true にする。
-    // ユーザーに明示的にフラグをセットさせると手間が増えるため、期日から自動導出する設計にした。
-    // toISOString() は UTC 日付を返すため、日本時間の夜に翌日と判定されてしまう。
-    // ローカル日付を YYYY-MM-DD 形式で構築することでタイムゾーンのズレを回避する
-    const now = new Date();
-    const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
+    // ユーザーに明示的にフラグをセットさせると手間が増えるため、期日から自動導出する設計にした
+    const today = getLocalDateString();
     const newTask: WeekTask = {
       id: crypto.randomUUID(),
       milestoneId,
@@ -154,19 +152,21 @@ export function Workspace() {
     setTasks((prev) => prev.map((t) => (t.id === id ? { ...t, ...changes } : t)));
   }
 
-  function handleAddDailyReport(date: string, reflection: string, learned: string) {
+  function handleAddDailyReport(date: string, reflection: string, learned: string, aiComment?: string) {
     const newReport: DailyReport = {
       id: crypto.randomUUID(),
       date,
       reflection,
       learned,
+      aiComment,
     };
     setDailyReports((prev) => [...prev, newReport]);
   }
 
-  function handleUpdateDailyReport(id: string, reflection: string, learned: string) {
+  function handleUpdateDailyReport(id: string, reflection: string, learned: string, aiComment?: string) {
+    // aiComment を含めて永続化することで、リロード後も AI フィードバックが復元される
     setDailyReports((prev) =>
-      prev.map((r) => (r.id === id ? { ...r, reflection, learned } : r))
+      prev.map((r) => (r.id === id ? { ...r, reflection, learned, aiComment } : r))
     );
   }
 

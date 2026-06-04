@@ -38,28 +38,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { LABELS } from "@/lib/labels";
 import { type DailyReport, type MonthMilestone, type WeekTask } from "@/lib/schema";
 import { computeProgressStatus, getTodayTasks } from "@/lib/computed/tasks";
+import { ACHIEVEMENT_STATUS_CONFIG, PRIORITY_CONFIG, TASK_STATUS_CONFIG, getLocalDateString, weekLabelFromDueDate } from "@/lib/task-config";
 import { cn } from "@/lib/utils";
-
-// ステータスに応じた達成率カードの色設定
-const ACHIEVEMENT_STATUS_CONFIG = {
-  ok:      { bg: "bg-success/20",      text: "text-success",      icon: "✅" },
-  caution: { bg: "bg-warning/20",      text: "text-warning",      icon: "⚠️" },
-  danger:  { bg: "bg-destructive/20",  text: "text-destructive",  icon: "🔴" },
-} as const;
-
-// 優先度バッジの色設定
-const PRIORITY_CONFIG = {
-  high:   { label: LABELS.task.priority.high,   className: "bg-destructive/15 text-destructive" },
-  medium: { label: LABELS.task.priority.medium, className: "bg-warning/15 text-warning" },
-  low:    { label: LABELS.task.priority.low,    className: "bg-success/15 text-success" },
-} as const;
-
-// ステータスバッジの色設定
-const STATUS_CONFIG = {
-  todo:       { label: LABELS.task.status.todo,       className: "bg-muted text-muted-foreground" },
-  inProgress: { label: LABELS.task.status.inProgress, className: "bg-primary/15 text-primary" },
-  done:       { label: LABELS.task.status.done,       className: "bg-success/15 text-success" },
-} as const;
 
 // Phase 1 の AI フィードバックダミーテキスト。Phase 3 で Claude API に差し替える
 const DUMMY_AI_FEEDBACK =
@@ -72,8 +52,8 @@ type DetailPaneProps = {
   selectedTaskId: string | null;
   dailyReports: DailyReport[];
   onUpdateTask: (id: string, changes: Partial<WeekTask>) => void;
-  onAddDailyReport: (date: string, reflection: string, learned: string) => void;
-  onUpdateDailyReport: (id: string, reflection: string, learned: string) => void;
+  onAddDailyReport: (date: string, reflection: string, learned: string, aiComment?: string) => void;
+  onUpdateDailyReport: (id: string, reflection: string, learned: string, aiComment?: string) => void;
 };
 
 export function DetailPane({
@@ -91,11 +71,8 @@ export function DetailPane({
   const [learned, setLearned] = useState("");
   const [aiComment, setAiComment] = useState<string | null>(null);
 
-  // ローカル日付を YYYY-MM-DD で取得する。toISOString() は UTC 基準のためタイムゾーンがズレる
-  const today = useMemo(() => {
-    const now = new Date();
-    return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
-  }, []);
+  // getLocalDateString を使うことで toISOString() の UTC ズレを回避する
+  const today = useMemo(() => getLocalDateString(), []);
 
   const todayTasks = useMemo(() => getTodayTasks(tasks), [tasks]);
   const selectedTask = useMemo(
@@ -122,9 +99,15 @@ export function DetailPane({
   const remainingDays = useMemo(() => {
     if (!selectedMilestone) return 0;
     const [year, month] = selectedMilestone.yearMonth.split("-").map(Number);
+    // 月末日と今日をどちらも 00:00:00 に揃えて計算する。
+    // 時刻を含めた単純なミリ秒差分では夏時間の影響を受けるうえ、
+    // 月末日当日に残日数が 0 になってしまうため +1 して当日分を含める
     const lastDay = new Date(year, month, 0);
-    const now = new Date();
-    return Math.max(0, Math.ceil((lastDay.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)));
+    lastDay.setHours(0, 0, 0, 0);
+    const todayMidnight = new Date();
+    todayMidnight.setHours(0, 0, 0, 0);
+    const diffDays = Math.round((lastDay.getTime() - todayMidnight.getTime()) / (1000 * 60 * 60 * 24));
+    return Math.max(0, diffDays + 1);
   }, [selectedMilestone]);
 
   const progressStatus = useMemo(() => {
@@ -183,12 +166,12 @@ export function DetailPane({
   }
 
   function handleSubmitReport() {
+    // aiComment を localStorage に永続化する。Phase 1 はダミーテキスト、Phase 3 で Claude API に差し替える
     if (todayReport) {
-      onUpdateDailyReport(todayReport.id, reflection, learned);
+      onUpdateDailyReport(todayReport.id, reflection, learned, DUMMY_AI_FEEDBACK);
     } else {
-      onAddDailyReport(today, reflection, learned);
+      onAddDailyReport(today, reflection, learned, DUMMY_AI_FEEDBACK);
     }
-    // Phase 1 はダミーテキストを表示。Phase 3 で Claude API に差し替える
     setAiComment(DUMMY_AI_FEEDBACK);
   }
 
@@ -314,7 +297,18 @@ export function DetailPane({
                 <Input
                   type="date"
                   value={selectedTask.dueDate}
-                  onChange={(e) => onUpdateTask(selectedTask.id, { dueDate: e.target.value })}
+                  onChange={(e) => {
+                    const dueDate = e.target.value;
+                    // 空文字のままだと schema バリデーション（YYYY-MM-DD 形式）に失敗して
+                    // localStorage の tasks 配列が消失するため、空文字は保存しない
+                    if (!dueDate) return;
+                    // 期日変更時に weekLabel・isToday を再計算して整合性を保つ
+                    onUpdateTask(selectedTask.id, {
+                      dueDate,
+                      weekLabel: weekLabelFromDueDate(dueDate),
+                      isToday: dueDate === getLocalDateString(),
+                    });
+                  }}
                 />
               </div>
 
@@ -356,8 +350,8 @@ export function DetailPane({
                     <span className={cn("rounded-full px-2 py-0.5 text-xs font-medium", PRIORITY_CONFIG[task.priority].className)}>
                       {PRIORITY_CONFIG[task.priority].label}
                     </span>
-                    <span className={cn("rounded-full px-2 py-0.5 text-xs font-medium", STATUS_CONFIG[task.status].className)}>
-                      {STATUS_CONFIG[task.status].label}
+                    <span className={cn("rounded-full px-2 py-0.5 text-xs font-medium", TASK_STATUS_CONFIG[task.status].className)}>
+                      {TASK_STATUS_CONFIG[task.status].label}
                     </span>
                   </div>
                 </div>
