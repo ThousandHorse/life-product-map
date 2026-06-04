@@ -89,6 +89,13 @@ export function Workspace() {
     if (selectedGoalId === id) setSelectedGoalId(null);
   }
 
+  function handleSelectGoal(id: string) {
+    // 目標を切り替えるとき、前の目標のタスクが selectedTaskId に残ったまま
+    // Pane 3 に表示され続けるのを防ぐためリセットする
+    setSelectedGoalId(id);
+    setSelectedTaskId(null);
+  }
+
   function handleAddMilestone(yearMonth: string, title: string) {
     const newMilestone: MonthMilestone = {
       id: crypto.randomUUID(),
@@ -119,8 +126,11 @@ export function Workspace() {
     dueDate: string
   ) {
     // 期日が今日と一致する場合は自動的に isToday: true にする。
-    // ユーザーに明示的にフラグをセットさせると手間が増えるため、期日から自動導出する設計にした
-    const today = new Date().toISOString().slice(0, 10);
+    // ユーザーに明示的にフラグをセットさせると手間が増えるため、期日から自動導出する設計にした。
+    // toISOString() は UTC 日付を返すため、日本時間の夜に翌日と判定されてしまう。
+    // ローカル日付を YYYY-MM-DD 形式で構築することでタイムゾーンのズレを回避する
+    const now = new Date();
+    const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
     const newTask: WeekTask = {
       id: crypto.randomUUID(),
       milestoneId,
@@ -150,7 +160,7 @@ export function Workspace() {
         goals={goals}
         mode={mode}
         selectedGoalId={selectedGoalId}
-        onSelectGoal={setSelectedGoalId}
+        onSelectGoal={handleSelectGoal}
         onAddGoal={handleAddGoal}
         onDeleteGoal={handleDeleteGoal}
         onChangeMode={setMode}
