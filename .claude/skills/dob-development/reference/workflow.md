@@ -206,8 +206,13 @@ EOF
 ```
 対応しました。
 
-- 修正内容: 〇〇を〇〇に変更
-- 対応 commit: [abc1234](https://github.com/$(gh repo view --json nameWithOwner -q .nameWithOwner)/commit/abc1234)
+**指摘内容:**
+〇〇（例: selectedGoalId でフィルタリングされていないため、別の目標に切り替えても全マイルストーンが表示される）
+
+**対応内容:**
+〇〇（例: selectedGoalId を props に追加し filteredMilestones で選択中目標のマイルストーンのみ表示するよう修正）
+
+- 対応 commit: [abc1234](https://github.com/owner/repo/commit/abc1234)
 
 ---
 *Comment by Claude*
@@ -215,6 +220,7 @@ EOF
 
 > ⚠️ **必須**: リプライ末尾に必ず `---\n*Comment by Claude*` を付けること。AI によるコメントであることをレビュアーが識別できるようにする。
 > ⚠️ **必須**: commit ハッシュは必ずリンク形式にすること。
+> ⚠️ **必須**: 「指摘内容」は何が問題だったかを1〜2文で、「対応内容」は何をどう直したかを具体的に書くこと。
 
 ### 5-4. Resolve はユーザーが手動で行う
 
