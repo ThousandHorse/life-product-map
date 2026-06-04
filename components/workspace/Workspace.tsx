@@ -35,6 +35,7 @@ import {
 import { STORAGE_KEYS, load, save } from "@/lib/storage";
 import { NavPane } from "./NavPane";
 import { TaskListPane } from "./TaskListPane";
+import { DetailPane } from "./DetailPane";
 
 const DEFAULT_SETTINGS: AttendanceSettings = {
   targetHoursPerMonth: 160,
@@ -149,6 +150,26 @@ export function Workspace() {
     if (selectedTaskId === id) setSelectedTaskId(null);
   }
 
+  function handleUpdateTask(id: string, changes: Partial<WeekTask>) {
+    setTasks((prev) => prev.map((t) => (t.id === id ? { ...t, ...changes } : t)));
+  }
+
+  function handleAddDailyReport(date: string, reflection: string, learned: string) {
+    const newReport: DailyReport = {
+      id: crypto.randomUUID(),
+      date,
+      reflection,
+      learned,
+    };
+    setDailyReports((prev) => [...prev, newReport]);
+  }
+
+  function handleUpdateDailyReport(id: string, reflection: string, learned: string) {
+    setDailyReports((prev) =>
+      prev.map((r) => (r.id === id ? { ...r, reflection, learned } : r))
+    );
+  }
+
   // 勤怠モード時は Pane 4（AI チャット）を非表示にする。
   // 勤怠打刻は素早い操作が主なので、AI チャットエリアを消してデスクを広く使う設計
   const showPane4 = mode === "goal";
@@ -184,8 +205,21 @@ export function Workspace() {
         <section className="flex w-[280px] flex-shrink-0 flex-col border-r border-border bg-canvas" />
       )}
 
-      {/* Pane 3: DetailPane / AttendanceListPane（Step 5・8 で実装） */}
-      <section className="flex flex-1 flex-col border-r border-border bg-background" />
+      {/* Pane 3: DetailPane / AttendanceListPane（勤怠モードは Step 8 で実装） */}
+      {mode === "goal" && (
+        <DetailPane
+          tasks={tasks}
+          milestones={milestones}
+          selectedTaskId={selectedTaskId}
+          dailyReports={dailyReports}
+          onUpdateTask={handleUpdateTask}
+          onAddDailyReport={handleAddDailyReport}
+          onUpdateDailyReport={handleUpdateDailyReport}
+        />
+      )}
+      {mode === "attendance" && (
+        <section className="flex flex-1 flex-col border-r border-border bg-background" />
+      )}
 
       {/* Pane 4: AiChatPane（Step 6 で実装、勤怠モード時は非表示） */}
       {showPane4 && (
