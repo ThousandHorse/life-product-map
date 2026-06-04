@@ -18,6 +18,15 @@ export const LABELS = {
     maxReached: "目標は最大5件まで",
   },
 
+  milestone: {
+    add: "マイルストーンを追加",
+    delete: "削除",
+    yearMonthPlaceholder: "例: 2025-06",
+    titlePlaceholder: "例: TOEIC 受験",
+    yearMonthLabel: "年月（YYYY-MM）",
+    titleLabel: "タイトル",
+  },
+
   progressStatus: {
     ok: "順調",
     caution: "注意",
