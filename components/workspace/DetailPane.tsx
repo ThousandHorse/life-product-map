@@ -7,7 +7,8 @@
  *   常時             — 今日のタスク一覧（isToday: true の WeekTask）
  *   selectedTaskId   — タスク詳細（タイトル・期日・状態・優先度・メモ）のインライン編集
  *                      達成率・残日数カード・今週の進捗ドーナツグラフ
- *   日報フォーム      — 「日報を書く」ボタン押下で展開（再押下で折りたたみ）
+ *   日報フォーム      — 「日報を書く」ボタン押下でダイアログを開く
+ *                      インライン展開だと Pane 3 が縦に長くなり視認性が下がるため、ダイアログを採用
  *   提出後            — AI フィードバック表示（Phase 1 はダミーテキスト）
  *
  * Props:
@@ -24,6 +25,14 @@
 
 import { useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { LABELS } from "@/lib/labels";
@@ -76,6 +85,7 @@ export function DetailPane({
   onAddDailyReport,
   onUpdateDailyReport,
 }: DetailPaneProps) {
+  // 日報ダイアログの開閉状態。インライン展開より Pane 3 の縦幅を圧迫しないためダイアログを採用
   const [reportOpen, setReportOpen] = useState(false);
   const [reflection, setReflection] = useState("");
   const [learned, setLearned] = useState("");
@@ -159,14 +169,17 @@ export function DetailPane({
     [dailyReports, today]
   );
 
-  // 日報フォームを開いた時に既存の内容を読み込む
-  function handleOpenReport() {
-    if (!reportOpen && todayReport) {
+  // ダイアログを開くとき既存の日報内容を読み込む。閉じるときは入力中の内容をリセットしない
+  function handleOpenChange(open: boolean) {
+    if (open && todayReport) {
       setReflection(todayReport.reflection);
       setLearned(todayReport.learned);
       setAiComment(todayReport.aiComment ?? null);
     }
-    setReportOpen((v) => !v);
+    if (!open) {
+      setAiComment(null);
+    }
+    setReportOpen(open);
   }
 
   function handleSubmitReport() {
@@ -353,53 +366,65 @@ export function DetailPane({
           )}
         </div>
 
-        {/* ── 日報フォーム ── */}
-        <div className="flex flex-col gap-3">
+        {/* ── 日報ダイアログ ── */}
+        {/* インライン展開だと Pane 3 が縦に長くなり視認性が下がるためダイアログを採用 */}
+        <div>
           <Button
             variant="outline"
-            onClick={handleOpenReport}
             className="w-full"
+            onClick={() => handleOpenChange(true)}
           >
-            {reportOpen ? "日報を閉じる" : LABELS.dailyReport.button}
+            {LABELS.dailyReport.button}
           </Button>
 
-          {reportOpen && (
-            <div className="flex flex-col gap-3 rounded-lg border border-border p-4">
-              <div className="flex flex-col gap-1">
-                <label className="text-xs text-muted-foreground">{LABELS.dailyReport.reflection}</label>
-                <Textarea
-                  placeholder={LABELS.dailyReport.placeholder.reflection}
-                  value={reflection}
-                  onChange={(e) => setReflection(e.target.value)}
-                  rows={4}
-                />
-              </div>
-              <div className="flex flex-col gap-1">
-                <label className="text-xs text-muted-foreground">{LABELS.dailyReport.learned}</label>
-                <Textarea
-                  placeholder={LABELS.dailyReport.placeholder.learned}
-                  value={learned}
-                  onChange={(e) => setLearned(e.target.value)}
-                  rows={4}
-                />
-              </div>
-              <Button
-                onClick={handleSubmitReport}
-                disabled={!reflection.trim() || !learned.trim()}
-              >
-                {LABELS.dailyReport.submit}
-              </Button>
-
-              {/* AI フィードバック（提出後に表示）。Phase 1 はダミーテキスト */}
-              {aiComment && (
-                <div className="rounded-lg bg-primary/10 p-3">
-                  <p className="mb-1 text-xs font-semibold text-primary">{LABELS.dailyReport.aiFeedback}</p>
-                  <p className="text-sm text-foreground">{aiComment}</p>
+          <Dialog open={reportOpen} onOpenChange={handleOpenChange}>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>{LABELS.dailyReport.button}</DialogTitle>
+              </DialogHeader>
+              <div className="flex flex-col gap-3">
+                <div className="flex flex-col gap-1">
+                  <label className="text-xs text-muted-foreground">{LABELS.dailyReport.reflection}</label>
+                  <Textarea
+                    placeholder={LABELS.dailyReport.placeholder.reflection}
+                    value={reflection}
+                    onChange={(e) => setReflection(e.target.value)}
+                    rows={4}
+                  />
                 </div>
-              )}
-            </div>
-          )}
+                <div className="flex flex-col gap-1">
+                  <label className="text-xs text-muted-foreground">{LABELS.dailyReport.learned}</label>
+                  <Textarea
+                    placeholder={LABELS.dailyReport.placeholder.learned}
+                    value={learned}
+                    onChange={(e) => setLearned(e.target.value)}
+                    rows={4}
+                  />
+                </div>
+
+                {/* AI フィードバック（提出後に表示）。Phase 1 はダミーテキスト */}
+                {aiComment && (
+                  <div className="rounded-lg bg-primary/10 p-3">
+                    <p className="mb-1 text-xs font-semibold text-primary">{LABELS.dailyReport.aiFeedback}</p>
+                    <p className="text-sm text-foreground">{aiComment}</p>
+                  </div>
+                )}
+              </div>
+              <DialogFooter>
+                <DialogClose render={<Button variant="outline" />}>
+                  {LABELS.common.close}
+                </DialogClose>
+                <Button
+                  onClick={handleSubmitReport}
+                  disabled={!reflection.trim() || !learned.trim()}
+                >
+                  {LABELS.dailyReport.submit}
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
         </div>
+
       </div>
     </section>
   );
