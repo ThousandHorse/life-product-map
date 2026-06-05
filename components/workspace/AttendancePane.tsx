@@ -14,7 +14,7 @@
 import { useEffect, useState } from "react";
 import { type AttendanceRecord, type AttendanceSettings } from "@/lib/schema";
 import { getLocalDateString } from "@/lib/task-config";
-import { calcWorkedMinutes, formatDuration, toHHMM } from "@/lib/attendance-utils";
+import { DEFAULT_BREAK_END, DEFAULT_BREAK_START, calcWorkedMinutes, formatDuration, toHHMM } from "@/lib/attendance-utils";
 import {
   Dialog,
   DialogContent,
@@ -26,9 +26,6 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 
 const TARGET_HOURS_OPTIONS = [40, 60, 80, 100, 120, 140, 160, 180] as const;
-
-const DEFAULT_BREAK_START = "13:00";
-const DEFAULT_BREAK_END = "14:00";
 
 type Props = {
   attendanceRecords: AttendanceRecord[];

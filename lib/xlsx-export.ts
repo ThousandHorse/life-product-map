@@ -3,7 +3,7 @@
  *
  * 月次打刻データを xlsx ファイルとしてダウンロードするユーティリティ。
  * Phase 1 は固定フォーマット（列順固定）。
- * Phase 2 でテンプレート列マッピング対応予定。
+ * TODO(Phase 2): テンプレート Excel ファイルへの列マッピングに対応する
  *
  * xlsx ライブラリ（SheetJS）を使用する。
  * 依存: npm install xlsx
@@ -11,29 +11,14 @@
 
 import * as XLSX from "xlsx";
 import { type AttendanceRecord } from "@/lib/schema";
-
-const DEFAULT_BREAK_START = "13:00";
-const DEFAULT_BREAK_END = "14:00";
+import {
+  DEFAULT_BREAK_START,
+  DEFAULT_BREAK_END,
+  toHHMM,
+  toMinutes,
+} from "@/lib/attendance-utils";
 
 const WEEKDAYS = ["日", "月", "火", "水", "木", "金", "土"] as const;
-
-/**
- * ISO datetime 文字列から HH:MM を取得する。
- * clockIn/clockOut は ISO 8601 UTC で保存されているため、ローカル時刻に変換して計算に使う
- */
-function toHHMM(isoString: string): string {
-  const d = new Date(isoString);
-  return `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
-}
-
-/**
- * HH:MM 形式の文字列を分に変換する。
- * 時刻の加減算を整数演算で行うため分単位に正規化する
- */
-function toMinutes(hhmm: string): number {
-  const [h, m] = hhmm.split(":").map(Number);
-  return h * 60 + m;
-}
 
 /** 分を小数時間（例: 90min → 1.5）に変換する。xlsx の時間列に使用する */
 function minutesToDecimalHours(minutes: number): number {

@@ -17,7 +17,7 @@
 
 import { useEffect, useState } from "react";
 import { type AttendanceRecord } from "@/lib/schema";
-import { calcWorkedMinutes, formatDuration, toHHMM } from "@/lib/attendance-utils";
+import { DEFAULT_BREAK_END, DEFAULT_BREAK_START, calcWorkedMinutes, formatDuration, toHHMM } from "@/lib/attendance-utils";
 import {
   Dialog,
   DialogContent,
@@ -26,9 +26,6 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-
-const DEFAULT_BREAK_START = "13:00";
-const DEFAULT_BREAK_END = "14:00";
 
 const WEEKDAYS = ["日", "月", "火", "水", "木", "金", "土"] as const;
 
