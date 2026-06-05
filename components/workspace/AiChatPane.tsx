@@ -16,6 +16,7 @@ type Message = {
   text: string;
 };
 
+// TODO(Phase 3): DUMMY_RESPONSE を claude-haiku-4-5 API のレスポンスに差し替える
 const DUMMY_RESPONSE =
   "なるほど、良い観点ですね。目標に対して着実に進んでいると感じます。引き続き小さなステップを積み重ねていきましょう。";
 
@@ -29,6 +30,7 @@ export function AiChatPane() {
   ]);
   const [input, setInput] = useState("");
   const bodyRef = useRef<HTMLDivElement>(null);
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // 送信後に最新メッセージが常に見えるよう末尾へスクロールする（チャット UX として自然な挙動）
   useEffect(() => {
@@ -37,7 +39,15 @@ export function AiChatPane() {
     }
   }, [messages]);
 
-  function handleSend() {
+  // アンマウント時にタイマーをクリアしてメモリリークを防ぐ
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    };
+  }, []);
+
+  function handleSend(e?: React.FormEvent) {
+    if (e) e.preventDefault();
     const text = input.trim();
     if (!text) return;
 
@@ -45,9 +55,11 @@ export function AiChatPane() {
     setMessages((prev) => [...prev, userMsg]);
     setInput("");
 
-    // Phase 1: 固定のダミーレスポンスを非同期で返す
-    // Phase 3 で claude-haiku-4-5 API コールに差し替える
-    setTimeout(() => {
+    // 連打時に前のタイマーをキャンセルして二重レスポンスを防ぐ
+    if (timeoutRef.current) clearTimeout(timeoutRef.current);
+
+    // TODO(Phase 3): setTimeout + DUMMY_RESPONSE を claude-haiku-4-5 API コールに差し替える
+    timeoutRef.current = setTimeout(() => {
       const aiMsg: Message = {
         id: crypto.randomUUID(),
         role: "ai",
@@ -55,13 +67,6 @@ export function AiChatPane() {
       };
       setMessages((prev) => [...prev, aiMsg]);
     }, 600);
-  }
-
-  function handleKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault();
-      handleSend();
-    }
   }
 
   return (
@@ -82,14 +87,14 @@ export function AiChatPane() {
           msg.role === "ai" ? (
             <div
               key={msg.id}
-              className="max-w-[86%] self-start rounded-[18px_18px_18px_5px] border border-border bg-card px-[15px] py-3 text-[13px] leading-[1.75] text-foreground"
+              className="max-w-[86%] self-start rounded-[18px_18px_18px_5px] border border-border bg-card px-[15px] py-3 text-[13px] leading-[1.75] text-foreground whitespace-pre-wrap"
             >
               {msg.text}
             </div>
           ) : (
             <div
               key={msg.id}
-              className="max-w-[86%] self-end rounded-[18px_18px_5px_18px] bg-primary px-[15px] py-3 text-[13px] leading-[1.75] text-primary-foreground"
+              className="max-w-[86%] self-end rounded-[18px_18px_5px_18px] bg-primary px-[15px] py-3 text-[13px] leading-[1.75] text-primary-foreground whitespace-pre-wrap"
             >
               {msg.text}
             </div>
@@ -97,25 +102,26 @@ export function AiChatPane() {
         )}
       </div>
 
-      {/* 入力バー */}
-      <div className="flex flex-shrink-0 gap-[10px] border-t border-border bg-canvas px-4 py-[14px]">
+      {/* 入力バー: form にすることでブラウザ標準の Enter 送信・モバイル送信ボタンが動作する */}
+      <form
+        onSubmit={handleSend}
+        className="flex flex-shrink-0 gap-[10px] border-t border-border bg-canvas px-4 py-[14px]"
+      >
         <input
           type="text"
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          onKeyDown={handleKeyDown}
           placeholder="AIに相談する…"
           className="h-[42px] flex-1 rounded-md border border-border bg-card px-[14px] text-[13px] outline-none focus:border-primary"
         />
         <button
-          type="button"
-          onClick={handleSend}
+          type="submit"
           aria-label="送信"
           className="h-[42px] w-[42px] flex-shrink-0 cursor-pointer rounded-md bg-primary text-base text-primary-foreground"
         >
           ↑
         </button>
-      </div>
+      </form>
     </div>
   );
 }
