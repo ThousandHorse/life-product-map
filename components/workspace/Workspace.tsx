@@ -37,6 +37,7 @@ import { getLocalDateString } from "@/lib/task-config";
 import { NavPane } from "./NavPane";
 import { TaskListPane } from "./TaskListPane";
 import { DetailPane } from "./DetailPane";
+import { AiChatPane } from "./AiChatPane";
 
 const DEFAULT_SETTINGS: AttendanceSettings = {
   targetHoursPerMonth: 160,
@@ -221,10 +222,8 @@ export function Workspace() {
         <section className="flex flex-1 flex-col border-r border-border bg-background" />
       )}
 
-      {/* Pane 4: AiChatPane（Step 6 で実装、勤怠モード時は非表示） */}
-      {showPane4 && (
-        <section className="flex w-[320px] flex-shrink-0 flex-col bg-canvas" />
-      )}
+      {/* Pane 4: AiChatPane（勤怠モード時は非表示） */}
+      {showPane4 && <AiChatPane />}
     </div>
   );
 }
