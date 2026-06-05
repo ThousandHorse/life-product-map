@@ -39,6 +39,7 @@ import { TaskListPane } from "./TaskListPane";
 import { DetailPane } from "./DetailPane";
 import { AiChatPane } from "./AiChatPane";
 import { AttendancePane } from "./AttendancePane";
+import { AttendanceListPane } from "./AttendanceListPane";
 
 const DEFAULT_SETTINGS: AttendanceSettings = {
   targetHoursPerMonth: 160,
@@ -154,6 +155,12 @@ export function Workspace() {
     setTasks((prev) => prev.map((t) => (t.id === id ? { ...t, ...changes } : t)));
   }
 
+  function handleUpdateAttendanceRecord(id: string, changes: Partial<AttendanceRecord>) {
+    setAttendanceRecords((prev) =>
+      prev.map((r) => (r.id === id ? { ...r, ...changes } : r))
+    );
+  }
+
   function handleClockIn(record: AttendanceRecord) {
     setAttendanceRecords((prev) => {
       // 同日レコードがある場合は clockIn だけ更新（既存データを保護するため上書きせず merge）
@@ -228,7 +235,7 @@ export function Workspace() {
         />
       )}
 
-      {/* Pane 3: DetailPane / AttendanceListPane（勤怠モードは Step 8 で実装） */}
+      {/* Pane 3: DetailPane / AttendanceListPane */}
       {mode === "goal" && (
         <DetailPane
           tasks={tasks}
@@ -241,7 +248,12 @@ export function Workspace() {
         />
       )}
       {mode === "attendance" && (
-        <section className="flex flex-1 flex-col border-r border-border bg-background" />
+        <AttendanceListPane
+          attendanceRecords={attendanceRecords}
+          onUpdateRecord={handleUpdateAttendanceRecord}
+          // Step 9 で xlsx エクスポートを実装する。Step 8 では UI のみ表示
+          onExport={() => {}}
+        />
       )}
 
       {/* Pane 4: AiChatPane（勤怠モード時は非表示） */}
