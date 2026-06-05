@@ -41,7 +41,7 @@ import { computeProgressStatus, getTodayTasks } from "@/lib/computed/tasks";
 import { ACHIEVEMENT_STATUS_CONFIG, PRIORITY_CONFIG, TASK_STATUS_CONFIG, getLocalDateString, weekLabelFromDueDate } from "@/lib/task-config";
 import { cn } from "@/lib/utils";
 
-// Phase 1 の AI フィードバックダミーテキスト。Phase 3 で Claude API に差し替える
+// TODO(Phase 3): DUMMY_AI_FEEDBACK を claude-haiku-4-5 API のレスポンスに差し替える
 const DUMMY_AI_FEEDBACK =
   "今日もお疲れ様でした！振り返りを読む限り、着実に前進できていますね。" +
   "学んだことを明日以降も活かして、引き続き頑張りましょう！";
@@ -166,7 +166,7 @@ export function DetailPane({
   }
 
   function handleSubmitReport() {
-    // aiComment を localStorage に永続化する。Phase 1 はダミーテキスト、Phase 3 で Claude API に差し替える
+    // TODO(Phase 3): DUMMY_AI_FEEDBACK を claude-haiku-4-5 API のレスポンスに差し替え、aiComment に格納する
     if (todayReport) {
       onUpdateDailyReport(todayReport.id, reflection, learned, DUMMY_AI_FEEDBACK);
     } else {
