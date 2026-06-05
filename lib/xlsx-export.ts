@@ -105,14 +105,11 @@ export function exportToXlsx(
 
     let workedHours: number | string = "";
     if (record.clockOut) {
-      // 休憩時間が逆転（be < bs）した場合に稼働時間が過大になるのを防ぐため 0 クランプする
-      const workedMin = Math.max(
-        0,
-        toMinutes(clockOutStr) -
-          toMinutes(clockInStr) -
-          Math.max(0, toMinutes(be) - toMinutes(bs))
-      );
-      workedHours = minutesToDecimalHours(workedMin);
+      // toHHMM 経由の計算は日跨ぎ勤務で負値になるため、ISO タイムスタンプのミリ秒差分から直接計算する
+      const diffMs = new Date(record.clockOut).getTime() - new Date(record.clockIn).getTime();
+      const diffMin = Math.max(0, Math.floor(diffMs / 60000));
+      const breakMin = Math.max(0, toMinutes(be) - toMinutes(bs));
+      workedHours = minutesToDecimalHours(Math.max(0, diffMin - breakMin));
     }
 
     return {
