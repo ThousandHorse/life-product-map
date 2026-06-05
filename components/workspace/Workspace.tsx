@@ -34,6 +34,7 @@ import {
 } from "@/lib/schema";
 import { STORAGE_KEYS, load, save } from "@/lib/storage";
 import { getLocalDateString } from "@/lib/task-config";
+import { exportToXlsx } from "@/lib/xlsx-export";
 import { NavPane } from "./NavPane";
 import { TaskListPane } from "./TaskListPane";
 import { DetailPane } from "./DetailPane";
@@ -251,8 +252,7 @@ export function Workspace() {
         <AttendanceListPane
           attendanceRecords={attendanceRecords}
           onUpdateRecord={handleUpdateAttendanceRecord}
-          // Step 9 で xlsx エクスポートを実装する。Step 8 では UI のみ表示
-          onExport={() => {}}
+          onExport={(yearMonth) => exportToXlsx(yearMonth, attendanceRecords)}
         />
       )}
 

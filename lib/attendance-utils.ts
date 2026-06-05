@@ -5,6 +5,9 @@
  * AttendancePane / AttendanceListPane / xlsx-export で同じ計算ロジックが重複するため一元化した。
  */
 
+export const DEFAULT_BREAK_START = "13:00";
+export const DEFAULT_BREAK_END = "14:00";
+
 /** HH:MM 形式の文字列を分に変換する。空文字や不正な入力は 0 を返す */
 export function toMinutes(hhmm: string): number {
   if (!hhmm) return 0;
