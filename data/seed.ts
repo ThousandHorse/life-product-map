@@ -5,12 +5,14 @@
  * ブラウザコンソールから `seedData()` を呼ぶと localStorage にデータを書き込む。
  *
  * 使い方:
- *   app/page.tsx に以下を一時的に追加して npm run dev を実行する。
- *   確認後は import を削除すること。
+ *   クライアントコンポーネント（例: Workspace.tsx）の useEffect 内で呼び出す。
+ *   app/page.tsx は Server Component のため直接呼ぶと localStorage に書き込まれない。
+ *   確認後は呼び出しコードを削除すること。
  *
- *   // app/page.tsx に追加（開発時のみ）
- *   import { seedData } from "@/data/seed";
- *   if (process.env.NODE_ENV === "development") seedData();
+ *   // Workspace.tsx などのクライアントコンポーネントの useEffect 内で実行（開発時のみ）
+ *   useEffect(() => {
+ *     if (process.env.NODE_ENV === "development") seedData();
+ *   }, []);
  *
  * 本番ビルドには含まれない（app/ から import されていない限り）。
  */
@@ -192,7 +194,16 @@ const attendanceSettings: AttendanceSettings = {
  * シードデータを localStorage に書き込む。
  * 既存のデータは上書きされるため、動作確認が終わったら手動でクリアすること。
  */
-export function seedData(): void {
+export function seedData(force = false): void {
+  // SSR（Server Component）では window が存在しないため早期リターン
+  if (typeof window === "undefined") return;
+
+  const hasExistingData = localStorage.getItem(STORAGE_KEYS.goals) !== null;
+  if (hasExistingData && !force) {
+    console.log("ℹ️ Seed data already exists. Skipping. Use seedData(true) to force overwrite.");
+    return;
+  }
+
   save(STORAGE_KEYS.goals, goals);
   save(STORAGE_KEYS.milestones, milestones);
   save(STORAGE_KEYS.tasks, tasks);
