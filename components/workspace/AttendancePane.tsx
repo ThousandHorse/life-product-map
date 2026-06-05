@@ -67,11 +67,11 @@ function calcMonthTotalMinutes(
     .reduce((sum, r) => {
       const bs = r.breakStart ?? DEFAULT_BREAK_START;
       const be = r.breakEnd ?? DEFAULT_BREAK_END;
-      const worked =
-        toMinutes(toHHMM(r.clockOut!)) -
-        toMinutes(toHHMM(r.clockIn!)) -
-        (toMinutes(be) - toMinutes(bs));
-      return sum + Math.max(0, worked);
+      // toHHMM 経由の計算は日跨ぎ勤務で負値になるため、ISO タイムスタンプのミリ秒差分から直接計算する
+      const diffMs = new Date(r.clockOut!).getTime() - new Date(r.clockIn!).getTime();
+      const diffMin = Math.max(0, Math.floor(diffMs / 60000));
+      const breakMin = Math.max(0, toMinutes(be) - toMinutes(bs));
+      return sum + Math.max(0, diffMin - breakMin);
     }, 0);
 }
 
@@ -95,19 +95,19 @@ export function AttendancePane({
     if (!todayRecord?.clockIn || !todayRecord?.clockOut) return 0;
     const bs = todayRecord.breakStart ?? DEFAULT_BREAK_START;
     const be = todayRecord.breakEnd ?? DEFAULT_BREAK_END;
-    return Math.max(
-      0,
-      toMinutes(toHHMM(todayRecord.clockOut)) -
-        toMinutes(toHHMM(todayRecord.clockIn)) -
-        (toMinutes(be) - toMinutes(bs))
-    );
+    // toHHMM 経由の計算は日跨ぎ勤務で負値になるため、ISO タイムスタンプのミリ秒差分から直接計算する
+    const diffMs = new Date(todayRecord.clockOut).getTime() - new Date(todayRecord.clockIn).getTime();
+    const diffMin = Math.max(0, Math.floor(diffMs / 60000));
+    const breakMin = Math.max(0, toMinutes(be) - toMinutes(bs));
+    return Math.max(0, diffMin - breakMin);
   })();
 
   const yearMonth = today.slice(0, 7);
   const monthTotalMinutes = calcMonthTotalMinutes(attendanceRecords, yearMonth);
   const monthTotalHours = Math.floor(monthTotalMinutes / 60);
   const target = attendanceSettings.targetHoursPerMonth;
-  const progressRate = Math.min(100, Math.round((monthTotalHours / target) * 100));
+  // target が 0 のときゼロ除算で NaN% になるのを防ぐ（スキーマで min:0 が許容されているため）
+  const progressRate = target > 0 ? Math.min(100, Math.round((monthTotalHours / target) * 100)) : 0;
 
   // 曜日配列を IIFE スコープに閉じ込め、他の処理に漏れないようにしている
   const todayLabel = (() => {
@@ -144,7 +144,7 @@ export function AttendancePane({
         <div className="flex flex-col gap-4">
           {/* 今日の打刻カード */}
           <div className="rounded-lg border border-border bg-card p-[18px]">
-            <div className="mb-3 text-[13px] text-muted-foreground">{todayLabel}</div>
+            <div className="mb-3 text-[13px] text-muted-foreground" suppressHydrationWarning>{todayLabel}</div>
 
             {/* 打刻ボタン */}
             <div className="mb-4 flex gap-3">
