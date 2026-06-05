@@ -15,8 +15,9 @@
 
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { type AttendanceRecord } from "@/lib/schema";
+import { calcWorkedMinutes, formatDuration, toHHMM } from "@/lib/attendance-utils";
 import {
   Dialog,
   DialogContent,
@@ -39,40 +40,6 @@ type Props = {
   onUpdateRecord: (id: string, changes: Partial<AttendanceRecord>) => void;
   onExport: (yearMonth: string) => void;
 };
-
-/** HH:MM 形式の文字列を分に変換する */
-function toMinutes(hhmm: string): number {
-  const [h, m] = hhmm.split(":").map(Number);
-  return h * 60 + m;
-}
-
-/** 分を "Xh Ym" 形式に変換する */
-function formatDuration(minutes: number): string {
-  if (minutes <= 0) return "—";
-  const h = Math.floor(minutes / 60);
-  const m = minutes % 60;
-  return h > 0 ? `${h}h ${String(m).padStart(2, "0")}m` : `${m}m`;
-}
-
-/** ISO datetime 文字列から HH:MM を取得する */
-function toHHMM(isoString: string): string {
-  const d = new Date(isoString);
-  return `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
-}
-
-/** 稼働時間（分）を計算する。勤務時間外の休憩はクランプして 0 以上を保証する */
-function calcWorkedMinutes(
-  clockIn: string,
-  clockOut: string,
-  breakStart: string,
-  breakEnd: string
-): number {
-  const worked =
-    toMinutes(toHHMM(clockOut)) -
-    toMinutes(toHHMM(clockIn)) -
-    (toMinutes(breakEnd) - toMinutes(breakStart));
-  return Math.max(0, worked);
-}
 
 /** 今月から過去 n ヶ月の YYYY-MM 一覧を降順で返す */
 function buildMonthOptions(n: number): string[] {
@@ -108,12 +75,23 @@ export function AttendanceListPane({
   onUpdateRecord,
   onExport,
 }: Props) {
-  const now = new Date();
-  const currentYM = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
-
-  const [selectedYM, setSelectedYM] = useState(currentYM);
+  // サーバーとクライアントで new Date() の結果が異なるとハイドレーションエラーになるため、
+  // マウント後にのみ日付依存のUIを描画する
+  const [mounted, setMounted] = useState(false);
   const [templateDialogOpen, setTemplateDialogOpen] = useState(false);
   const [selectedFileName, setSelectedFileName] = useState<string | null>(null);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const now = new Date();
+  const currentYM = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+  const [selectedYM, setSelectedYM] = useState(currentYM);
+
+  if (!mounted) {
+    return <div className="flex flex-1 flex-col border-r border-border bg-background" />;
+  }
 
   const monthOptions = buildMonthOptions(SELECT_RANGE);
   const days = getDaysInMonth(selectedYM);
@@ -129,7 +107,9 @@ export function AttendanceListPane({
     field: "breakStart" | "breakEnd",
     value: string
   ) {
-    onUpdateRecord(record.id, { [field]: value });
+    // 空文字をそのまま保存すると schema の HH:MM バリデーションに失敗し、
+    // 次回ロード時に localStorage 全体が消失するため undefined に変換する
+    onUpdateRecord(record.id, { [field]: value || undefined });
   }
 
   return (
@@ -200,14 +180,10 @@ export function AttendanceListPane({
       <div className="flex flex-col overflow-y-auto">
         {days.map((dateStr) => {
           const record = getRecord(dateStr);
-          const [, , d] = dateStr.split("-").map(Number);
-          const dt = new Date(
-            parseInt(dateStr.slice(0, 4)),
-            parseInt(dateStr.slice(5, 7)) - 1,
-            d
-          );
+          const [y, m, d] = dateStr.split("-").map(Number);
+          const dt = new Date(y, m - 1, d);
           const dow = dt.getDay();
-          const label = `${parseInt(dateStr.slice(5, 7))}/${d}（${WEEKDAYS[dow]}）`;
+          const label = `${m}/${d}（${WEEKDAYS[dow]}）`;
 
           // 土日祝のカラーは tokens.css の --weekday-sat / --weekday-sun に対応
           const dateColorClass =

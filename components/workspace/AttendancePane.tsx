@@ -11,9 +11,10 @@
 
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { type AttendanceRecord, type AttendanceSettings } from "@/lib/schema";
 import { getLocalDateString } from "@/lib/task-config";
+import { calcWorkedMinutes, formatDuration, toHHMM } from "@/lib/attendance-utils";
 import {
   Dialog,
   DialogContent,
@@ -37,26 +38,6 @@ type Props = {
   onUpdateSettings: (settings: AttendanceSettings) => void;
 };
 
-/** HH:MM 形式の文字列を分に変換する */
-function toMinutes(hhmm: string): number {
-  const [h, m] = hhmm.split(":").map(Number);
-  return h * 60 + m;
-}
-
-/** 分を "Xh Ym" 形式に変換する */
-function formatDuration(minutes: number): string {
-  if (minutes <= 0) return "—";
-  const h = Math.floor(minutes / 60);
-  const m = minutes % 60;
-  return h > 0 ? `${h}h ${String(m).padStart(2, "0")}m` : `${m}m`;
-}
-
-/** ISO datetime 文字列から HH:MM を取得する */
-function toHHMM(isoString: string): string {
-  const d = new Date(isoString);
-  return `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
-}
-
 /** 今月の打刻レコードから累計稼働時間（分）を算出する */
 function calcMonthTotalMinutes(
   records: AttendanceRecord[],
@@ -67,11 +48,7 @@ function calcMonthTotalMinutes(
     .reduce((sum, r) => {
       const bs = r.breakStart ?? DEFAULT_BREAK_START;
       const be = r.breakEnd ?? DEFAULT_BREAK_END;
-      const worked =
-        toMinutes(toHHMM(r.clockOut!)) -
-        toMinutes(toHHMM(r.clockIn!)) -
-        (toMinutes(be) - toMinutes(bs));
-      return sum + Math.max(0, worked);
+      return sum + calcWorkedMinutes(r.clockIn!, r.clockOut!, bs, be);
     }, 0);
 }
 
@@ -84,6 +61,17 @@ export function AttendancePane({
 }: Props) {
   const [workLogInput, setWorkLogInput] = useState("");
   const [dialogOpen, setDialogOpen] = useState(false);
+  // サーバーとクライアントで new Date() の結果が異なるとハイドレーションエラーになるため、
+  // マウント後にのみ日付依存のUIを描画する
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) {
+    return <div className="w-[280px] flex-shrink-0 border-r border-border bg-canvas" />;
+  }
 
   const today = getLocalDateString();
   const todayRecord = attendanceRecords.find((r) => r.date === today);
@@ -95,19 +83,15 @@ export function AttendancePane({
     if (!todayRecord?.clockIn || !todayRecord?.clockOut) return 0;
     const bs = todayRecord.breakStart ?? DEFAULT_BREAK_START;
     const be = todayRecord.breakEnd ?? DEFAULT_BREAK_END;
-    return Math.max(
-      0,
-      toMinutes(toHHMM(todayRecord.clockOut)) -
-        toMinutes(toHHMM(todayRecord.clockIn)) -
-        (toMinutes(be) - toMinutes(bs))
-    );
+    return calcWorkedMinutes(todayRecord.clockIn, todayRecord.clockOut, bs, be);
   })();
 
   const yearMonth = today.slice(0, 7);
   const monthTotalMinutes = calcMonthTotalMinutes(attendanceRecords, yearMonth);
   const monthTotalHours = Math.floor(monthTotalMinutes / 60);
   const target = attendanceSettings.targetHoursPerMonth;
-  const progressRate = Math.min(100, Math.round((monthTotalHours / target) * 100));
+  // target が 0 のときゼロ除算で NaN% になるのを防ぐ（スキーマで min:0 が許容されているため）
+  const progressRate = target > 0 ? Math.min(100, Math.round((monthTotalHours / target) * 100)) : 0;
 
   // 曜日配列を IIFE スコープに閉じ込め、他の処理に漏れないようにしている
   const todayLabel = (() => {
