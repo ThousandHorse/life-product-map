@@ -40,10 +40,11 @@ type Props = {
   onExport: (yearMonth: string) => void;
 };
 
-/** HH:MM 形式の文字列を分に変換する */
+/** HH:MM 形式の文字列を分に変換する。空文字や不正な入力は 0 を返す */
 function toMinutes(hhmm: string): number {
+  if (!hhmm) return 0;
   const [h, m] = hhmm.split(":").map(Number);
-  return h * 60 + m;
+  return (isNaN(h) ? 0 : h) * 60 + (isNaN(m) ? 0 : m);
 }
 
 /** 分を "Xh Ym" 形式に変換する */
@@ -60,18 +61,21 @@ function toHHMM(isoString: string): string {
   return `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
 }
 
-/** 稼働時間（分）を計算する。勤務時間外の休憩はクランプして 0 以上を保証する */
+/**
+ * 稼働時間（分）を計算する。
+ * toHHMM 経由の計算は日跨ぎ勤務で負値になるため、ISO タイムスタンプのミリ秒差分から直接計算する。
+ * 休憩が逆転（終了 < 開始）した場合に稼働時間が過大になるのを防ぐため、休憩時間も 0 クランプする
+ */
 function calcWorkedMinutes(
   clockIn: string,
   clockOut: string,
   breakStart: string,
   breakEnd: string
 ): number {
-  const worked =
-    toMinutes(toHHMM(clockOut)) -
-    toMinutes(toHHMM(clockIn)) -
-    (toMinutes(breakEnd) - toMinutes(breakStart));
-  return Math.max(0, worked);
+  const diffMs = new Date(clockOut).getTime() - new Date(clockIn).getTime();
+  const diffMin = Math.max(0, Math.floor(diffMs / 60000));
+  const breakMin = Math.max(0, toMinutes(breakEnd) - toMinutes(breakStart));
+  return Math.max(0, diffMin - breakMin);
 }
 
 /** 今月から過去 n ヶ月の YYYY-MM 一覧を降順で返す */
@@ -129,7 +133,9 @@ export function AttendanceListPane({
     field: "breakStart" | "breakEnd",
     value: string
   ) {
-    onUpdateRecord(record.id, { [field]: value });
+    // 空文字をそのまま保存すると schema の HH:MM バリデーションに失敗し、
+    // 次回ロード時に localStorage 全体が消失するため undefined に変換する
+    onUpdateRecord(record.id, { [field]: value || undefined });
   }
 
   return (
@@ -200,14 +206,10 @@ export function AttendanceListPane({
       <div className="flex flex-col overflow-y-auto">
         {days.map((dateStr) => {
           const record = getRecord(dateStr);
-          const [, , d] = dateStr.split("-").map(Number);
-          const dt = new Date(
-            parseInt(dateStr.slice(0, 4)),
-            parseInt(dateStr.slice(5, 7)) - 1,
-            d
-          );
+          const [y, m, d] = dateStr.split("-").map(Number);
+          const dt = new Date(y, m - 1, d);
           const dow = dt.getDay();
-          const label = `${parseInt(dateStr.slice(5, 7))}/${d}（${WEEKDAYS[dow]}）`;
+          const label = `${m}/${d}（${WEEKDAYS[dow]}）`;
 
           // 土日祝のカラーは tokens.css の --weekday-sat / --weekday-sun に対応
           const dateColorClass =
