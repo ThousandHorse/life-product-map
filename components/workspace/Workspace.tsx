@@ -38,6 +38,7 @@ import { NavPane } from "./NavPane";
 import { TaskListPane } from "./TaskListPane";
 import { DetailPane } from "./DetailPane";
 import { AiChatPane } from "./AiChatPane";
+import { AttendancePane } from "./AttendancePane";
 
 const DEFAULT_SETTINGS: AttendanceSettings = {
   targetHoursPerMonth: 160,
@@ -153,6 +154,21 @@ export function Workspace() {
     setTasks((prev) => prev.map((t) => (t.id === id ? { ...t, ...changes } : t)));
   }
 
+  function handleClockIn(record: AttendanceRecord) {
+    setAttendanceRecords((prev) => {
+      // 同日レコードがある場合は clockIn だけ更新（既存データを保護するため上書きせず merge）
+      const exists = prev.find((r) => r.id === record.id);
+      if (exists) return prev.map((r) => r.id === record.id ? { ...r, clockIn: record.clockIn } : r);
+      return [...prev, record];
+    });
+  }
+
+  function handleClockOut(id: string, clockOut: string, workLog: string) {
+    setAttendanceRecords((prev) =>
+      prev.map((r) => r.id === id ? { ...r, clockOut, workLog } : r)
+    );
+  }
+
   function handleAddDailyReport(date: string, reflection: string, learned: string, aiComment?: string) {
     const newReport: DailyReport = {
       id: crypto.randomUUID(),
@@ -188,7 +204,7 @@ export function Workspace() {
         onChangeMode={setMode}
       />
 
-      {/* Pane 2: TaskListPane / AttendancePane（勤怠モードは Step 7 で実装） */}
+      {/* Pane 2: TaskListPane / AttendancePane */}
       {mode === "goal" && (
         <TaskListPane
           selectedGoalId={selectedGoalId}
@@ -203,7 +219,13 @@ export function Workspace() {
         />
       )}
       {mode === "attendance" && (
-        <section className="flex w-[280px] flex-shrink-0 flex-col border-r border-border bg-canvas" />
+        <AttendancePane
+          attendanceRecords={attendanceRecords}
+          attendanceSettings={attendanceSettings}
+          onClockIn={handleClockIn}
+          onClockOut={handleClockOut}
+          onUpdateSettings={setAttendanceSettings}
+        />
       )}
 
       {/* Pane 3: DetailPane / AttendanceListPane（勤怠モードは Step 8 で実装） */}
