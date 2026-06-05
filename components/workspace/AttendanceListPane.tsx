@@ -15,8 +15,9 @@
 
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { type AttendanceRecord } from "@/lib/schema";
+import { calcWorkedMinutes, formatDuration, toHHMM } from "@/lib/attendance-utils";
 import {
   Dialog,
   DialogContent,
@@ -39,44 +40,6 @@ type Props = {
   onUpdateRecord: (id: string, changes: Partial<AttendanceRecord>) => void;
   onExport: (yearMonth: string) => void;
 };
-
-/** HH:MM 形式の文字列を分に変換する。空文字や不正な入力は 0 を返す */
-function toMinutes(hhmm: string): number {
-  if (!hhmm) return 0;
-  const [h, m] = hhmm.split(":").map(Number);
-  return (isNaN(h) ? 0 : h) * 60 + (isNaN(m) ? 0 : m);
-}
-
-/** 分を "Xh Ym" 形式に変換する */
-function formatDuration(minutes: number): string {
-  if (minutes <= 0) return "—";
-  const h = Math.floor(minutes / 60);
-  const m = minutes % 60;
-  return h > 0 ? `${h}h ${String(m).padStart(2, "0")}m` : `${m}m`;
-}
-
-/** ISO datetime 文字列から HH:MM を取得する */
-function toHHMM(isoString: string): string {
-  const d = new Date(isoString);
-  return `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
-}
-
-/**
- * 稼働時間（分）を計算する。
- * toHHMM 経由の計算は日跨ぎ勤務で負値になるため、ISO タイムスタンプのミリ秒差分から直接計算する。
- * 休憩が逆転（終了 < 開始）した場合に稼働時間が過大になるのを防ぐため、休憩時間も 0 クランプする
- */
-function calcWorkedMinutes(
-  clockIn: string,
-  clockOut: string,
-  breakStart: string,
-  breakEnd: string
-): number {
-  const diffMs = new Date(clockOut).getTime() - new Date(clockIn).getTime();
-  const diffMin = Math.max(0, Math.floor(diffMs / 60000));
-  const breakMin = Math.max(0, toMinutes(breakEnd) - toMinutes(breakStart));
-  return Math.max(0, diffMin - breakMin);
-}
 
 /** 今月から過去 n ヶ月の YYYY-MM 一覧を降順で返す */
 function buildMonthOptions(n: number): string[] {
@@ -112,12 +75,23 @@ export function AttendanceListPane({
   onUpdateRecord,
   onExport,
 }: Props) {
-  const now = new Date();
-  const currentYM = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
-
-  const [selectedYM, setSelectedYM] = useState(currentYM);
+  // サーバーとクライアントで new Date() の結果が異なるとハイドレーションエラーになるため、
+  // マウント後にのみ日付依存のUIを描画する
+  const [mounted, setMounted] = useState(false);
   const [templateDialogOpen, setTemplateDialogOpen] = useState(false);
   const [selectedFileName, setSelectedFileName] = useState<string | null>(null);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const now = new Date();
+  const currentYM = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+  const [selectedYM, setSelectedYM] = useState(currentYM);
+
+  if (!mounted) {
+    return <div className="flex flex-1 flex-col border-r border-border bg-background" />;
+  }
 
   const monthOptions = buildMonthOptions(SELECT_RANGE);
   const days = getDaysInMonth(selectedYM);

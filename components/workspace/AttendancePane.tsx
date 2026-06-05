@@ -11,9 +11,10 @@
 
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { type AttendanceRecord, type AttendanceSettings } from "@/lib/schema";
 import { getLocalDateString } from "@/lib/task-config";
+import { calcWorkedMinutes, formatDuration, toHHMM } from "@/lib/attendance-utils";
 import {
   Dialog,
   DialogContent,
@@ -37,26 +38,6 @@ type Props = {
   onUpdateSettings: (settings: AttendanceSettings) => void;
 };
 
-/** HH:MM 形式の文字列を分に変換する */
-function toMinutes(hhmm: string): number {
-  const [h, m] = hhmm.split(":").map(Number);
-  return h * 60 + m;
-}
-
-/** 分を "Xh Ym" 形式に変換する */
-function formatDuration(minutes: number): string {
-  if (minutes <= 0) return "—";
-  const h = Math.floor(minutes / 60);
-  const m = minutes % 60;
-  return h > 0 ? `${h}h ${String(m).padStart(2, "0")}m` : `${m}m`;
-}
-
-/** ISO datetime 文字列から HH:MM を取得する */
-function toHHMM(isoString: string): string {
-  const d = new Date(isoString);
-  return `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
-}
-
 /** 今月の打刻レコードから累計稼働時間（分）を算出する */
 function calcMonthTotalMinutes(
   records: AttendanceRecord[],
@@ -67,11 +48,7 @@ function calcMonthTotalMinutes(
     .reduce((sum, r) => {
       const bs = r.breakStart ?? DEFAULT_BREAK_START;
       const be = r.breakEnd ?? DEFAULT_BREAK_END;
-      // toHHMM 経由の計算は日跨ぎ勤務で負値になるため、ISO タイムスタンプのミリ秒差分から直接計算する
-      const diffMs = new Date(r.clockOut!).getTime() - new Date(r.clockIn!).getTime();
-      const diffMin = Math.max(0, Math.floor(diffMs / 60000));
-      const breakMin = Math.max(0, toMinutes(be) - toMinutes(bs));
-      return sum + Math.max(0, diffMin - breakMin);
+      return sum + calcWorkedMinutes(r.clockIn!, r.clockOut!, bs, be);
     }, 0);
 }
 
@@ -84,6 +61,17 @@ export function AttendancePane({
 }: Props) {
   const [workLogInput, setWorkLogInput] = useState("");
   const [dialogOpen, setDialogOpen] = useState(false);
+  // サーバーとクライアントで new Date() の結果が異なるとハイドレーションエラーになるため、
+  // マウント後にのみ日付依存のUIを描画する
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) {
+    return <div className="w-[280px] flex-shrink-0 border-r border-border bg-canvas" />;
+  }
 
   const today = getLocalDateString();
   const todayRecord = attendanceRecords.find((r) => r.date === today);
@@ -95,11 +83,7 @@ export function AttendancePane({
     if (!todayRecord?.clockIn || !todayRecord?.clockOut) return 0;
     const bs = todayRecord.breakStart ?? DEFAULT_BREAK_START;
     const be = todayRecord.breakEnd ?? DEFAULT_BREAK_END;
-    // toHHMM 経由の計算は日跨ぎ勤務で負値になるため、ISO タイムスタンプのミリ秒差分から直接計算する
-    const diffMs = new Date(todayRecord.clockOut).getTime() - new Date(todayRecord.clockIn).getTime();
-    const diffMin = Math.max(0, Math.floor(diffMs / 60000));
-    const breakMin = Math.max(0, toMinutes(be) - toMinutes(bs));
-    return Math.max(0, diffMin - breakMin);
+    return calcWorkedMinutes(todayRecord.clockIn, todayRecord.clockOut, bs, be);
   })();
 
   const yearMonth = today.slice(0, 7);
@@ -144,7 +128,7 @@ export function AttendancePane({
         <div className="flex flex-col gap-4">
           {/* 今日の打刻カード */}
           <div className="rounded-lg border border-border bg-card p-[18px]">
-            <div className="mb-3 text-[13px] text-muted-foreground" suppressHydrationWarning>{todayLabel}</div>
+            <div className="mb-3 text-[13px] text-muted-foreground">{todayLabel}</div>
 
             {/* 打刻ボタン */}
             <div className="mb-4 flex gap-3">

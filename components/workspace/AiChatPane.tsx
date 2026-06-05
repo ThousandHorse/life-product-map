@@ -29,6 +29,7 @@ export function AiChatPane() {
     },
   ]);
   const [input, setInput] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   const bodyRef = useRef<HTMLDivElement>(null);
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -49,14 +50,14 @@ export function AiChatPane() {
   function handleSend(e?: React.FormEvent) {
     if (e) e.preventDefault();
     const text = input.trim();
-    if (!text) return;
+    if (!text || isLoading) return;
 
     const userMsg: Message = { id: crypto.randomUUID(), role: "user", text };
     setMessages((prev) => [...prev, userMsg]);
     setInput("");
-
-    // 連打時に前のタイマーをキャンセルして二重レスポンスを防ぐ
-    if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    // isLoading で入力を無効化することで、前のレスポンスが返るまで次の送信を防ぐ
+    // clearTimeout による前タイマーキャンセルより優れる（ユーザーの最初のメッセージへの応答が消えないため）
+    setIsLoading(true);
 
     // TODO(Phase 3): setTimeout + DUMMY_RESPONSE を claude-haiku-4-5 API コールに差し替える
     timeoutRef.current = setTimeout(() => {
@@ -66,6 +67,7 @@ export function AiChatPane() {
         text: DUMMY_RESPONSE,
       };
       setMessages((prev) => [...prev, aiMsg]);
+      setIsLoading(false);
     }, 600);
   }
 
@@ -111,13 +113,15 @@ export function AiChatPane() {
           type="text"
           value={input}
           onChange={(e) => setInput(e.target.value)}
+          disabled={isLoading}
           placeholder="AIに相談する…"
-          className="h-[42px] flex-1 rounded-md border border-border bg-card px-[14px] text-[13px] outline-none focus:border-primary"
+          className="h-[42px] flex-1 rounded-md border border-border bg-card px-[14px] text-[13px] outline-none focus:border-primary disabled:opacity-50"
         />
         <button
           type="submit"
+          disabled={isLoading}
           aria-label="送信"
-          className="h-[42px] w-[42px] flex-shrink-0 cursor-pointer rounded-md bg-primary text-base text-primary-foreground"
+          className="h-[42px] w-[42px] flex-shrink-0 cursor-pointer rounded-md bg-primary text-base text-primary-foreground disabled:opacity-50"
         >
           ↑
         </button>
