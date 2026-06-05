@@ -38,31 +38,8 @@ import { Input } from "@/components/ui/input";
 import { LABELS } from "@/lib/labels";
 import { type MonthMilestone, type WeekTask } from "@/lib/schema";
 import { computeProgressStatus } from "@/lib/computed/tasks";
+import { PROGRESS_STATUS_CONFIG, weekLabelFromDueDate } from "@/lib/task-config";
 import { cn } from "@/lib/utils";
-
-// 進捗ステータスに対応するアイコン・ラベル・背景色クラス。
-// 絵文字だけでは視認性が低いため、カード全体の背景色でもステータスを表現する
-const STATUS_CONFIG = {
-  ok:      { icon: "✅", label: LABELS.progressStatus.ok,      bg: "bg-success/10" },
-  caution: { icon: "⚠️", label: LABELS.progressStatus.caution, bg: "bg-warning/10" },
-  danger:  { icon: "🔴", label: LABELS.progressStatus.danger,  bg: "bg-destructive/10" },
-} as const;
-
-/**
- * 期日（YYYY-MM-DD）から weekLabel を自動計算する。
- * 週と期日は役割が重複するため、期日だけ入力してもらい weekLabel は導出する設計にした。
- *   1〜7日  → W1 / 8〜14日 → W2 / 15〜21日 → W3 / 22日以降 → W4
- *
- * new Date("YYYY-MM-DD") は UTC 基準で解釈されるため、UTC-9 等の西側タイムゾーンでは
- * getDate() が前日の日付を返してしまう。文字列を直接分割して日付を取得することで回避する。
- */
-function weekLabelFromDueDate(dueDate: string): WeekTask["weekLabel"] {
-  const day = parseInt(dueDate.split("-")[2], 10);
-  if (day <= 7)  return "W1";
-  if (day <= 14) return "W2";
-  if (day <= 21) return "W3";
-  return "W4";
-}
 
 /**
  * 今月から過去12ヶ月分の YYYY-MM 文字列を降順で返す。
@@ -212,7 +189,7 @@ export function TaskListPane({
             .sort((a, b) => WEEK_ORDER[a.weekLabel] - WEEK_ORDER[b.weekLabel]);
           // 保存値はキャッシュ扱いのため、表示前に最新のタスク状態で再計算する
           const status = computeProgressStatus(milestone, milestoneTasks);
-          const statusConfig = STATUS_CONFIG[status];
+          const statusConfig = PROGRESS_STATUS_CONFIG[status];
           const isOpen = openIds.has(milestone.id);
 
           return (
