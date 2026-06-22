@@ -60,7 +60,7 @@ attendance_settings ─┴（勤怠モード専用、目標管理とは別系統
 | goal_id | text | NOT NULL, REFERENCES goals(id) ON DELETE CASCADE | 紐づく目標 |
 | year_month | text | NOT NULL | `YYYY-MM` 形式 |
 | title | text | NOT NULL | マイルストーン名 |
-| progress_status | text | NOT NULL, CHECK IN ('ok','caution','danger') | 進捗ステータス（✅順調 / ⚠️注意 / 🔴危険） |
+| progress_status | text | NOT NULL, CHECK (progress_status IN ('ok','caution','danger')) | 進捗ステータス（✅順調 / ⚠️注意 / 🔴危険） |
 | created_at | timestamptz | NOT NULL DEFAULT now() | 作成日時 |
 | updated_at | timestamptz | NOT NULL DEFAULT now() | 更新日時 |
 
@@ -76,11 +76,11 @@ attendance_settings ─┴（勤怠モード専用、目標管理とは別系統
 |---|---|---|---|
 | id | text | PRIMARY KEY | クライアント生成のID文字列 |
 | milestone_id | text | NOT NULL, REFERENCES milestones(id) ON DELETE CASCADE | 紐づくマイルストーン |
-| week_label | text | NOT NULL, CHECK IN ('W1','W2','W3','W4') | 週ラベル |
+| week_label | text | NOT NULL, CHECK (week_label IN ('W1','W2','W3','W4')) | 週ラベル |
 | title | text | NOT NULL | タスク名 |
 | due_date | date | NOT NULL | 期限（`YYYY-MM-DD`） |
-| status | text | NOT NULL, CHECK IN ('todo','inProgress','done') | 進捗状態 |
-| priority | text | NOT NULL, CHECK IN ('high','medium','low') | 優先度 |
+| status | text | NOT NULL, CHECK (status IN ('todo','inProgress','done')) | 進捗状態 |
+| priority | text | NOT NULL, CHECK (priority IN ('high','medium','low')) | 優先度 |
 | memo | text | — | メモ（任意） |
 | is_today | boolean | NOT NULL DEFAULT false | 「今日のタスク」表示フラグ |
 | created_at | timestamptz | NOT NULL DEFAULT now() | 作成日時 |
@@ -135,7 +135,7 @@ attendance_settings ─┴（勤怠モード専用、目標管理とは別系統
 | カラム | 型 | 制約 | 説明 |
 |---|---|---|---|
 | id | text | PRIMARY KEY DEFAULT 'singleton' | 固定ID（常に`'singleton'`） |
-| target_hours_per_month | integer | NOT NULL, CHECK BETWEEN 0 AND 744 | 月間目標稼働時間 |
+| target_hours_per_month | integer | NOT NULL, CHECK (target_hours_per_month BETWEEN 0 AND 744) | 月間目標稼働時間 |
 | xlsx_template | text | — | Phase 2で予約済み（テンプレートアップロード機能用） |
 | column_mapping | jsonb | — | Phase 2で予約済み（列マッピング設定用） |
 | updated_at | timestamptz | NOT NULL DEFAULT now() | 更新日時 |
@@ -158,4 +158,4 @@ RLSを無効化せず有効化+全許可にしている理由は、将来認証�
 
 - **id は text 型**: DB側で自動生成せず、クライアント側で生成済みのID文字列（`crypto.randomUUID()` やシードデータの `"goal-1"` 等）をそのまま保存する。アプリ側のID生成ロジック（`Workspace.tsx` の各 `handleAdd*`）を変更不要にするための設計判断
 - **camelCase ⇄ snake_case**: アプリ側（`schema.ts`）は camelCase、DBカラムは snake_case。変換は `lib/storage-supabase.ts` の境界でのみ行い、他のコードはこの差異を意識しない
-- **削除の反映方式**: アプリのstate（配列）が変わるたびに対応テーブルを全削除→再投入する。upsertだけでは削除が反映されないため（詳細は [implementation-plan.md](implementation-plan.md) Phase 2参照）
+- **削除の反映方式**: アプリのstate（配列）が変わるたびに、現在のstateに含まれるIDを upsert し、含まれなくなったIDの行を `DELETE ... WHERE id NOT IN (...)` で削除する。upsertだけでは削除が反映されないため、削除も合わせて行う必要がある。全件削除→再投入ではなく差分削除にしているのは、削除とupsertの間で失敗が起きた場合にデータが消失するリスク（アトミック性の欠如）を避けるため。Postgres関数（RPC）化し、削除とupsertを1つのトランザクションにまとめて実行する（詳細は Step 13 の実装で `lib/storage-supabase.ts` に反映）
