@@ -60,7 +60,9 @@ Pane 4 (AiChatPane)
 | ファイル | 用途 |
 |---|---|
 | [reference/steps.md](reference/steps.md) | 各 Step の完了条件・作成ファイル・スキーマ定義。実装前に必ず読む |
-| [reference/workflow.md](reference/workflow.md) | 実装→PR→レビュー対応→マージ待ちの詳細手順。コード規約・サブエージェントの使い方も記載 |
+| [reference/workflow.md](reference/workflow.md) | 実装→PR→レビュー対応→マージ待ちの詳細手順 |
+| [reference/subagent-usage.md](reference/subagent-usage.md) | サブエージェント（Explore/Plan等）への委譲基準・使い方 |
+| [reference/handover.md](reference/handover.md) | コンテキストウィンドウ逼迫時の次チャットへの引き継ぎ手順・テンプレート |
 | [reference/pr-template.md](reference/pr-template.md) | PR 概要の書き方・Step 別記載ポイント |
 | [reference/comment-policy.md](reference/comment-policy.md) | コメントの書き方（WHY を書く・WHAT は書かない）の詳細と記述例 |
 | [mock/index.html](../../../mock/index.html) | UI デザイン確認用モックアップ（HTML + CSS + JS）。各 Pane の見た目・構造の参考に使う。`python3 -m http.server 5500` で起動し `http://localhost:5500/mock/` でアクセス。コンポーネントは `mock/components/goal/` と `mock/components/attendance/` に分割されている |
