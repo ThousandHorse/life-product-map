@@ -10,7 +10,7 @@
  *   selectedGoalId  — 選択中の年目標 ID（null = 未選択）
  *   selectedTaskId  — 選択中の週タスク ID（null = 今日のタスク一覧を表示）
  *
- * localStorage 連携:
+ * 永続化（lib/storage.ts 経由、実体は localStorage または Supabase）:
  *   初回マウント時に useEffect で load()、各 state 変更時に useEffect で save()
  *   SSR で window が存在しない場合は load() が null を返すため、useEffect 内限定で呼ぶ
  */
@@ -59,31 +59,45 @@ export function Workspace() {
   // load 完了前に save が走ると初期値で localStorage を上書きしてしまうため、フラグで保護する
   const [isLoaded, setIsLoaded] = useState(false);
 
-  // localStorage からデータを復元する。
+  // 永続化バックエンドからデータを復元する。
   // useEffect 内限定にする理由: SSR 時は window が存在せず load() が null を返すため
+  // 6件を Promise.all で並列実行する理由: Supabase 実装では各 load() がHTTPリクエストになるため、
+  // 直列で待つと初期ロードが遅くなる
   useEffect(() => {
-    const savedGoals = load(STORAGE_KEYS.goals, yearGoalsSchema);
-    const savedMilestones = load(STORAGE_KEYS.milestones, monthMilestonesSchema);
-    const savedTasks = load(STORAGE_KEYS.tasks, weekTasksSchema);
-    const savedDailyReports = load(STORAGE_KEYS.dailyReports, dailyReportsSchema);
-    const savedAttendanceRecords = load(STORAGE_KEYS.attendanceRecords, attendanceRecordsSchema);
-    const savedAttendanceSettings = load(STORAGE_KEYS.attendanceSettings, attendanceSettingsSchema);
+    async function loadAll() {
+      const [
+        savedGoals,
+        savedMilestones,
+        savedTasks,
+        savedDailyReports,
+        savedAttendanceRecords,
+        savedAttendanceSettings,
+      ] = await Promise.all([
+        load(STORAGE_KEYS.goals, yearGoalsSchema),
+        load(STORAGE_KEYS.milestones, monthMilestonesSchema),
+        load(STORAGE_KEYS.tasks, weekTasksSchema),
+        load(STORAGE_KEYS.dailyReports, dailyReportsSchema),
+        load(STORAGE_KEYS.attendanceRecords, attendanceRecordsSchema),
+        load(STORAGE_KEYS.attendanceSettings, attendanceSettingsSchema),
+      ]);
 
-    if (savedGoals) setGoals(savedGoals);
-    if (savedMilestones) setMilestones(savedMilestones);
-    if (savedTasks) setTasks(savedTasks);
-    if (savedDailyReports) setDailyReports(savedDailyReports);
-    if (savedAttendanceRecords) setAttendanceRecords(savedAttendanceRecords);
-    if (savedAttendanceSettings) setAttendanceSettings(savedAttendanceSettings);
-    setIsLoaded(true);
+      if (savedGoals) setGoals(savedGoals);
+      if (savedMilestones) setMilestones(savedMilestones);
+      if (savedTasks) setTasks(savedTasks);
+      if (savedDailyReports) setDailyReports(savedDailyReports);
+      if (savedAttendanceRecords) setAttendanceRecords(savedAttendanceRecords);
+      if (savedAttendanceSettings) setAttendanceSettings(savedAttendanceSettings);
+      setIsLoaded(true);
+    }
+    void loadAll();
   }, []);
 
-  useEffect(() => { if (isLoaded) save(STORAGE_KEYS.goals, goals); }, [isLoaded, goals]);
-  useEffect(() => { if (isLoaded) save(STORAGE_KEYS.milestones, milestones); }, [isLoaded, milestones]);
-  useEffect(() => { if (isLoaded) save(STORAGE_KEYS.tasks, tasks); }, [isLoaded, tasks]);
-  useEffect(() => { if (isLoaded) save(STORAGE_KEYS.dailyReports, dailyReports); }, [isLoaded, dailyReports]);
-  useEffect(() => { if (isLoaded) save(STORAGE_KEYS.attendanceRecords, attendanceRecords); }, [isLoaded, attendanceRecords]);
-  useEffect(() => { if (isLoaded) save(STORAGE_KEYS.attendanceSettings, attendanceSettings); }, [isLoaded, attendanceSettings]);
+  useEffect(() => { if (isLoaded) void save(STORAGE_KEYS.goals, goals); }, [isLoaded, goals]);
+  useEffect(() => { if (isLoaded) void save(STORAGE_KEYS.milestones, milestones); }, [isLoaded, milestones]);
+  useEffect(() => { if (isLoaded) void save(STORAGE_KEYS.tasks, tasks); }, [isLoaded, tasks]);
+  useEffect(() => { if (isLoaded) void save(STORAGE_KEYS.dailyReports, dailyReports); }, [isLoaded, dailyReports]);
+  useEffect(() => { if (isLoaded) void save(STORAGE_KEYS.attendanceRecords, attendanceRecords); }, [isLoaded, attendanceRecords]);
+  useEffect(() => { if (isLoaded) void save(STORAGE_KEYS.attendanceSettings, attendanceSettings); }, [isLoaded, attendanceSettings]);
 
   function handleAddGoal(title: string) {
     const newGoal: YearGoal = { id: crypto.randomUUID(), title };
