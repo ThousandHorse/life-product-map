@@ -19,8 +19,12 @@
 
 **⚠️ 出力時の注意**: コードブロックが分割されて表示されると引き継ぎ書として使いにくくなる。テンプレート全体を**1つのコードブロックで一括表示**すること。
 
+**⚠️ タイトルに必ずPR番号を含める**: `# 引き継ぎ書 (Resume from PR #XX review)` のように書く。新しいチャットのAIが `gh api .../pulls/XX/comments` で直接レビューコメントを取得できるようにするため。
+
+**⚠️ 「次のアクション」はPRの状態で分岐させる**: 直前のPRが「マージ済み」なら次のStepの新規ブランチを切ってよいが、「レビュー待ち」「指摘対応中」の場合は新規ブランチを切ってはいけない。PRの feature ブランチには未マージのコミットが乗っており、`develop` から新規ブランチを切るとその履歴が欠落し、レビュー対応のpushが non-fast-forward で失敗する。レビュー対応中は既存のPRブランチを取得してチェックアウトする。
+
 ```
-# 引き継ぎ書
+# 引き継ぎ書 (Resume from PR #XX review)
 
 ## 現状
 
@@ -35,11 +39,23 @@
 
 ## 次のアクション
 
+### 直前のPRがマージ済みの場合（次のStepに進む）
+
 git checkout develop
 git pull origin develop
 git checkout -b feature/step-XX-xxx
 
 〇〇を実装する。詳細は実装プランの Step XX セクション参照。
+
+### 直前のPRがレビュー待ち・指摘対応中の場合（既存PRの続きをやる）
+
+git fetch origin
+git checkout feature/step-XX-xxx
+git pull origin feature/step-XX-xxx
+
+gh api repos/$(gh repo view --json nameWithOwner -q .nameWithOwner)/pulls/NN/comments --jq '.[] | {id: .id, author: .user.login, path: .path, body: .body}'
+
+PR #NN のレビュー指摘に対応する。手順は workflow.md の Step 5 参照。
 ```
 
 ## 新しいチャットで再開する方法
