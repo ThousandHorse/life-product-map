@@ -16,8 +16,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { type AttendanceRecord } from "@/lib/schema";
+import { type AttendanceRecord, type AttendanceSettings, type ColumnMapping } from "@/lib/schema";
 import { DEFAULT_BREAK_END, DEFAULT_BREAK_START, calcWorkedMinutes, formatDuration, toHHMM } from "@/lib/attendance-utils";
+import { parseSpreadsheet, type ParsedSpreadsheet } from "@/lib/attendance-import";
 import {
   Dialog,
   DialogContent,
@@ -27,6 +28,17 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 
+// AttendanceRecord のフィールドのうち、列マッピングの対象とするもの。
+// id・isToday相当のフィールドはインポート対象にしないため含めない
+const MAPPING_FIELDS: { key: keyof ColumnMapping; label: string; required: boolean }[] = [
+  { key: "date", label: "日付", required: true },
+  { key: "clockIn", label: "出勤時刻", required: false },
+  { key: "clockOut", label: "退勤時刻", required: false },
+  { key: "breakStart", label: "休憩開始", required: false },
+  { key: "breakEnd", label: "休憩終了", required: false },
+  { key: "workLog", label: "作業内容", required: false },
+];
+
 const WEEKDAYS = ["日", "月", "火", "水", "木", "金", "土"] as const;
 
 // 給与計算の修正対応として最大 1 年前まで遡れれば十分と判断した
@@ -34,7 +46,9 @@ const SELECT_RANGE = 12;
 
 type Props = {
   attendanceRecords: AttendanceRecord[];
+  attendanceSettings: AttendanceSettings;
   onUpdateRecord: (id: string, changes: Partial<AttendanceRecord>) => void;
+  onUpdateSettings: (settings: AttendanceSettings) => void;
   onExport: (yearMonth: string) => void;
 };
 
@@ -69,7 +83,9 @@ function getDaysInMonth(yearMonth: string): string[] {
 
 export function AttendanceListPane({
   attendanceRecords,
+  attendanceSettings,
   onUpdateRecord,
+  onUpdateSettings,
   onExport,
 }: Props) {
   // サーバーとクライアントで new Date() の結果が異なるとハイドレーションエラーになるため、
@@ -77,6 +93,14 @@ export function AttendanceListPane({
   const [mounted, setMounted] = useState(false);
   const [templateDialogOpen, setTemplateDialogOpen] = useState(false);
   const [selectedFileName, setSelectedFileName] = useState<string | null>(null);
+  // ファイル選択後にパースしたヘッダー・データ行（マッピングUI表示用）
+  const [parsed, setParsed] = useState<ParsedSpreadsheet | null>(null);
+  // 各フィールドに対応させる列見出し。プルダウンの選択状態を保持する
+  const [mapping, setMapping] = useState<ColumnMapping>({});
+  // ファイル読み込み・パース失敗時のエラーメッセージ
+  const [importError, setImportError] = useState<string | null>(null);
+  // 「このマッピングを保存する」チェックボックスの状態（デフォルトON）
+  const [saveMapping, setSaveMapping] = useState(true);
 
   useEffect(() => {
     setMounted(true);
@@ -107,6 +131,65 @@ export function AttendanceListPane({
     // 空文字をそのまま保存すると schema の HH:MM バリデーションに失敗し、
     // 次回ロード時に localStorage 全体が消失するため undefined に変換する
     onUpdateRecord(record.id, { [field]: value || undefined });
+  }
+
+  /** ヘッダー文字列から保存済みマッピングの初期値を引く。一致しない場合は未選択のままにする */
+  function buildInitialMapping(headers: string[]): ColumnMapping {
+    const saved = attendanceSettings.columnMapping;
+    if (!saved) return {};
+    const initial: ColumnMapping = {};
+    for (const { key } of MAPPING_FIELDS) {
+      const savedHeader = saved[key];
+      if (savedHeader && headers.includes(savedHeader)) {
+        initial[key] = savedHeader;
+      }
+    }
+    return initial;
+  }
+
+  /** ファイル選択時にパースし、ヘッダーからマッピングUIの初期値を組み立てる */
+  async function handleFileSelect(file: File) {
+    setSelectedFileName(file.name);
+    setImportError(null);
+    setParsed(null);
+    setMapping({});
+    try {
+      const result = await parseSpreadsheet(file);
+      if (result.headers.length === 0) {
+        setImportError("ヘッダー行が見つかりませんでした。1行目に列名があるファイルを選択してください。");
+        return;
+      }
+      setParsed(result);
+      setMapping(buildInitialMapping(result.headers));
+    } catch (error) {
+      console.error("Failed to parse spreadsheet:", error);
+      setImportError("ファイルの読み込みに失敗しました。ファイル形式を確認してください。");
+    }
+  }
+
+  /** 必須フィールド（date）が選択されているか */
+  const isMappingValid = Boolean(mapping.date);
+
+  /** マッピングを確定する。保存チェックがONなら attendanceSettings にも反映する */
+  function handleConfirmMapping() {
+    if (!isMappingValid) return;
+    if (saveMapping) {
+      onUpdateSettings({ ...attendanceSettings, columnMapping: mapping });
+    }
+    // TODO(Step 17): ここで parsed + mapping を AttendanceRecord に変換し、
+    // プレビュー・取り込み確認画面に進む
+    handleDialogOpenChange(false);
+  }
+
+  /** ダイアログを閉じる際に状態をリセットする */
+  function handleDialogOpenChange(open: boolean) {
+    setTemplateDialogOpen(open);
+    if (!open) {
+      setSelectedFileName(null);
+      setParsed(null);
+      setMapping({});
+      setImportError(null);
+    }
   }
 
   return (
@@ -140,6 +223,9 @@ export function AttendanceListPane({
             className="border-primary text-primary hover:bg-primary/5"
             onClick={() => {
               setSelectedFileName(null);
+              setParsed(null);
+              setMapping({});
+              setImportError(null);
               setTemplateDialogOpen(true);
             }}
           >
@@ -255,45 +341,109 @@ export function AttendanceListPane({
         })}
       </div>
 
-      {/* テンプレ読み込みダイアログ（Phase 1 はファイル選択のみ、パース未実装） */}
-      <Dialog open={templateDialogOpen} onOpenChange={setTemplateDialogOpen}>
+      {/* テンプレ読み込みダイアログ: ファイル選択 → 列マッピング確認 の2ステップ構成 */}
+      <Dialog open={templateDialogOpen} onOpenChange={handleDialogOpenChange}>
         <DialogContent showCloseButton={false}>
           <DialogHeader>
             <DialogTitle>勤務表テンプレを読み込む</DialogTitle>
           </DialogHeader>
-          <p className="text-[13px] text-muted-foreground">
-            CSVまたはExcelファイルを選択してください。
-          </p>
-          <div className="flex flex-col items-center gap-2 rounded-md border-2 border-dashed border-border bg-canvas px-4 py-6 text-center">
-            <span className="text-2xl">📄</span>
-            <span className="text-[13px] leading-relaxed text-muted-foreground">
-              ファイルをここにドロップ
-              <br />
-              または
-            </span>
-            <label className="cursor-pointer rounded border border-primary px-3 py-1 text-[12px] text-primary hover:bg-primary/5">
-              ファイルを選択
-              <input
-                type="file"
-                accept=".csv,.xlsx,.xls"
-                className="hidden"
-                onChange={(e) =>
-                  setSelectedFileName(e.target.files?.[0]?.name ?? null)
-                }
-              />
-            </label>
-            {selectedFileName && (
-              <span className="text-[12px] text-foreground">{selectedFileName}</span>
-            )}
-            <span className="text-[11px] text-border">.csv / .xlsx / .xls</span>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setTemplateDialogOpen(false)}>
-              キャンセル
-            </Button>
-            {/* Phase 2 でパース処理を実装するまで読み込みボタンは無効 */}
-            <Button disabled={!selectedFileName}>読み込む</Button>
-          </DialogFooter>
+
+          {!parsed && (
+            <>
+              <p className="text-[13px] text-muted-foreground">
+                CSVまたはExcelファイルを選択してください。
+              </p>
+              <div className="flex flex-col items-center gap-2 rounded-md border-2 border-dashed border-border bg-canvas px-4 py-6 text-center">
+                <span className="text-2xl">📄</span>
+                <span className="text-[13px] leading-relaxed text-muted-foreground">
+                  ファイルをここにドロップ
+                  <br />
+                  または
+                </span>
+                <label className="cursor-pointer rounded border border-primary px-3 py-1 text-[12px] text-primary hover:bg-primary/5">
+                  ファイルを選択
+                  <input
+                    type="file"
+                    accept=".csv,.xlsx,.xls"
+                    className="hidden"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) void handleFileSelect(file);
+                    }}
+                  />
+                </label>
+                {selectedFileName && (
+                  <span className="text-[12px] text-foreground">{selectedFileName}</span>
+                )}
+                <span className="text-[11px] text-border">.csv / .xlsx / .xls</span>
+              </div>
+              {importError && (
+                <p className="text-[12px] text-destructive">{importError}</p>
+              )}
+              <DialogFooter>
+                <Button variant="outline" onClick={() => handleDialogOpenChange(false)}>
+                  キャンセル
+                </Button>
+              </DialogFooter>
+            </>
+          )}
+
+          {parsed && (
+            <>
+              <p className="text-[13px] text-muted-foreground">
+                「{selectedFileName}」の各列が、どの項目に対応するか選択してください。
+              </p>
+              <div className="flex flex-col gap-2 max-h-[280px] overflow-y-auto">
+                {MAPPING_FIELDS.map(({ key, label, required }) => (
+                  <div key={key} className="flex items-center justify-between gap-3">
+                    <label htmlFor={`mapping-${key}`} className="w-[88px] flex-shrink-0 text-[13px] text-foreground">
+                      {label}
+                      {required && <span className="ml-0.5 text-destructive">*</span>}
+                    </label>
+                    <select
+                      id={`mapping-${key}`}
+                      value={mapping[key] ?? ""}
+                      onChange={(e) =>
+                        setMapping((prev) => ({
+                          ...prev,
+                          [key]: e.target.value || undefined,
+                        }))
+                      }
+                      className="min-w-0 flex-1 rounded border border-border bg-background px-2 py-1 text-[13px] text-foreground outline-none focus:border-primary"
+                    >
+                      <option value="">（対応する列なし）</option>
+                      {parsed.headers.map((header, i) => (
+                        <option key={`${header}-${i}`} value={header}>
+                          {header}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                ))}
+              </div>
+              <label className="flex items-center gap-2 text-[12px] text-muted-foreground">
+                <input
+                  type="checkbox"
+                  checked={saveMapping}
+                  onChange={(e) => setSaveMapping(e.target.checked)}
+                />
+                このマッピングを保存する（次回から自動適用されます）
+              </label>
+              {!isMappingValid && (
+                <p className="text-[12px] text-destructive">
+                  「日付」は必須項目です。対応する列を選択してください。
+                </p>
+              )}
+              <DialogFooter>
+                <Button variant="outline" onClick={() => setParsed(null)}>
+                  戻る
+                </Button>
+                <Button disabled={!isMappingValid} onClick={handleConfirmMapping}>
+                  読み込む
+                </Button>
+              </DialogFooter>
+            </>
+          )}
         </DialogContent>
       </Dialog>
     </div>
