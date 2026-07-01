@@ -33,13 +33,17 @@ life-product-map/
 ├── lib/                        # ロジック・型定義・ユーティリティ
 │   ├── schema.ts               # ★ Zod スキーマ + TypeScript 型定義（データの SSoT）
 │   ├── labels.ts               # 表示文言（日本語ラベルの一元管理）
-│   ├── storage.ts              # localStorage 読み書きヘルパー
+│   ├── storage.ts              # ★ 永続化バックエンドのファサード（呼び出し側はこれだけ import する）
+│   ├── storage-local.ts        # localStorage 実装（ロールバック用）
+│   ├── storage-supabase.ts     # Supabase 実装（デフォルトのバックエンド）
+│   ├── supabase.ts             # Supabase クライアントの初期化（Lazy Initialization）
+│   ├── use-debounced-save.ts   # 保存処理をデバウンスするフック
 │   ├── utils.ts                # cn() ユーティリティ（Tailwind クラス結合）
 │   └── computed/
 │       └── tasks.ts            # 進捗ステータス計算（順調・注意・危険）
 │
 ├── data/
-│   └── seed.ts                 # 初回起動時のサンプルデータ
+│   └── seed.ts                 # 初回起動時のサンプルデータ（永続化バックエンドに投入）
 │
 ├── docs/
 │   └── file-structure.md       # このファイル（ファイル構成ガイド）
@@ -122,7 +126,11 @@ UI に依存しない純粋なロジックをここに置く。
 |---|---|
 | `schema.ts` | **★ データモデルの SSoT**。Zod でスキーマを定義し、TypeScript 型を自動生成する |
 | `labels.ts` | 日本語ラベルの一元管理。「書類選考」「一次面接」などの表示文言はここに集約 |
-| `storage.ts` | localStorage の read/write をラップ。Phase 2 で Supabase に差し替えるときはこのファイルだけ変更する |
+| `storage.ts` | **★ 永続化バックエンドのファサード**。呼び出し側（Workspace.tsx 等）は `load`/`save`/`STORAGE_KEYS` をこのファイルからのみ import し、実体が localStorage か Supabase かを意識しない。`NEXT_PUBLIC_STORAGE_BACKEND=localStorage` でロールバック可能 |
+| `storage-local.ts` | localStorage の read/write 実装。ロールバック用に残している |
+| `storage-supabase.ts` | Supabase（Postgres）の read/write 実装。camelCase⇄snake_case変換、RPC（`sync_*`関数）による差分削除+upsertを行う。デフォルトのバックエンド |
+| `supabase.ts` | Supabase クライアントのシングルトン初期化。環境変数未設定時のエラーは呼び出し時まで遅延させる（CI ビルド失敗を防ぐため） |
+| `use-debounced-save.ts` | state 変更から800ms後に保存するデバウンスフック。初回ロード直後の不要な再保存もスキップする |
 | `utils.ts` | `cn()` 関数のみ。Tailwind クラスを条件付きで結合するときに全コンポーネントから使う |
 | `computed/tasks.ts` | 月マイルストーンの進捗ステータス（順調・注意・危険）を自動計算する純粋関数 |
 
@@ -137,7 +145,7 @@ Zod のスキーマ（`goalSchema`）から `z.infer<typeof goalSchema>` で型�
 
 | ファイル | 役割 |
 |---|---|
-| `seed.ts` | 初回起動時に localStorage に投入するサンプルデータ。開発・デモ用 |
+| `seed.ts` | 永続化バックエンド（localStorage または Supabase）に投入するサンプルデータ。開発・デモ用。ブラウザコンソールから `await seedData()` で実行する |
 
 ---
 
@@ -168,7 +176,7 @@ Zod のスキーマ（`goalSchema`）から `z.infer<typeof goalSchema>` で型�
 ```
 lib/schema.ts         ← データ構造の定義（唯一の情報源）
     ↓ 型を提供
-lib/storage.ts        ← localStorage ↔ アプリ間のデータ読み書き
+lib/storage.ts        ← 永続化バックエンド（localStorage / Supabase）↔ アプリ間のデータ読み書き
     ↓ データを渡す
 Workspace.tsx         ← 全 state を保持・管理（画面の唯一の情報源）
     ↓ props で渡す

@@ -15,11 +15,19 @@ AI 壁打ちチャット・出退勤打刻・xlsx エクスポートを備えた
 | Tailwind CSS | v4 | スタイリング |
 | shadcn/ui | base-nova | UI コンポーネント |
 | Zod | 4 | スキーマ定義・バリデーション |
+| Supabase | - | データ永続化（Postgres、マルチデバイス同期） |
 
 ## 開発環境のセットアップ
 
 ```bash
 npm install
+cp .env.local.example .env.local
+```
+
+`.env.local` に Supabase の `Project URL` と `anon public key`（Project Settings > API から取得）を設定する。
+未設定のまま `npm run dev` を実行すると、初回のデータ読み込み時にエラーになる。
+
+```bash
 npm run dev
 ```
 
@@ -29,8 +37,7 @@ npm run dev
 
 ```bash
 npm run dev       # 開発サーバー起動
-npm run build     # 本番ビルド
-npm run lint      # ESLint 実行
+npm run build     # 本番ビルド（型チェック含む）
 ```
 
 ## ブランチ運用

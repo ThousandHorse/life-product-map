@@ -1,24 +1,26 @@
 /**
  * seed.ts
  *
- * Phase 1 の動作確認用シードデータ。
- * ブラウザコンソールから `seedData()` を呼ぶと localStorage にデータを書き込む。
+ * 動作確認用シードデータ。
+ * ブラウザコンソールから `await seedData()` を呼ぶと永続化バックエンド
+ * （localStorage または Supabase。lib/storage.ts のファサード経由）にデータを書き込む。
  *
  * 使い方:
  *   クライアントコンポーネント（例: Workspace.tsx）の useEffect 内で呼び出す。
- *   app/page.tsx は Server Component のため直接呼ぶと localStorage に書き込まれない。
+ *   app/page.tsx は Server Component のため直接呼ぶと反映されない。
  *   確認後は呼び出しコードを削除すること。
  *
  *   // Workspace.tsx などのクライアントコンポーネントの useEffect 内で実行（開発時のみ）
  *   useEffect(() => {
- *     if (process.env.NODE_ENV === "development") seedData();
+ *     if (process.env.NODE_ENV === "development") void seedData();
  *   }, []);
  *
  * 本番ビルドには含まれない（app/ から import されていない限り）。
  */
 
-import { STORAGE_KEYS, save } from "@/lib/storage";
+import { STORAGE_KEYS, load, save } from "@/lib/storage";
 import {
+  yearGoalsSchema,
   type AttendanceRecord,
   type AttendanceSettings,
   type DailyReport,
@@ -191,24 +193,30 @@ const attendanceSettings: AttendanceSettings = {
 };
 
 /**
- * シードデータを localStorage に書き込む。
+ * シードデータを永続化バックエンド（localStorage または Supabase）に書き込む。
  * 既存のデータは上書きされるため、動作確認が終わったら手動でクリアすること。
+ *
+ * Supabase 実装（sync_* RPC）は「渡した配列に無い ID を削除 + upsert」をトランザクション内で
+ * アトミックに行うため、投入前に空配列で明示的にクリアする必要はない（そのシードデータの内容が
+ * そのままテーブルの最終状態になる）。事前クリアを挟むと、クリア後に投入が失敗した場合に
+ * テーブルが空のまま残るリスクや、親子関係のあるテーブル間で外部キー制約に違反するリスクがある
  */
-export function seedData(force = false): void {
+export async function seedData(force = false): Promise<void> {
   // SSR（Server Component）では window が存在しないため早期リターン
   if (typeof window === "undefined") return;
 
-  const hasExistingData = localStorage.getItem(STORAGE_KEYS.goals) !== null;
+  const existingGoals = await load(STORAGE_KEYS.goals, yearGoalsSchema);
+  const hasExistingData = existingGoals !== null && existingGoals.length > 0;
   if (hasExistingData && !force) {
     console.log("ℹ️ Seed data already exists. Skipping. Use seedData(true) to force overwrite.");
     return;
   }
 
-  save(STORAGE_KEYS.goals, goals);
-  save(STORAGE_KEYS.milestones, milestones);
-  save(STORAGE_KEYS.tasks, tasks);
-  save(STORAGE_KEYS.dailyReports, dailyReports);
-  save(STORAGE_KEYS.attendanceRecords, attendanceRecords);
-  save(STORAGE_KEYS.attendanceSettings, attendanceSettings);
-  console.log("✅ Seed data written to localStorage. Please reload the page.");
+  await save(STORAGE_KEYS.goals, goals);
+  await save(STORAGE_KEYS.milestones, milestones);
+  await save(STORAGE_KEYS.tasks, tasks);
+  await save(STORAGE_KEYS.dailyReports, dailyReports);
+  await save(STORAGE_KEYS.attendanceRecords, attendanceRecords);
+  await save(STORAGE_KEYS.attendanceSettings, attendanceSettings);
+  console.log("✅ Seed data written. Please reload the page.");
 }
