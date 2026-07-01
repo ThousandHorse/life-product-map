@@ -17,12 +17,6 @@
 import { z } from "zod";
 import { getSupabase } from "./supabase";
 import {
-  yearGoalsSchema,
-  monthMilestonesSchema,
-  weekTasksSchema,
-  dailyReportsSchema,
-  attendanceRecordsSchema,
-  attendanceSettingsSchema,
   type YearGoal,
   type MonthMilestone,
   type WeekTask,
@@ -134,12 +128,22 @@ function attendanceRecordToRow(a: AttendanceRecord) {
   };
 }
 
+// Supabase の timestamptz は "+00:00" オフセット形式で返るが、
+// attendanceRecordSchema の clockIn/clockOut は z.string().datetime()（デフォルトはUTCの "Z" 終端のみ許可）
+// のため、そのまま渡すとスキーマ検証で弾かれ勤怠記録が丸ごとロードできなくなる。ISO文字列に正規化する
+function normalizeTimestamp(value: unknown): string | undefined {
+  if (typeof value !== "string") return undefined;
+  return new Date(value).toISOString();
+}
+
 function rowToAttendanceRecord(r: Record<string, unknown>): AttendanceRecord {
+  const clockIn = normalizeTimestamp(r.clock_in);
+  const clockOut = normalizeTimestamp(r.clock_out);
   return {
     id: r.id as string,
     date: r.date as string,
-    ...(r.clock_in != null ? { clockIn: r.clock_in as string } : {}),
-    ...(r.clock_out != null ? { clockOut: r.clock_out as string } : {}),
+    ...(clockIn !== undefined ? { clockIn } : {}),
+    ...(clockOut !== undefined ? { clockOut } : {}),
     ...(r.break_start != null ? { breakStart: r.break_start as string } : {}),
     ...(r.break_end != null ? { breakEnd: r.break_end as string } : {}),
     ...(r.work_log != null ? { workLog: r.work_log as string } : {}),
@@ -183,7 +187,10 @@ export async function load<T>(key: string, schema: z.ZodType<T>): Promise<T | nu
 
     const { data, error } = await supabase.from(key).select("*").order("created_at");
     if (error) throw error;
-    if (!data || data.length === 0) return null;
+    // data が null/undefined のときのみ未初期化として null を返す。
+    // 空配列（0件）は「ユーザーが全件削除した状態」であり、これを null にすると
+    // 呼び出し側の `load(...) ?? defaultData` 的なフォールバックで初期データが復活してしまう
+    if (!data) return null;
 
     const rows = data as Record<string, unknown>[];
     let parsed: unknown;
