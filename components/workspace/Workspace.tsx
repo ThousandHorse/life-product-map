@@ -10,7 +10,7 @@
  *   selectedGoalId  — 選択中の年目標 ID（null = 未選択）
  *   selectedTaskId  — 選択中の週タスク ID（null = 今日のタスク一覧を表示）
  *
- * localStorage 連携:
+ * 永続化（lib/storage.ts 経由、実体は localStorage または Supabase）:
  *   初回マウント時に useEffect で load()、各 state 変更時に useEffect で save()
  *   SSR で window が存在しない場合は load() が null を返すため、useEffect 内限定で呼ぶ
  */
@@ -33,6 +33,7 @@ import {
   yearGoalsSchema,
 } from "@/lib/schema";
 import { STORAGE_KEYS, load, save } from "@/lib/storage";
+import { useDebouncedSave } from "@/lib/use-debounced-save";
 import { getLocalDateString } from "@/lib/task-config";
 import { exportToXlsx } from "@/lib/xlsx-export";
 import { NavPane } from "./NavPane";
@@ -59,31 +60,59 @@ export function Workspace() {
   // load 完了前に save が走ると初期値で localStorage を上書きしてしまうため、フラグで保護する
   const [isLoaded, setIsLoaded] = useState(false);
 
-  // localStorage からデータを復元する。
+  // 永続化バックエンドからデータを復元する。
   // useEffect 内限定にする理由: SSR 時は window が存在せず load() が null を返すため
+  // 6件を Promise.allSettled で並列実行する理由: Supabase 実装では各 load() がHTTPリクエストになるため、
+  // 直列で待つと初期ロードが遅くなる。Promise.all だと1件でも失敗すると全件が
+  // reject され取得済みの分も反映できなくなるため、個別に結果を見られる allSettled を使う
   useEffect(() => {
-    const savedGoals = load(STORAGE_KEYS.goals, yearGoalsSchema);
-    const savedMilestones = load(STORAGE_KEYS.milestones, monthMilestonesSchema);
-    const savedTasks = load(STORAGE_KEYS.tasks, weekTasksSchema);
-    const savedDailyReports = load(STORAGE_KEYS.dailyReports, dailyReportsSchema);
-    const savedAttendanceRecords = load(STORAGE_KEYS.attendanceRecords, attendanceRecordsSchema);
-    const savedAttendanceSettings = load(STORAGE_KEYS.attendanceSettings, attendanceSettingsSchema);
+    async function loadAll() {
+      const results = await Promise.allSettled([
+        load(STORAGE_KEYS.goals, yearGoalsSchema),
+        load(STORAGE_KEYS.milestones, monthMilestonesSchema),
+        load(STORAGE_KEYS.tasks, weekTasksSchema),
+        load(STORAGE_KEYS.dailyReports, dailyReportsSchema),
+        load(STORAGE_KEYS.attendanceRecords, attendanceRecordsSchema),
+        load(STORAGE_KEYS.attendanceSettings, attendanceSettingsSchema),
+      ]);
 
-    if (savedGoals) setGoals(savedGoals);
-    if (savedMilestones) setMilestones(savedMilestones);
-    if (savedTasks) setTasks(savedTasks);
-    if (savedDailyReports) setDailyReports(savedDailyReports);
-    if (savedAttendanceRecords) setAttendanceRecords(savedAttendanceRecords);
-    if (savedAttendanceSettings) setAttendanceSettings(savedAttendanceSettings);
-    setIsLoaded(true);
+      const [
+        goalsResult,
+        milestonesResult,
+        tasksResult,
+        dailyReportsResult,
+        attendanceRecordsResult,
+        attendanceSettingsResult,
+      ] = results;
+
+      if (goalsResult.status === "fulfilled" && goalsResult.value) setGoals(goalsResult.value);
+      if (milestonesResult.status === "fulfilled" && milestonesResult.value) setMilestones(milestonesResult.value);
+      if (tasksResult.status === "fulfilled" && tasksResult.value) setTasks(tasksResult.value);
+      if (dailyReportsResult.status === "fulfilled" && dailyReportsResult.value) setDailyReports(dailyReportsResult.value);
+      if (attendanceRecordsResult.status === "fulfilled" && attendanceRecordsResult.value) setAttendanceRecords(attendanceRecordsResult.value);
+      if (attendanceSettingsResult.status === "fulfilled" && attendanceSettingsResult.value) setAttendanceSettings(attendanceSettingsResult.value);
+
+      // 失敗したものがあればログに残す。一部失敗でも isLoaded は true にする
+      // （永久に false のままだと保存処理自体が無効化されてしまうため）
+      results.forEach((result) => {
+        if (result.status === "rejected") {
+          console.error("Failed to load workspace data:", result.reason);
+        }
+      });
+      setIsLoaded(true);
+    }
+    void loadAll();
   }, []);
 
-  useEffect(() => { if (isLoaded) save(STORAGE_KEYS.goals, goals); }, [isLoaded, goals]);
-  useEffect(() => { if (isLoaded) save(STORAGE_KEYS.milestones, milestones); }, [isLoaded, milestones]);
-  useEffect(() => { if (isLoaded) save(STORAGE_KEYS.tasks, tasks); }, [isLoaded, tasks]);
-  useEffect(() => { if (isLoaded) save(STORAGE_KEYS.dailyReports, dailyReports); }, [isLoaded, dailyReports]);
-  useEffect(() => { if (isLoaded) save(STORAGE_KEYS.attendanceRecords, attendanceRecords); }, [isLoaded, attendanceRecords]);
-  useEffect(() => { if (isLoaded) save(STORAGE_KEYS.attendanceSettings, attendanceSettings); }, [isLoaded, attendanceSettings]);
+  // 状態変更のたびに即時保存すると、Supabase 移行後にAPI呼び出しが過剰になり、
+  // 古いリクエストが新しいリクエストより後に完了してデータが先祖返りする競合状態も招くため、
+  // デバウンス + 初回ロード直後のスキップを共通化したフックを使う
+  useDebouncedSave(STORAGE_KEYS.goals, goals, isLoaded, save);
+  useDebouncedSave(STORAGE_KEYS.milestones, milestones, isLoaded, save);
+  useDebouncedSave(STORAGE_KEYS.tasks, tasks, isLoaded, save);
+  useDebouncedSave(STORAGE_KEYS.dailyReports, dailyReports, isLoaded, save);
+  useDebouncedSave(STORAGE_KEYS.attendanceRecords, attendanceRecords, isLoaded, save);
+  useDebouncedSave(STORAGE_KEYS.attendanceSettings, attendanceSettings, isLoaded, save);
 
   function handleAddGoal(title: string) {
     const newGoal: YearGoal = { id: crypto.randomUUID(), title };
