@@ -71,6 +71,23 @@ export const dailyReportSchema = z.object({
   aiComment: z.string().optional(),
 });
 
+// 勤怠表テンプレートの列マッピング設定。
+// キーは AttendanceRecord のフィールド名、値はインポート元ファイルの列見出し文字列
+// （例: clockIn: "出勤時刻"）であり、AttendanceRecord 自体の値の形式（ISO datetime 等）とは無関係。
+// この向き（フィールド名→列見出し）にする理由: パース処理側で `mapping.date` のように
+// 直感的にアクセスできるため。逆向き（列見出し→フィールド名）だとパース時に毎回
+// ヘッダー行を舐めて逆引きする処理が必要になる
+// .nullable() を付ける理由: jsonb カラムは未設定フィールドが undefined ではなく
+// null として保存されうるため、null も許容しないと読み込み時にバリデーションエラーになる
+export const columnMappingSchema = z.object({
+  date: z.string().nullable().optional(),
+  clockIn: z.string().nullable().optional(),
+  clockOut: z.string().nullable().optional(),
+  breakStart: z.string().nullable().optional(),
+  breakEnd: z.string().nullable().optional(),
+  workLog: z.string().nullable().optional(),
+});
+
 // 勤怠設定
 // xlsxTemplate と columnMapping は Phase 2 でテンプレートアップロード機能を実装する際に使う
 export const attendanceSettingsSchema = z.object({
@@ -78,7 +95,7 @@ export const attendanceSettingsSchema = z.object({
   // UI 側で選択肢を制限しているため、実際に範囲外の値が入ることはない
   targetHoursPerMonth: z.number().min(0).max(744),
   xlsxTemplate: z.string().optional(),
-  columnMapping: z.record(z.string(), z.string()).optional(),
+  columnMapping: columnMappingSchema.optional(),
 });
 
 // z.infer でスキーマから TypeScript 型を自動生成
@@ -88,6 +105,7 @@ export type MonthMilestone = z.infer<typeof monthMilestoneSchema>;
 export type WeekTask = z.infer<typeof weekTaskSchema>;
 export type DailyReport = z.infer<typeof dailyReportSchema>;
 export type AttendanceRecord = z.infer<typeof attendanceRecordSchema>;
+export type ColumnMapping = z.infer<typeof columnMappingSchema>;
 export type AttendanceSettings = z.infer<typeof attendanceSettingsSchema>;
 
 // 各エンティティの配列スキーマ（localStorage の保存形式のバリデーションに使う）
