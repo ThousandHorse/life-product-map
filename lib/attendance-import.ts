@@ -38,6 +38,12 @@ export async function parseSpreadsheet(file: File): Promise<ParsedSpreadsheet> {
   }
 
   const sheet = workbook.Sheets[firstSheetName];
+  // SheetNames に名前が存在しても、ワークブック構造が壊れている場合に Sheets 側に
+  // 実体が無いケースがありうるため、undefined チェックを入れてクラッシュを防ぐ
+  if (!sheet) {
+    return { headers: [], rows: [] };
+  }
+
   // header: 1 で「配列の配列」形式にする（オブジェクト変換だと同名列の重複や空ヘッダーの扱いが煩雑なため）
   // defval: "" で空セルを undefined ではなく空文字にし、後続処理での undefined チェック漏れを防ぐ
   const table = XLSX.utils.sheet_to_json<string[]>(sheet, {

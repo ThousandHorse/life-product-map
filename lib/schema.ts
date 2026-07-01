@@ -72,17 +72,20 @@ export const dailyReportSchema = z.object({
 });
 
 // 勤怠表テンプレートの列マッピング設定。
-// キーは AttendanceRecord のフィールド名、値はインポート元ファイルの列見出し文字列。
+// キーは AttendanceRecord のフィールド名、値はインポート元ファイルの列見出し文字列
+// （例: clockIn: "出勤時刻"）であり、AttendanceRecord 自体の値の形式（ISO datetime 等）とは無関係。
 // この向き（フィールド名→列見出し）にする理由: パース処理側で `mapping.date` のように
 // 直感的にアクセスできるため。逆向き（列見出し→フィールド名）だとパース時に毎回
 // ヘッダー行を舐めて逆引きする処理が必要になる
+// .nullable() を付ける理由: jsonb カラムは未設定フィールドが undefined ではなく
+// null として保存されうるため、null も許容しないと読み込み時にバリデーションエラーになる
 export const columnMappingSchema = z.object({
-  date: z.string().optional(),
-  clockIn: z.string().optional(),
-  clockOut: z.string().optional(),
-  breakStart: z.string().optional(),
-  breakEnd: z.string().optional(),
-  workLog: z.string().optional(),
+  date: z.string().nullable().optional(),
+  clockIn: z.string().nullable().optional(),
+  clockOut: z.string().nullable().optional(),
+  breakStart: z.string().nullable().optional(),
+  breakEnd: z.string().nullable().optional(),
+  workLog: z.string().nullable().optional(),
 });
 
 // 勤怠設定
