@@ -369,6 +369,9 @@ export function AttendanceListPane({
                     onChange={(e) => {
                       const file = e.target.files?.[0];
                       if (file) void handleFileSelect(file);
+                      // 同じファイルを再選択した場合でも onChange が発火するよう
+                      // value をクリアする（クリアしないと value が変化せずイベントが発生しない）
+                      e.target.value = "";
                     }}
                   />
                 </label>
@@ -435,7 +438,13 @@ export function AttendanceListPane({
                 </p>
               )}
               <DialogFooter>
-                <Button variant="outline" onClick={() => setParsed(null)}>
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setParsed(null);
+                    setSelectedFileName(null);
+                  }}
+                >
                   戻る
                 </Button>
                 <Button disabled={!isMappingValid} onClick={handleConfirmMapping}>
