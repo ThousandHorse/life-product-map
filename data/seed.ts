@@ -196,9 +196,10 @@ const attendanceSettings: AttendanceSettings = {
  * シードデータを永続化バックエンド（localStorage または Supabase）に書き込む。
  * 既存のデータは上書きされるため、動作確認が終わったら手動でクリアすること。
  *
- * Supabase 実装（sync_* RPC）は「渡した配列に無い ID を削除」する差分方式のため、
- * 単純に save() を呼ぶだけでは前回実行分の古いレコードが残り続ける。
- * 再実行時は必ず空配列で save() してから投入し直すことで、クリーンな状態を保証する
+ * Supabase 実装（sync_* RPC）は「渡した配列に無い ID を削除 + upsert」をトランザクション内で
+ * アトミックに行うため、投入前に空配列で明示的にクリアする必要はない（そのシードデータの内容が
+ * そのままテーブルの最終状態になる）。事前クリアを挟むと、クリア後に投入が失敗した場合に
+ * テーブルが空のまま残るリスクや、親子関係のあるテーブル間で外部キー制約に違反するリスクがある
  */
 export async function seedData(force = false): Promise<void> {
   // SSR（Server Component）では window が存在しないため早期リターン
@@ -210,13 +211,6 @@ export async function seedData(force = false): Promise<void> {
     console.log("ℹ️ Seed data already exists. Skipping. Use seedData(true) to force overwrite.");
     return;
   }
-
-  // 再実行時の重複を避けるため、投入前に一旦空にする
-  await save(STORAGE_KEYS.goals, []);
-  await save(STORAGE_KEYS.milestones, []);
-  await save(STORAGE_KEYS.tasks, []);
-  await save(STORAGE_KEYS.dailyReports, []);
-  await save(STORAGE_KEYS.attendanceRecords, []);
 
   await save(STORAGE_KEYS.goals, goals);
   await save(STORAGE_KEYS.milestones, milestones);
