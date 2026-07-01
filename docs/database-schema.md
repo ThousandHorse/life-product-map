@@ -136,8 +136,8 @@ attendance_settings ─┴（勤怠モード専用、目標管理とは別系統
 |---|---|---|---|
 | id | text | PRIMARY KEY DEFAULT 'singleton' | 固定ID（常に`'singleton'`） |
 | target_hours_per_month | integer | NOT NULL, CHECK (target_hours_per_month BETWEEN 0 AND 744) | 月間目標稼働時間 |
-| xlsx_template | text | — | Phase 2で予約済み（テンプレートアップロード機能用） |
-| column_mapping | jsonb | — | Phase 2で予約済み（列マッピング設定用） |
+| xlsx_template | text | — | 未使用（将来のテンプレート保存機能用に予約） |
+| column_mapping | jsonb | — | 勤怠表インポート機能の列マッピング設定。`{ date?, clockIn?, clockOut?, breakStart?, breakEnd?, workLog? }` の形式（キーが `attendance_records` のフィールド名、値がインポート元ファイルの列見出し文字列）。`lib/schema.ts` の `columnMappingSchema` 参照 |
 | updated_at | timestamptz | NOT NULL DEFAULT now() | 更新日時 |
 
 ---

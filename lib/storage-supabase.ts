@@ -23,6 +23,7 @@ import {
   type DailyReport,
   type AttendanceRecord,
   type AttendanceSettings,
+  type ColumnMapping,
 } from "./schema";
 
 export const STORAGE_KEYS = {
@@ -163,7 +164,7 @@ function rowToAttendanceSettings(r: Record<string, unknown>): AttendanceSettings
   return {
     targetHoursPerMonth: r.target_hours_per_month as number,
     ...(r.xlsx_template != null ? { xlsxTemplate: r.xlsx_template as string } : {}),
-    ...(r.column_mapping != null ? { columnMapping: r.column_mapping as Record<string, string> } : {}),
+    ...(r.column_mapping != null ? { columnMapping: r.column_mapping as ColumnMapping } : {}),
   };
 }
 
