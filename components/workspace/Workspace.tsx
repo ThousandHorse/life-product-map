@@ -280,7 +280,9 @@ export function Workspace() {
       {mode === "attendance" && (
         <AttendanceListPane
           attendanceRecords={attendanceRecords}
+          attendanceSettings={attendanceSettings}
           onUpdateRecord={handleUpdateAttendanceRecord}
+          onUpdateSettings={setAttendanceSettings}
           onExport={(yearMonth) => exportToXlsx(yearMonth, attendanceRecords)}
         />
       )}
