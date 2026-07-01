@@ -189,6 +189,11 @@ export function AttendanceListPane({
       setParsed(null);
       setMapping({});
       setImportError(null);
+      // saveMapping もデフォルト(ON)に戻す。リセットしないと、一度チェックを外して
+      // 確定した後は次回ダイアログを開いてもOFFのままになり、ドキュメント通りの
+      // 「デフォルトON」という前提が崩れ、ユーザーが気づかないままマッピングが
+      // 保存されなくなる（Codexレビュー指摘）
+      setSaveMapping(true);
     }
   }
 
