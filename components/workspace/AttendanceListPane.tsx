@@ -62,14 +62,20 @@ type ImportDiffRow = {
   existing?: AttendanceRecord;
 };
 
-/** インポートしたレコードが既存の値と実質的に同じ内容かどうかを判定する */
+/**
+ * インポートしたレコードが既存の値と実質的に同じ内容かどうかを判定する。
+ * a（インポート側）で undefined のフィールドはマッピングされていない（＝取り込み対象外）
+ * ことを意味し、実際のマージ処理では既存値がそのまま維持されるため、比較対象から除外する。
+ * 除外しないと、マッピングしていないだけのフィールドに既存値が入っていることを理由に
+ * 「上書きあり」と誤判定してしまう
+ */
 function isSameRecordContent(a: AttendanceRecord, existing: AttendanceRecord): boolean {
   return (
-    (a.clockIn ?? "") === (existing.clockIn ?? "") &&
-    (a.clockOut ?? "") === (existing.clockOut ?? "") &&
-    (a.breakStart ?? "") === (existing.breakStart ?? "") &&
-    (a.breakEnd ?? "") === (existing.breakEnd ?? "") &&
-    (a.workLog ?? "") === (existing.workLog ?? "")
+    (a.clockIn === undefined || a.clockIn === existing.clockIn) &&
+    (a.clockOut === undefined || a.clockOut === existing.clockOut) &&
+    (a.breakStart === undefined || a.breakStart === existing.breakStart) &&
+    (a.breakEnd === undefined || a.breakEnd === existing.breakEnd) &&
+    (a.workLog === undefined || a.workLog === existing.workLog)
   );
 }
 
@@ -78,7 +84,12 @@ function toHHMM_orDash(isoString: string | undefined): string {
   return isoString ? toHHMM(isoString) : "—";
 }
 
-/** インポートしたレコードと既存データを日付ベースで突き合わせ、新規/上書き/変更なしに分類する */
+/**
+ * インポートしたレコードと既存データを日付ベースで突き合わせ、新規/上書き/変更なしに分類する。
+ * Workspace.tsx の handleImportAttendanceRecords はループ内で existingByDate を都度更新して
+ * マージするため（同一date が複数あれば2件目以降は1件目の取り込み結果を上書きする）、
+ * プレビューの集計・分類も同じ挙動に合わせて existingByDate を動的に更新する
+ */
 function buildImportDiff(
   importedRecords: AttendanceRecord[],
   existingRecords: AttendanceRecord[]
@@ -86,8 +97,14 @@ function buildImportDiff(
   const existingByDate = new Map(existingRecords.map((r) => [r.date, r]));
   return importedRecords.map((imported) => {
     const existing = existingByDate.get(imported.date);
-    if (!existing) return { kind: "new", imported };
-    if (isSameRecordContent(imported, existing)) return { kind: "unchanged", imported, existing };
+    if (!existing) {
+      existingByDate.set(imported.date, imported);
+      return { kind: "new", imported };
+    }
+    if (isSameRecordContent(imported, existing)) {
+      return { kind: "unchanged", imported, existing };
+    }
+    existingByDate.set(imported.date, imported);
     return { kind: "update", imported, existing };
   });
 }

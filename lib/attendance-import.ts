@@ -161,7 +161,8 @@ function normalizeTime(value: string): string | null {
 
   const [, h, m] = match;
   const hNum = Number(h);
-  if (hNum < 0 || hNum > 23) return null;
+  const mNum = Number(m);
+  if (hNum < 0 || hNum > 23 || mNum < 0 || mNum > 59) return null;
 
   return `${h.padStart(2, "0")}:${m}`;
 }
@@ -245,14 +246,19 @@ export function mapRowsToAttendanceRecords(
       return;
     }
 
-    // breakStart/breakEnd は片方だけ値がある状態でもう片方にデフォルト値を補完すると、
+    // 休憩開始・終了の列が両方ともマッピングされている場合のみ値を適用する。
+    // 片方だけ値がある状態でもう片方にデフォルト値を補完すると、
     // 例えば breakStart="15:00" に breakEnd デフォルト値"14:00"を組み合わせて
-    // 終了<開始という論理矛盾が生じうる。そのため両方揃っている場合のみそれぞれの値を使い、
-    // どちらか一方でも欠けている場合は両方ともデフォルト値（13:00-14:00）にフォールバックする
-    const [breakStart, breakEnd] =
-      parsedBreakStart && parsedBreakEnd
+    // 終了<開始という論理矛盾が生じうるため、両方揃っている場合のみそれぞれの値を使う。
+    // マッピング自体が無い（＝この列を取り込む意図が無い）場合はフィールドを含めない
+    // （undefined を明示的に含めると、Workspace.tsx のマージ処理で
+    //  `{ ...existing, ...imported }` により既存のカスタム休憩時間が消えてしまうため）
+    const hasBreakMapping = Boolean(mapping.breakStart || mapping.breakEnd);
+    const [breakStart, breakEnd] = hasBreakMapping
+      ? parsedBreakStart && parsedBreakEnd
         ? [parsedBreakStart, parsedBreakEnd]
-        : [DEFAULT_BREAK_START, DEFAULT_BREAK_END];
+        : [DEFAULT_BREAK_START, DEFAULT_BREAK_END]
+      : [undefined, undefined];
 
     const workLog = getCell(row, "workLog");
 
@@ -261,8 +267,8 @@ export function mapRowsToAttendanceRecords(
       date,
       ...(clockInTime ? { clockIn: toIsoDatetime(date, clockInTime) ?? undefined } : {}),
       ...(clockOutTime ? { clockOut: toIsoDatetime(date, clockOutTime) ?? undefined } : {}),
-      breakStart,
-      breakEnd,
+      ...(breakStart ? { breakStart } : {}),
+      ...(breakEnd ? { breakEnd } : {}),
       ...(workLog ? { workLog } : {}),
     };
 
