@@ -18,7 +18,13 @@
 import { useEffect, useState } from "react";
 import { type AttendanceRecord, type AttendanceSettings, type ColumnMapping } from "@/lib/schema";
 import { DEFAULT_BREAK_END, DEFAULT_BREAK_START, calcWorkedMinutes, formatDuration, toHHMM } from "@/lib/attendance-utils";
-import { parseSpreadsheet, mapRowsToAttendanceRecords, type ParsedSpreadsheet, type MapRowsResult } from "@/lib/attendance-import";
+import {
+  parseSpreadsheet,
+  mapRowsToAttendanceRecords,
+  suggestColumnMapping,
+  type ParsedSpreadsheet,
+  type MapRowsResult,
+} from "@/lib/attendance-import";
 import {
   Dialog,
   DialogContent,
@@ -193,11 +199,16 @@ export function AttendanceListPane({
     onUpdateRecord(record.id, { [field]: value || undefined });
   }
 
-  /** ヘッダー文字列から保存済みマッピングの初期値を引く。一致しない場合は未選択のままにする */
+  /**
+   * ヘッダー文字列からマッピングUIの初期値を組み立てる。
+   * 保存済みマッピング（前回このユーザーが確定させた値）を最優先し、
+   * それが無い・一致しないフィールドは Step 18 のヘッダー辞書によるサジェストで補う。
+   * いずれにも一致しないフィールドは未選択のままにする（サジェストが外れても手動で選べる）。
+   */
   function buildInitialMapping(headers: string[]): ColumnMapping {
+    const initial: ColumnMapping = suggestColumnMapping(headers);
     const saved = attendanceSettings.columnMapping;
-    if (!saved) return {};
-    const initial: ColumnMapping = {};
+    if (!saved) return initial;
     for (const { key } of MAPPING_FIELDS) {
       const savedHeader = saved[key];
       if (savedHeader && headers.includes(savedHeader)) {
