@@ -180,6 +180,65 @@ function toIsoDatetime(date: string, time: string): string | null {
   return dt.toISOString();
 }
 
+// Step 18: よくあるヘッダー表記からの自動サジェスト用キーワード辞書。
+// 完全一致ではなく「正規化したヘッダー文字列がキーワードを含むか」で判定する
+// （例: "出勤時刻" は "出勤" というキーワードで拾える）。
+// キーの並び順が拾い優先順位になる（date を最優先で判定するのは他フィールドとの
+// キーワード衝突が最も少なく、必須項目のため確実に拾いたいため）
+const HEADER_SUGGESTION_KEYWORDS: Record<keyof ColumnMapping, string[]> = {
+  date: ["日付", "年月日", "date", "day"],
+  clockIn: ["出勤", "出社", "始業", "clock in", "clockin", "check in", "checkin"],
+  clockOut: ["退勤", "退社", "終業", "clock out", "clockout", "check out", "checkout"],
+  breakStart: ["休憩開始", "休憩入", "break start", "breakstart"],
+  breakEnd: ["休憩終了", "休憩戻", "break end", "breakend"],
+  workLog: ["作業内容", "業務内容", "備考", "work log", "worklog", "memo", "notes"],
+};
+
+/**
+ * ヘッダー文字列（表記ゆれあり）から、各フィールドの初期マッピング候補をサジェストする。
+ * あくまで初期値のサジェストであり、ユーザーはマッピングUI上で常に修正できる（Step 16の
+ * 手動確認フローは変更しない）。
+ *
+ * initialMapping で既に埋まっているフィールド（例: 保存済みマッピング）はサジェスト対象から
+ * 除外し、そのヘッダーも他フィールドの候補から除外する。こうしないと、例えば保存済み
+ * マッピングで clockIn に "Date" が割り当てられている場合に、辞書サジェストが独立に
+ * date にも "Date" を割り当ててしまい、同じヘッダーが2フィールドに重複しうる
+ * （Gemini指摘 #34）。
+ *
+ * initialMapping で埋まっていないフィールド同士でも、1つのヘッダーが複数フィールドの
+ * キーワードに一致しうるため、HEADER_SUGGESTION_KEYWORDS の列挙順で先に処理した
+ * フィールドがヘッダーを確保し、以降のフィールドの候補からは除外する。
+ */
+export function suggestColumnMapping(
+  headers: string[],
+  initialMapping: ColumnMapping = {}
+): ColumnMapping {
+  const suggestion: ColumnMapping = { ...initialMapping };
+  const usedHeaders = new Set<string>(
+    Object.values(initialMapping).filter((v): v is string => typeof v === "string")
+  );
+
+  for (const field of Object.keys(HEADER_SUGGESTION_KEYWORDS) as (keyof ColumnMapping)[]) {
+    if (suggestion[field]) continue;
+
+    const keywords = HEADER_SUGGESTION_KEYWORDS[field];
+    // HEADER_SUGGESTION_KEYWORDS のキーワードは全て小文字で定義済みのため、
+    // 比較のたびに keyword.toLowerCase() を呼ぶのは冗長（normalized 側のみ小文字化すればよい）
+    const candidate = headers.find((header) => {
+      if (usedHeaders.has(header)) return false;
+      const normalized = header.trim().toLowerCase();
+      if (!normalized) return false;
+      return keywords.some((keyword) => normalized.includes(keyword));
+    });
+    if (candidate) {
+      suggestion[field] = candidate;
+      usedHeaders.add(candidate);
+    }
+  }
+
+  return suggestion;
+}
+
 /**
  * Step 15 の中間形式（headers/rows）と列マッピングを受け取り、AttendanceRecord[] に変換する。
  * 必須列（date）が欠落・パース不能な行はスキップし、errors に理由を記録する。
