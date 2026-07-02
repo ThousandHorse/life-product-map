@@ -18,7 +18,7 @@
 import { useEffect, useState } from "react";
 import { type AttendanceRecord, type AttendanceSettings, type ColumnMapping } from "@/lib/schema";
 import { DEFAULT_BREAK_END, DEFAULT_BREAK_START, calcWorkedMinutes, formatDuration, toHHMM } from "@/lib/attendance-utils";
-import { parseSpreadsheet, type ParsedSpreadsheet } from "@/lib/attendance-import";
+import { parseSpreadsheet, mapRowsToAttendanceRecords, type ParsedSpreadsheet, type MapRowsResult } from "@/lib/attendance-import";
 import {
   Dialog,
   DialogContent,
@@ -49,8 +49,65 @@ type Props = {
   attendanceSettings: AttendanceSettings;
   onUpdateRecord: (id: string, changes: Partial<AttendanceRecord>) => void;
   onUpdateSettings: (settings: AttendanceSettings) => void;
+  onImportRecords: (records: AttendanceRecord[]) => void;
   onExport: (yearMonth: string) => void;
 };
+
+// 取り込みプレビューの1行分の分類
+type ImportDiffKind = "new" | "update" | "unchanged";
+
+type ImportDiffRow = {
+  kind: ImportDiffKind;
+  imported: AttendanceRecord;
+  existing?: AttendanceRecord;
+};
+
+/**
+ * インポートしたレコードが既存の値と実質的に同じ内容かどうかを判定する。
+ * a（インポート側）で undefined のフィールドはマッピングされていない（＝取り込み対象外）
+ * ことを意味し、実際のマージ処理では既存値がそのまま維持されるため、比較対象から除外する。
+ * 除外しないと、マッピングしていないだけのフィールドに既存値が入っていることを理由に
+ * 「上書きあり」と誤判定してしまう
+ */
+function isSameRecordContent(a: AttendanceRecord, existing: AttendanceRecord): boolean {
+  return (
+    (a.clockIn === undefined || a.clockIn === existing.clockIn) &&
+    (a.clockOut === undefined || a.clockOut === existing.clockOut) &&
+    (a.breakStart === undefined || a.breakStart === existing.breakStart) &&
+    (a.breakEnd === undefined || a.breakEnd === existing.breakEnd) &&
+    (a.workLog === undefined || a.workLog === existing.workLog)
+  );
+}
+
+/** ISO datetime を HH:MM に変換する。未設定の場合は "—" を返す（プレビュー表示用） */
+function toHHMM_orDash(isoString: string | undefined): string {
+  return isoString ? toHHMM(isoString) : "—";
+}
+
+/**
+ * インポートしたレコードと既存データを日付ベースで突き合わせ、新規/上書き/変更なしに分類する。
+ * Workspace.tsx の handleImportAttendanceRecords はループ内で existingByDate を都度更新して
+ * マージするため（同一date が複数あれば2件目以降は1件目の取り込み結果を上書きする）、
+ * プレビューの集計・分類も同じ挙動に合わせて existingByDate を動的に更新する
+ */
+function buildImportDiff(
+  importedRecords: AttendanceRecord[],
+  existingRecords: AttendanceRecord[]
+): ImportDiffRow[] {
+  const existingByDate = new Map(existingRecords.map((r) => [r.date, r]));
+  return importedRecords.map((imported) => {
+    const existing = existingByDate.get(imported.date);
+    if (!existing) {
+      existingByDate.set(imported.date, imported);
+      return { kind: "new", imported };
+    }
+    if (isSameRecordContent(imported, existing)) {
+      return { kind: "unchanged", imported, existing };
+    }
+    existingByDate.set(imported.date, imported);
+    return { kind: "update", imported, existing };
+  });
+}
 
 /** 今月から過去 n ヶ月の YYYY-MM 一覧を降順で返す */
 function buildMonthOptions(n: number): string[] {
@@ -86,6 +143,7 @@ export function AttendanceListPane({
   attendanceSettings,
   onUpdateRecord,
   onUpdateSettings,
+  onImportRecords,
   onExport,
 }: Props) {
   // サーバーとクライアントで new Date() の結果が異なるとハイドレーションエラーになるため、
@@ -101,6 +159,8 @@ export function AttendanceListPane({
   const [importError, setImportError] = useState<string | null>(null);
   // 「このマッピングを保存する」チェックボックスの状態（デフォルトON）
   const [saveMapping, setSaveMapping] = useState(true);
+  // マッピング確定後の変換結果（プレビュー表示・取り込み確定に使う）
+  const [mapResult, setMapResult] = useState<MapRowsResult | null>(null);
 
   useEffect(() => {
     setMounted(true);
@@ -170,14 +230,22 @@ export function AttendanceListPane({
   /** 必須フィールド（date）が選択されているか */
   const isMappingValid = Boolean(mapping.date);
 
-  /** マッピングを確定する。保存チェックがONなら attendanceSettings にも反映する */
+  /**
+   * マッピングを確定する。保存チェックがONなら attendanceSettings にも反映し、
+   * parsed をマッピングに従って AttendanceRecord[] に変換してプレビュー画面に進む。
+   */
   function handleConfirmMapping() {
-    if (!isMappingValid) return;
+    if (!isMappingValid || !parsed) return;
     if (saveMapping) {
       onUpdateSettings({ ...attendanceSettings, columnMapping: mapping });
     }
-    // TODO(Step 17): ここで parsed + mapping を AttendanceRecord に変換し、
-    // プレビュー・取り込み確認画面に進む
+    setMapResult(mapRowsToAttendanceRecords(parsed, mapping));
+  }
+
+  /** プレビュー確認後、「取り込む」で一括反映する */
+  function handleConfirmImport() {
+    if (!mapResult) return;
+    onImportRecords(mapResult.records);
     handleDialogOpenChange(false);
   }
 
@@ -189,6 +257,7 @@ export function AttendanceListPane({
       setParsed(null);
       setMapping({});
       setImportError(null);
+      setMapResult(null);
       // saveMapping もデフォルト(ON)に戻す。リセットしないと、一度チェックを外して
       // 確定した後は次回ダイアログを開いてもOFFのままになり、ドキュメント通りの
       // 「デフォルトON」という前提が崩れ、ユーザーが気づかないままマッピングが
@@ -231,6 +300,7 @@ export function AttendanceListPane({
               setParsed(null);
               setMapping({});
               setImportError(null);
+              setMapResult(null);
               setTemplateDialogOpen(true);
             }}
           >
@@ -396,7 +466,7 @@ export function AttendanceListPane({
             </>
           )}
 
-          {parsed && (
+          {parsed && !mapResult && (
             <>
               <p className="text-[13px] text-muted-foreground">
                 「{selectedFileName}」の各列が、どの項目に対応するか選択してください。
@@ -456,6 +526,62 @@ export function AttendanceListPane({
                   読み込む
                 </Button>
               </DialogFooter>
+            </>
+          )}
+
+          {mapResult && (
+            <>
+              {(() => {
+                const diff = buildImportDiff(mapResult.records, attendanceRecords);
+                const newCount = diff.filter((d) => d.kind === "new").length;
+                const updateCount = diff.filter((d) => d.kind === "update").length;
+                const unchangedCount = diff.filter((d) => d.kind === "unchanged").length;
+                const updateRows = diff.filter((d) => d.kind === "update");
+
+                return (
+                  <>
+                    <p className="text-[13px] text-muted-foreground">
+                      新規追加 {newCount}件・上書き {updateCount}件・変更なし {unchangedCount}件
+                    </p>
+
+                    {updateRows.length > 0 && (
+                      <div className="flex flex-col gap-1 max-h-[160px] overflow-y-auto rounded-md border border-border p-2">
+                        {updateRows.map(({ imported, existing }) => (
+                          <div key={imported.date} className="text-[12px] text-muted-foreground">
+                            <span className="font-semibold text-foreground">{imported.date}</span>
+                            {": "}
+                            {toHHMM_orDash(existing?.clockIn)} → {toHHMM_orDash(imported.clockIn)}
+                            {" / "}
+                            {toHHMM_orDash(existing?.clockOut)} → {toHHMM_orDash(imported.clockOut)}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
+                    {mapResult.errors.length > 0 && (
+                      <div className="flex flex-col gap-1 max-h-[120px] overflow-y-auto rounded-md border border-destructive/40 bg-destructive/5 p-2">
+                        <p className="text-[12px] font-semibold text-destructive">
+                          スキップされた行（{mapResult.errors.length}件）
+                        </p>
+                        {mapResult.errors.map((e, i) => (
+                          <p key={i} className="text-[12px] text-destructive">
+                            {e.row}行目: {e.reason}
+                          </p>
+                        ))}
+                      </div>
+                    )}
+
+                    <DialogFooter>
+                      <Button variant="outline" onClick={() => setMapResult(null)}>
+                        戻る
+                      </Button>
+                      <Button disabled={mapResult.records.length === 0} onClick={handleConfirmImport}>
+                        取り込む
+                      </Button>
+                    </DialogFooter>
+                  </>
+                );
+              })()}
             </>
           )}
         </DialogContent>

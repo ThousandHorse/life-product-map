@@ -206,6 +206,37 @@ export function Workspace() {
     );
   }
 
+  /**
+   * テンプレインポート（勤怠表取り込み）で確定した打刻データを一括反映する。
+   * 同じ date の既存レコードがある場合は id を維持したまま取り込んだフィールドのみ上書きし、
+   * 無い場合は importedRecords 側の id（crypto.randomUUID() 済み）で新規追加する。
+   *
+   * importedRecords 内に同じ date が複数含まれるケース（マッピングミス等で発生しうる）に
+   * 対応するため、existingByDate はループ内で都度更新する。更新しないと、同date 2件目以降が
+   * 1件目の追加を認識できずに「新規」判定のまま重複追加されてしまう
+   */
+  function handleImportAttendanceRecords(importedRecords: AttendanceRecord[]) {
+    setAttendanceRecords((prev) => {
+      const existingByDate = new Map(prev.map((r) => [r.date, r]));
+      const merged = [...prev];
+
+      for (const imported of importedRecords) {
+        const existing = existingByDate.get(imported.date);
+        if (existing) {
+          const index = merged.findIndex((r) => r.id === existing.id);
+          const updated = { ...existing, ...imported, id: existing.id };
+          merged[index] = updated;
+          existingByDate.set(imported.date, updated);
+        } else {
+          merged.push(imported);
+          existingByDate.set(imported.date, imported);
+        }
+      }
+
+      return merged;
+    });
+  }
+
   function handleAddDailyReport(date: string, reflection: string, learned: string, aiComment?: string) {
     const newReport: DailyReport = {
       id: crypto.randomUUID(),
@@ -283,6 +314,7 @@ export function Workspace() {
           attendanceSettings={attendanceSettings}
           onUpdateRecord={handleUpdateAttendanceRecord}
           onUpdateSettings={setAttendanceSettings}
+          onImportRecords={handleImportAttendanceRecords}
           onExport={(yearMonth) => exportToXlsx(yearMonth, attendanceRecords)}
         />
       )}
