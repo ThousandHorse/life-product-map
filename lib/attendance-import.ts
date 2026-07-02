@@ -199,22 +199,36 @@ const HEADER_SUGGESTION_KEYWORDS: Record<keyof ColumnMapping, string[]> = {
  * あくまで初期値のサジェストであり、ユーザーはマッピングUI上で常に修正できる（Step 16の
  * 手動確認フローは変更しない）。
  *
- * 1つのヘッダーが複数フィールドのキーワードに一致しうる（例: "休憩開始"ヘッダーは
- * breakStart 用キーワードにのみ一致するよう設計しているが、ユーザー定義の想定外の
- * ヘッダーでは衝突しうる）ため、HEADER_SUGGESTION_KEYWORDS の列挙順で先に処理した
+ * initialMapping で既に埋まっているフィールド（例: 保存済みマッピング）はサジェスト対象から
+ * 除外し、そのヘッダーも他フィールドの候補から除外する。こうしないと、例えば保存済み
+ * マッピングで clockIn に "Date" が割り当てられている場合に、辞書サジェストが独立に
+ * date にも "Date" を割り当ててしまい、同じヘッダーが2フィールドに重複しうる
+ * （Gemini指摘 #34）。
+ *
+ * initialMapping で埋まっていないフィールド同士でも、1つのヘッダーが複数フィールドの
+ * キーワードに一致しうるため、HEADER_SUGGESTION_KEYWORDS の列挙順で先に処理した
  * フィールドがヘッダーを確保し、以降のフィールドの候補からは除外する。
  */
-export function suggestColumnMapping(headers: string[]): ColumnMapping {
-  const suggestion: ColumnMapping = {};
-  const usedHeaders = new Set<string>();
+export function suggestColumnMapping(
+  headers: string[],
+  initialMapping: ColumnMapping = {}
+): ColumnMapping {
+  const suggestion: ColumnMapping = { ...initialMapping };
+  const usedHeaders = new Set<string>(
+    Object.values(initialMapping).filter((v): v is string => typeof v === "string")
+  );
 
   for (const field of Object.keys(HEADER_SUGGESTION_KEYWORDS) as (keyof ColumnMapping)[]) {
+    if (suggestion[field]) continue;
+
     const keywords = HEADER_SUGGESTION_KEYWORDS[field];
+    // HEADER_SUGGESTION_KEYWORDS のキーワードは全て小文字で定義済みのため、
+    // 比較のたびに keyword.toLowerCase() を呼ぶのは冗長（normalized 側のみ小文字化すればよい）
     const candidate = headers.find((header) => {
       if (usedHeaders.has(header)) return false;
       const normalized = header.trim().toLowerCase();
       if (!normalized) return false;
-      return keywords.some((keyword) => normalized.includes(keyword.toLowerCase()));
+      return keywords.some((keyword) => normalized.includes(keyword));
     });
     if (candidate) {
       suggestion[field] = candidate;

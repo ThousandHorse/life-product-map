@@ -206,16 +206,19 @@ export function AttendanceListPane({
    * いずれにも一致しないフィールドは未選択のままにする（サジェストが外れても手動で選べる）。
    */
   function buildInitialMapping(headers: string[]): ColumnMapping {
-    const initial: ColumnMapping = suggestColumnMapping(headers);
     const saved = attendanceSettings.columnMapping;
-    if (!saved) return initial;
-    for (const { key } of MAPPING_FIELDS) {
-      const savedHeader = saved[key];
-      if (savedHeader && headers.includes(savedHeader)) {
-        initial[key] = savedHeader;
+    const savedMapping: ColumnMapping = {};
+    if (saved) {
+      for (const { key } of MAPPING_FIELDS) {
+        const savedHeader = saved[key];
+        if (savedHeader && headers.includes(savedHeader)) {
+          savedMapping[key] = savedHeader;
+        }
       }
     }
-    return initial;
+    // 保存済みマッピングで既に埋まっているフィールド・ヘッダーはサジェスト対象から除外される
+    // （suggestColumnMapping 側の仕様。同じヘッダーが2フィールドに重複するのを防ぐ）
+    return suggestColumnMapping(headers, savedMapping);
   }
 
   /** ファイル選択時にパースし、ヘッダーからマッピングUIの初期値を組み立てる */
